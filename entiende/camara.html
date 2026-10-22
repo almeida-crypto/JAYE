@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <title>Cámara del altar · Entiende</title>
+  <link rel="stylesheet" href="css/entiende.css">
+  <link rel="stylesheet" href="css/camara.css">
+  <!-- Librerías locales (mismo servidor = una cosa menos que puede fallar en el evento).
+       defer conserva el orden: A-Frame → MindAR → nuestro código. -->
+  <script defer src="vendor/aframe-1.5.0.min.js"></script>
+  <script defer src="vendor/mindar-image-aframe-1.2.5.prod.js"></script>
+  <script defer src="js/datos.js"></script>
+  <script defer src="js/camara.js"></script>
+</head>
+<body class="camara">
+  <!-- Aquí camara.js inserta la escena de A-Frame + MindAR (video de la cámara) -->
+  <div id="ar" aria-hidden="true"></div>
+
+  <!-- Capa de etiquetas que siguen a cada tarjeta -->
+  <div id="etiquetas"></div>
+
+  <!-- Barra superior -->
+  <div class="barra">
+    <a href="index.html" class="icono" aria-label="Volver">←</a>
+    <span class="titulo">Entiende el altar</span>
+    <a href="foto.html" class="enlace-foto">Ver foto</a>
+  </div>
+
+  <!-- Indicación mientras busca -->
+  <div id="guia" class="guia" hidden>
+    <div class="marco" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <p id="guia-texto">Apunta la cámara a una tarjeta del altar</p>
+  </div>
+
+  <!-- Pantalla de inicio / carga / error -->
+  <section id="inicio" class="inicio">
+    <div class="papel-picado" aria-hidden="true"></div>
+    <div class="inicio-contenido">
+      <p class="eyebrow">Janal Pixan</p>
+      <h1>Apunta, toca y entiende</h1>
+      <ol class="pasos">
+        <li>Permite el uso de la cámara.</li>
+        <li>Apunta a una de las tarjetas decoradas del altar.</li>
+        <li>Toca el nombre que aparece para saber qué es y por qué está ahí.</li>
+      </ol>
+      <div id="estado" class="estado" role="status" aria-live="polite"></div>
+      <button id="btn-iniciar" class="boton" disabled>Cargando…</button>
+      <a class="boton secundario" href="foto.html">Ver la foto del altar</a>
+    </div>
+  </section>
+</body>
+</html>

@@ -1,0 +1,123 @@
+/* Entiende — estilos comunes (mobile-first) */
+:root {
+  --fondo: #160f1f;
+  --fondo-2: #23182f;
+  --texto: #fbf3e6;
+  --texto-suave: #cdbfd6;
+  --naranja: #f5a02a;   /* xpujuk */
+  --rosa: #e2457a;      /* papel picado */
+  --morado: #7c4dbd;
+  --borde: rgba(255, 255, 255, 0.14);
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --radio: 18px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a { color: var(--naranja); }
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 52px;
+  padding: 0 1.4em;
+  border: 0;
+  border-radius: 999px;
+  background: var(--naranja);
+  color: #2a1606;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.boton:disabled { opacity: 0.5; cursor: wait; }
+.boton.secundario {
+  background: transparent;
+  color: var(--texto);
+  border: 1.5px solid var(--borde);
+}
+
+/* Franja de papel picado (decorativa, CSS puro, sin imágenes) */
+.papel-picado {
+  height: 34px;
+  background:
+    radial-gradient(circle at 50% 40%, var(--fondo) 5px, transparent 6px) 0 0 / 28px 34px,
+    linear-gradient(135deg, transparent 40%, var(--fondo) 41% 59%, transparent 60%) 0 22px / 28px 12px,
+    linear-gradient(90deg, var(--rosa), var(--naranja), var(--morado), var(--rosa));
+  clip-path: polygon(0 0, 100% 0, 100% 75%, 97% 100%, 94% 75%, 91% 100%, 88% 75%, 85% 100%, 82% 75%, 79% 100%, 76% 75%, 73% 100%, 70% 75%, 67% 100%, 64% 75%, 61% 100%, 58% 75%, 55% 100%, 52% 75%, 49% 100%, 46% 75%, 43% 100%, 40% 75%, 37% 100%, 34% 75%, 31% 100%, 28% 75%, 25% 100%, 22% 75%, 19% 100%, 16% 75%, 13% 100%, 10% 75%, 7% 100%, 4% 75%, 1% 100%, 0 75%);
+}
+
+/* ---------- Ficha (hoja inferior con la explicación) ---------- */
+.ficha-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(10, 6, 14, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.ficha-fondo.abierta { opacity: 1; pointer-events: auto; }
+
+.ficha {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 51;
+  max-height: 78vh;
+  overflow-y: auto;
+  padding: 10px 20px calc(24px + env(safe-area-inset-bottom));
+  background: var(--fondo-2);
+  border-radius: var(--radio) var(--radio) 0 0;
+  box-shadow: var(--sombra);
+  transform: translateY(105%);
+  transition: transform 0.25s ease-out;
+}
+.ficha.abierta { transform: translateY(0); }
+.ficha .agarre {
+  width: 44px; height: 5px; margin: 0 auto 14px;
+  border-radius: 9px; background: var(--borde);
+}
+.ficha h2 { margin: 0; font-size: 1.45rem; }
+.ficha .maya {
+  margin: 4px 0 14px;
+  color: var(--naranja);
+  font-weight: 600;
+}
+.ficha .maya small { color: var(--texto-suave); font-weight: 400; }
+.ficha h3 {
+  margin: 16px 0 4px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+.ficha p { margin: 0; font-size: 1.02rem; }
+.ficha img.foto-elemento {
+  width: 100%; max-height: 200px; object-fit: cover;
+  border-radius: 12px; margin-bottom: 12px;
+}
+.ficha .acciones { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.ficha .borrador {
+  margin-top: 16px; font-size: 0.8rem; color: var(--texto-suave);
+}
+
+.aviso-error {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(226, 69, 122, 0.15);
+  border: 1px solid var(--rosa);
+}

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compilar tarjetas · Entiende</title>
+  <link rel="stylesheet" href="../css/entiende.css">
+  <style>
+    main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { margin: 0 0 6px; }
+    .nota { color: var(--texto-suave); }
+    .zona {
+      margin: 18px 0; padding: 22px; border: 2px dashed var(--borde); border-radius: var(--radio);
+      text-align: center; background: var(--fondo-2);
+    }
+    .lista { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+    .lista li { background: var(--fondo-2); border-radius: 12px; padding: 8px; text-align: center; font-size: .9rem; }
+    .lista img { width: 100%; height: 140px; object-fit: contain; background: #fff; border-radius: 8px; }
+    .lista b { color: var(--naranja); display: block; margin-top: 6px; }
+    .lista .mover { display: flex; gap: 6px; justify-content: center; margin-top: 6px; }
+    .lista .mover button { min-width: 40px; min-height: 36px; border-radius: 8px; border: 1px solid var(--borde); background: transparent; color: var(--texto); cursor: pointer; }
+    progress { width: 100%; height: 14px; }
+    .acciones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    code { background: #0006; padding: 1px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Compilar tarjetas → targets.mind</h1>
+    <p class="nota">Herramienta interna del equipo (no se enlaza desde el sitio). Sube las imágenes de las tarjetas
+      <b>en orden</b>: la primera será <code>targetIndex: 0</code>, la segunda <code>1</code>, etc. Ese número es el que va en
+      <code>data/elementos.json → camara.targetIndex</code>.</p>
+
+    <div class="zona">
+      <input type="file" id="archivos" accept="image/png,image/jpeg" multiple>
+      <p class="nota">PNG o JPG, idealmente el mismo archivo que se imprime (≈ 1000 px de ancho).</p>
+    </div>
+
+    <ul class="lista" id="lista"></ul>
+
+    <div class="acciones">
+      <button class="boton" id="btn-compilar" disabled>Compilar</button>
+      <a class="boton secundario" id="btn-descargar" hidden download="targets.mind">Descargar targets.mind</a>
+    </div>
+    <p id="estado" class="nota"></p>
+    <progress id="progreso" value="0" max="100" hidden></progress>
+
+    <p class="nota">Después: guarda el archivo en <code>entiende/targets/targets.mind</code> (reemplaza el anterior) y súbelo al repositorio.</p>
+  </main>
+
+  <script src="../vendor/aframe-1.5.0.min.js"></script>
+  <script src="../vendor/mindar-image-aframe-1.2.5.prod.js"></script>
+  <script>
+    (function () {
+      var imagenes = []; // { nombre, url }
+      var lista = document.getElementById('lista');
+      var btnCompilar = document.getElementById('btn-compilar');
+      var btnDescargar = document.getElementById('btn-descargar');
+      var estado = document.getElementById('estado');
+      var progreso = document.getElementById('progreso');
+
+      document.getElementById('archivos').addEventListener('change', function (e) {
+        Array.prototype.forEach.call(e.target.files, function (f) {
+          imagenes.push({ nombre: f.name, url: URL.createObjectURL(f) });
+        });
+        e.target.value = '';
+        pintar();
+      });
+
+      function pintar() {
+        lista.innerHTML = '';
+        imagenes.forEach(function (img, i) {
+          var li = document.createElement('li');
+          li.innerHTML = '<img src="' + img.url + '" alt=""><b>targetIndex: ' + i + '</b>' +
+            '<div>' + img.nombre.replace(/</g, '&lt;') + '</div>' +
+            '<div class="mover"><button data-d="-1" aria-label="Mover antes">◀</button>' +
+            '<button data-d="0" aria-label="Quitar">✕</button>' +
+            '<button data-d="1" aria-label="Mover después">▶</button></div>';
+          li.querySelectorAll('button').forEach(function (b) {
+            b.addEventListener('click', function () {
+              var d = +b.dataset.d;
+              if (d === 0) imagenes.splice(i, 1);
+              else if (imagenes[i + d]) { var t = imagenes[i]; imagenes[i] = imagenes[i + d]; imagenes[i + d] = t; }
+              pintar();
+            });
+          });
+          lista.appendChild(li);
+        });
+        btnCompilar.disabled = !imagenes.length;
+        btnDescargar.hidden = true;
+      }
+
+      function cargar(url) {
+        return new Promise(function (ok, mal) {
+          var im = new Image();
+          im.onload = function () { ok(im); };
+          im.onerror = mal;
+          im.src = url;
+        });
+      }
+
+      // Reduce la imagen antes de compilar: el .mind crece mucho con la resolución
+      // (≈ 750 KB por tarjeta a 1000×1400 px). Con ~600 px de lado mayor queda mucho más ligero
+      // y se reconoce igual a la distancia normal de un visitante.
+      var LADO_MAX = 600;
+      function reducir(im) {
+        var esc = Math.min(1, LADO_MAX / Math.max(im.naturalWidth, im.naturalHeight));
+        if (esc === 1) return Promise.resolve(im);
+        var c = document.createElement('canvas');
+        c.width = Math.round(im.naturalWidth * esc);
+        c.height = Math.round(im.naturalHeight * esc);
+        var ctx = c.getContext('2d');
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(im, 0, 0, c.width, c.height);
+        return cargar(c.toDataURL('image/png'));
+      }
+
+      // Expuesto para poder compilar desde scripts de prueba
+      window.compilarTarjetas = async function (urls, alAvanzar) {
+        var imgs = await Promise.all(urls.map(function (u) { return cargar(u).then(reducir); }));
+        var compilador = new window.MINDAR.IMAGE.Compiler();
+        await compilador.compileImageTargets(imgs, alAvanzar || function () {});
+        return compilador.exportData(); // Uint8Array / ArrayBuffer
+      };
+
+      btnCompilar.addEventListener('click', async function () {
+        btnCompilar.disabled = true;
+        progreso.hidden = false;
+        estado.textContent = 'Compilando… (puede tardar un minuto por tarjeta en celulares)';
+        try {
+          var datos = await window.compilarTarjetas(imagenes.map(function (i) { return i.url; }), function (p) {
+            progreso.value = p;
+          });
+          var blob = new Blob([datos]);
+          btnDescargar.href = URL.createObjectURL(blob);
+          btnDescargar.hidden = false;
+          estado.textContent = 'Listo: ' + imagenes.length + ' tarjeta(s), ' + Math.round(blob.size / 1024) + ' KB.';
+        } catch (e) {
+          estado.textContent = 'Error al compilar: ' + e.message;
+        }
+        btnCompilar.disabled = false;
+      });
+    })();
+  </script>
+</body>
+</html>
