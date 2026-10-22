@@ -27,7 +27,7 @@ Tiene los **38 elementos** del altar, con los números de nuestra planeación (1
   "porQue":   { "es": "…", "en": "…" },      // por qué va en el altar yucateco
   "historia": { "es": "…", "en": "…" },      // un poco de historia
   "fuentes": ["uady-pixan", "uady-dicc"],    // claves de "fuentes" (título + URL)
-  "camara": { "zona": "comida", "targetIndex": 0 },   // Entiende
+  "camara": { "zona": "comida", "targetIndex": 12 },  // Entiende: parte del altar (color) y posición en altar.mind
   "foto": { "x": 50, "y": 47 },              // Entiende: punto en la foto (%) o null
   "imagen": "", "audio": "",                 // opcionales
   "verificado": false

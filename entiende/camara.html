@@ -24,7 +24,7 @@
   <!-- Barra superior -->
   <div class="barra">
     <a href="index.html" class="icono" aria-label="←">←</a>
-    <span class="titulo" id="titulo-zona"></span>
+    <span class="titulo" data-t="tituloEntiende"></span>
     <div data-idioma></div>
     <a href="foto.html" class="enlace-foto" data-t="verFotoCorto">Ver foto</a>
   </div>
@@ -34,9 +34,6 @@
     <div class="marco" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <p id="guia-texto"></p>
   </div>
-
-  <!-- Cambiar de parte del altar sin salir -->
-  <nav id="zonas-ar" class="zonas zonas-ar" hidden></nav>
 
   <!-- Pantalla de inicio / carga / error -->
   <section id="inicio" class="inicio">
@@ -49,8 +46,6 @@
         <li data-t="paso2"></li>
         <li data-t="paso3"></li>
       </ol>
-      <p class="etiqueta-zonas" data-t="parteAltar"></p>
-      <nav id="zonas" class="zonas"></nav>
       <div id="estado" class="estado" role="status" aria-live="polite"></div>
       <button id="btn-iniciar" class="boton" disabled>Cargando…</button>
       <a class="boton secundario" href="foto.html" data-t="verFoto"></a>

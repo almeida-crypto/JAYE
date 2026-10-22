@@ -1,38 +1,38 @@
 /*
  * Entiende, opción 2: cámara con marcadores de imagen (MindAR + A-Frame).
  *
- * El altar se divide en "zonas" (partes). Cada zona tiene su propio archivo
- * targets/<zona>.mind con sus tarjetas; así la página carga menos y reconoce más rápido.
- * Cada elemento de data/elementos.json tiene camara.zona y camara.targetIndex
- * (posición de su tarjeta dentro del .mind de esa zona).
+ * Las 38 tarjetas están en un solo archivo, targets/altar.mind. Cada elemento de
+ * data/elementos.json tiene camara.targetIndex = posición de su tarjeta en ese archivo
+ * (00-mantel.png es el 0, 01-hojas-platano.png el 1, etc.).
+ * El archivo se descarga al abrir la página (con porcentaje) para que, al encender la
+ * cámara, ya esté en caché.
  *
- * URL: camara.html?zona=comida&lang=en   (auto=1 enciende la cámara sin pedir el botón)
+ * URL: camara.html?lang=en
  */
 (function () {
   'use strict';
 
   var CONFIG = {
-    carpetaTargets: 'targets/',   // targets/<zona>.mind, generado con herramientas/compilar.html
-    maxTrack: 2,                  // cuántas tarjetas se siguen a la vez (más = más lento)
-    ocultarTras: 500,             // ms que la etiqueta sigue visible tras perder la tarjeta
-    pistaTras: 15000              // ms sin detectar nada antes de mostrar consejos
+    targets: 'targets/altar.mind',  // generado con herramientas/compilar.html (todas las tarjetas, en orden)
+    maxTrack: 2,                    // cuántas tarjetas se siguen a la vez (más = más lento)
+    ocultarTras: 500,               // ms que la etiqueta sigue visible tras perder la tarjeta
+    pistaTras: 15000                // ms sin detectar nada antes de mostrar consejos
   };
 
   var $ = function (id) { return document.getElementById(id); };
   var inicio = $('inicio'), estado = $('estado'), btn = $('btn-iniciar');
   var guia = $('guia'), guiaTexto = $('guia-texto'), capa = $('etiquetas');
-  var navZonas = $('zonas'), navZonasAR = $('zonas-ar'), tituloZona = $('titulo-zona');
 
-  var params = new URLSearchParams(location.search);
-  var datos = null, zona = null, escena = null;
+  var datos = null, escena = null;
   var seguidos = [];   // { el, ancla, etiqueta, visible, perdidoEn }
-  var corriendo = false, temporizadorPista = null, vec = null, estadoBoton = 'cargando';
+  var corriendo = false, temporizadorPista = null, vec = null, estadoBoton = 'cargando', porcentaje = null;
+  var escenaLista = false, archivoListo = false;
 
   function tx(k) { return Entiende.tx(k); }
   function mostrarEstado(html) { estado.innerHTML = html; }
   function ponerBoton(clave, activo) {
     estadoBoton = clave;
-    btn.textContent = tx(clave);
+    btn.textContent = tx(clave) + (clave === 'descargando' && porcentaje != null ? ' ' + porcentaje + '%' : '');
     btn.disabled = !activo;
   }
   function error(msg) {
@@ -40,7 +40,6 @@
     ponerBoton('reintentar', true);
     inicio.hidden = false;
     guia.hidden = true;
-    navZonasAR.hidden = true;
   }
 
   // ---------- 1. Comprobaciones previas ----------
@@ -48,86 +47,66 @@
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { error(tx('errNavegador')); btn.disabled = true; return; }
   if (!window.AFRAME || !window.MINDAR) { error(tx('errLibs')); btn.disabled = true; return; }
 
-  // ---------- 2. Cargar datos ----------
+  // ---------- 2. Cargar datos y descargar las tarjetas ----------
   Entiende.cargarDatos().then(function (d) {
     datos = d;
-    var zonas = Object.keys(d.zonas);
-    zona = zonas.indexOf(params.get('zona')) >= 0 ? params.get('zona') : zonas[0];
-    pintarZonas();
     prepararEscena();
+    descargarTarjetas();
   }).catch(function (e) {
     error(tx('errPreparar') + Entiende.esc(e.message));
   });
 
+  // Descarga altar.mind mostrando el avance; MindAR lo vuelve a pedir y lo toma de la caché
+  function descargarTarjetas() {
+    porcentaje = 0;
+    ponerBoton('descargando', false);
+    fetch(CONFIG.targets, { cache: 'force-cache' }).then(function (r) {
+      if (!r.ok) throw new Error(CONFIG.targets + ' (' + r.status + ')');
+      var total = +r.headers.get('Content-Length') || 0;
+      if (!r.body || !total) return r.arrayBuffer();
+      var lector = r.body.getReader(), recibido = 0;
+      return (function leer() {
+        return lector.read().then(function (p) {
+          if (p.done) return;
+          recibido += p.value.length;
+          porcentaje = Math.min(99, Math.round(recibido / total * 100));
+          ponerBoton('descargando', false);
+          return leer();
+        });
+      })();
+    }).then(function () {
+      archivoListo = true;
+      porcentaje = null;
+      if (escenaLista) ponerBoton('activar', true);
+    }).catch(function (e) {
+      // Si la descarga previa falla, MindAR lo intentará igual al encender la cámara
+      archivoListo = true;
+      porcentaje = null;
+      if (escenaLista) ponerBoton('activar', true);
+      console.warn('No se pudo precargar', e);
+    });
+  }
+
   document.addEventListener('idioma:cambio', function () {
     if (!datos) return;
-    pintarZonas();
     ponerBoton(estadoBoton, !btn.disabled);
     seguidos.forEach(function (s) { pintarEtiqueta(s); });
     actualizarGuia();
   });
 
-  function pintarZonas() {
-    [navZonas, navZonasAR].forEach(function (nav) {
-      nav.innerHTML = '';
-      Object.keys(datos.zonas).forEach(function (z) {
-        var info = datos.zonas[z];
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'zona';
-        b.style.setProperty('--color-zona', info.color);
-        b.innerHTML = '<i aria-hidden="true"></i>' + Entiende.esc(Entiende.t(info));
-        if (z === zona) b.setAttribute('aria-current', 'true');
-        b.addEventListener('click', function () { elegirZona(z); });
-        nav.appendChild(b);
-      });
-    });
-    tituloZona.textContent = Entiende.t(datos.zonas[zona]);
-  }
-
-  function elegirZona(z) {
-    if (z === zona) return;
-    if (corriendo) {
-      // Con la cámara ya encendida, lo más fiable es recargar con la nueva zona
-      var url = new URL(location.href);
-      url.searchParams.set('zona', z);
-      url.searchParams.set('auto', '1');
-      url.searchParams.set('lang', Entiende.idioma);
-      location.replace(url);
-      return;
-    }
-    zona = z;
-    var url2 = new URL(location.href);
-    url2.searchParams.set('zona', z);
-    history.replaceState(null, '', url2);
-    pintarZonas();
-    prepararEscena();
-  }
-
-  // ---------- 3. Escena de A-Frame + MindAR para la zona elegida ----------
+  // ---------- 3. Escena de A-Frame + MindAR con todas las tarjetas ----------
   function prepararEscena() {
-    if (escena) {
-      // MindAR intenta apagar la cámara al quitar la escena; si nunca se encendió, eso falla
-      var sis = escena.systems['mindar-image-system'];
-      if (sis && !sis.video) sis.stop = function () {};
-      escena.parentNode.removeChild(escena);
-      escena = null;
-    }
-    capa.innerHTML = '';
-    seguidos = [];
-    ponerBoton('cargando', false);
-
     var elementos = datos.elementos.filter(function (el) {
-      return el.camara && el.camara.zona === zona && typeof el.camara.targetIndex === 'number';
+      return el.camara && typeof el.camara.targetIndex === 'number';
     });
-    if (!elementos.length) { error(tx('errPreparar') + 'zona sin tarjetas'); return; }
+    if (!elementos.length) { error(tx('errPreparar') + 'sin tarjetas'); return; }
 
     var THREE = AFRAME.THREE;
     vec = new THREE.Vector3();
 
     escena = document.createElement('a-scene');
     escena.setAttribute('mindar-image',
-      'imageTargetSrc: ' + CONFIG.carpetaTargets + zona + '.mind' +
+      'imageTargetSrc: ' + CONFIG.targets +
       '; maxTrack: ' + CONFIG.maxTrack +
       '; autoStart: false; uiLoading: no; uiScanning: no; uiError: no' +
       '; filterMinCF: 0.0001; filterBeta: 0.001');
@@ -166,7 +145,6 @@
 
     escena.addEventListener('arReady', function () {
       inicio.hidden = true;
-      navZonasAR.hidden = false;
       corriendo = true;
       actualizarGuia();
       requestAnimationFrame(bucle);
@@ -174,8 +152,8 @@
     escena.addEventListener('arError', function () { corriendo = false; error(tx('errCamara')); });
 
     var listo = function () {
-      ponerBoton('activar', true);
-      if (params.get('auto') === '1') { params.delete('auto'); iniciar(); }
+      escenaLista = true;
+      if (archivoListo) ponerBoton('activar', true);
     };
     escena.addEventListener('loaded', listo);
     $('ar').appendChild(escena);

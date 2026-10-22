@@ -11,9 +11,9 @@ Toda la interfaz se puede ver en **español o inglés** (botón ES | EN). El idi
 | Página | Qué hace |
 |---|---|
 | `index.html` | Elegir entre cámara o foto |
-| `camara.html` | **Opción 2 (prioridad):** cámara con marcadores de imagen (MindAR + A-Frame), por partes del altar |
+| `camara.html` | **Opción 2 (prioridad):** cámara con marcadores de imagen (MindAR + A-Frame), reconoce las 38 tarjetas |
 | `foto.html` | **Opción 1 (respaldo):** foto del altar con puntos + lista de los 38 elementos por categoría |
-| `herramientas/compilar.html` | Herramienta interna: convierte las tarjetas de una zona en `targets/<zona>.mind` |
+| `herramientas/compilar.html` | Herramienta interna: convierte las 38 tarjetas en `targets/altar.mind` |
 | `herramientas/generar_tarjetas.py` | Genera las 38 tarjetas (estilo bordado de hipil) |
 
 Todo el texto sale de **`/data/elementos.json`**, el mismo archivo que usan Juega y Aprende.
@@ -22,33 +22,22 @@ Todo el texto sale de **`/data/elementos.json`**, el mismo archivo que usan Jueg
 
 Hay una por elemento: 38 en total, con el estilo del Hanal Pixán yucateco. Tienen bordado de punto de cruz (*xokbil chuuy*), flores de hipil, papel picado y el ícono del elemento bordado. A propósito no llevan calaveritas ni cempasúchil, porque no son parte del Hanal Pixán tradicional.
 
-- `targets/tarjetas/<zona>/NN-<id>.png` son las imágenes originales (1000 × 1400 px).
+- `targets/tarjetas/NN-<id>.png` son las imágenes originales (1000 × 1400 px).
 - `targets/tarjetas-para-imprimir.pdf` trae las 38 tarjetas listas para imprimir: 4 por hoja carta, de 9 × 12.6 cm cada una. Imprímanlas **en mate**, sin brillo.
 
-### Partes del altar (zonas)
+### Un solo archivo para todas las tarjetas
 
-Reconocer 38 tarjetas a la vez sería lento y pesado en el celular. Por eso el altar se divide en 6 partes, y cada una tiene su propio archivo `targets/<zona>.mind`. El color del papel picado de cada tarjeta indica a qué parte pertenece. En la cámara, el visitante elige esa parte con los botones del mismo color.
+Las 38 tarjetas están compiladas juntas en `targets/altar.mind`. El visitante solo apunta a cualquier tarjeta y no tiene que elegir nada. La página descarga ese archivo al abrirse y el botón muestra el porcentaje; después queda en caché.
 
-| Zona | Color | Elementos |
-|---|---|---|
-| `base` | verde | mantel, hojas de plátano, cruz verde, rosario, fotografía, objetos |
-| `luz` | naranja | velas, incienso, incensario, flores, cal, jícaras con bejuco |
-| `comida` | rojo | pib, tamales, relleno negro, frijol con puerco, escabeche, pan |
-| `frutas` | rosa | china, mandarina, plátano, yuca, dulce de calabaza, jícama, dulce de coco, cocoyol, miel |
-| `bebidas` | azul | aguardiente, chocolate, atole nuevo, cigarros, lek, platos de barro |
-| `ropa` | morado | tortear, comal, filipina, pantalón, alpargatas |
-
-Tip para el altar: coloquen juntas las tarjetas de una misma parte. Así el visitante no tiene que cambiar de zona a cada rato.
+El color del papel picado de cada tarjeta indica la parte del altar a la que pertenece (verde: mesa y cruz, naranja: luz y camino, rojo: comida, rosa: frutas y dulces, azul: bebidas y recipientes, morado: ropa y cocina). Sirve para acomodarlas, pero la cámara no lo necesita.
 
 ### Cambiar o agregar tarjetas
 
-1. Edita el elemento en `data/elementos.json`. Para regenerar el JSON completo se usó un script; si solo cambias un texto, edita el JSON directamente.
-2. `python herramientas/generar_tarjetas.py` vuelve a dibujar las tarjetas. Se necesita `pip install pillow`.
+1. Edita el elemento en `data/elementos.json`. `camara.targetIndex` es la posición de su tarjeta (0 a 37).
+2. Corre `python herramientas/generar_tarjetas.py` para volver a dibujar las tarjetas. Necesita `pip install pillow`. Se guardan como `targets/tarjetas/NN-<id>.png`, donde NN es el `targetIndex`.
 3. Sirve el sitio en local y abre `http://localhost:8000/entiende/herramientas/compilar.html`.
-4. Elige la zona, sube **todas** las tarjetas de esa carpeta en orden (00, 01, 02…), compila y descarga `<zona>.mind`.
-5. Reemplaza `targets/<zona>.mind`.
-
-El número `NN` del archivo es el `camara.targetIndex` del elemento. `generar_tarjetas.py` ya los asigna en orden dentro de cada zona.
+4. Selecciona **todas** las tarjetas de `targets/tarjetas/`; quedan ordenadas por nombre. Compila y descarga `altar.mind`.
+5. Reemplaza `targets/altar.mind`.
 
 ## Probar en tu computadora
 
@@ -58,7 +47,7 @@ La cámara solo abre con **HTTPS o localhost**. Desde la raíz del repositorio:
 python -m http.server 8000
 ```
 
-Abre `http://localhost:8000/entiende/`. Para probar la cámara, abre una tarjeta en otra pantalla, por ejemplo `targets/tarjetas/frutas/00-china.png`, elige su zona y apúntale con la webcam.
+Abre `http://localhost:8000/entiende/`. Para probar la cámara, abre una tarjeta en otra pantalla, por ejemplo `targets/tarjetas/18-china.png`, y apúntale con la webcam.
 
 En el celular: `https://almeida-crypto.github.io/JAYE/entiende/` (GitHub Pages).
 
@@ -72,7 +61,7 @@ En el celular: `https://almeida-crypto.github.io/JAYE/entiende/` (GitHub Pages).
 
 ```js
 var CONFIG = {
-  carpetaTargets: 'targets/',  // targets/<zona>.mind
+  targets: 'targets/altar.mind',  // las 38 tarjetas, en orden
   maxTrack: 2,                 // tarjetas seguidas a la vez; subirlo lo vuelve más lento
   ocultarTras: 500,            // ms que la etiqueta tarda en ocultarse al perder la tarjeta
   pistaTras: 15000             // ms sin detectar antes de mostrar consejos
@@ -84,14 +73,13 @@ var CONFIG = {
 | Archivo | Tamaño | Comprimido (gzip) |
 |---|---|---|
 | A-Frame + MindAR | 3.1 MB | ≈ 0.67 MB |
-| Un `<zona>.mind` | 2.0–3.7 MB | ≈ 0.8–1.4 MB |
+| `altar.mind` (38 tarjetas) | 8.8 MB | ≈ 3 MB |
 
-Solo se descarga el `.mind` de la zona elegida. Las librerías y los `.mind` quedan en caché del navegador después de la primera vez.
+Todo queda en caché del navegador después de la primera vez. Para el evento, abran la página en sus celulares antes de que lleguen los jueces, así ya está descargada.
 
 ## Verificado
 
-- En Chromium, con una cámara simulada, reconoce dos tarjetas de la zona «frutas» en unos 4 segundos sin confundirlas. Con otra zona elegida, no reconoce tarjetas de una zona distinta.
-- Cambiar de zona con la cámara encendida recarga la página y vuelve a abrir la cámara sola.
+- En Chromium, con una cámara simulada y las 38 tarjetas cargadas, reconoció correctamente tarjetas del principio, la mitad y el final de la lista (mantel, escabeche, cocoyol, atole, alpargatas). Tardó unos 5 segundos, contando el encendido de la cámara.
 - El cambio de idioma funciona en las tres páginas y en la ficha.
 - **Pendiente con el equipo:** imprimir en mate y probar con la luz real del altar, en al menos dos celulares (iPhone y Android) y con la red de la universidad.
 

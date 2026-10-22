@@ -4,11 +4,11 @@ bordado de punto de cruz (xokbil chuuy) como en los hipiles, flores de xpujuk, p
 y grecas mayas. (Sin calaveritas ni cempasúchil: no son parte del Hanal Pixán tradicional.)
 
 Uso:   python generar_tarjetas.py            (requiere: pip install pillow)
-Salida: ../targets/tarjetas/<zona>/<NN>-<id>.png   (1000 x 1400 px ≈ 10 x 14 cm)
+Salida: ../targets/tarjetas/<NN>-<id>.png   (1000 x 1400 px ≈ 10 x 14 cm; NN = camara.targetIndex)
 
 Para que la cámara las distinga, cada tarjeta tiene un ícono propio bordado, una
-distribución de flores única (semilla = id) y su nombre. Las tarjetas se compilan por zona
-(un archivo .mind por zona) con herramientas/compilar.html.
+distribución de flores única (semilla = id) y su nombre. El color del papel picado indica la
+parte del altar. Todas se compilan juntas, en orden, en targets/altar.mind con herramientas/compilar.html.
 """
 import json
 import math
@@ -32,6 +32,7 @@ HILO = {
     "morado": "#7a3fa0", "lila": "#b48ad6", "cafe": "#7b4a1e", "cafeclaro": "#c2884a",
     "negro": "#1b1214", "blanco": "#fbf6ea", "gris": "#9a8f86", "crema": "#efe2c4",
 }
+PUESTOS = 20      # motivos bordados alrededor del medallón (más = más detalle, pero .mind más pesado)
 ZONA_COLOR = {
     "base": ("#2e8b3d", "#c8102e"), "luz": ("#f08a1c", "#7a3fa0"), "comida": ("#c8102e", "#ffc72c"),
     "frutas": ("#e2457a", "#2e8b3d"), "bebidas": ("#1f6fb2", "#f08a1c"), "ropa": ("#7a3fa0", "#2e8b3d"),
@@ -406,7 +407,7 @@ def tarjeta(el, idx_zona, total_zona):
     d = ImageDraw.Draw(im)
 
     # 1) Trama de la manta: líneas finas irregulares (textura)
-    for _ in range(260):
+    for _ in range(0):
         y = rnd.randint(0, ALTO); x = rnd.randint(0, ANCHO); l = rnd.randint(20, 90)
         d.line([(x, y), (x + l, y + rnd.randint(-2, 2))], fill="#e3d6bb", width=1)
 
@@ -415,7 +416,7 @@ def tarjeta(el, idx_zona, total_zona):
     cx, cy, R = ANCHO // 2, 640, 350
     puestos = 0
     intentos = 0
-    while puestos < 45 and intentos < 4000:
+    while puestos < PUESTOS and intentos < 4000:
         intentos += 1
         t = rnd.choice([8, 10, 12, 14])
         x, y = rnd.randint(10, ANCHO - 6 * t), rnd.randint(150, 1060)
@@ -479,7 +480,7 @@ def tarjeta(el, idx_zona, total_zona):
     d.text((40, 1352), etiqueta, font=f3, fill="#6b5e55")
     d.text((ANCHO - 40 - d.textlength("Hanal Pixán", font=f3), 1352), "Hanal Pixán", font=f3, fill="#6b5e55")
 
-    carpeta = os.path.join(SALIDA, el["camara"]["zona"])
+    carpeta = SALIDA
     os.makedirs(carpeta, exist_ok=True)
     ruta = os.path.join(carpeta, "%02d-%s.png" % (el["camara"]["targetIndex"], el["id"]))
     im.save(ruta, optimize=True)
