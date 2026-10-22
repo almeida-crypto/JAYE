@@ -8,42 +8,42 @@
   <link rel="stylesheet" href="css/entiende.css">
   <style>
     header { padding: 16px 16px 6px; max-width: 760px; margin: 0 auto; }
+    header .fila { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
     header h1 { margin: 0; font-size: 1.5rem; }
-    header p { margin: 4px 0 0; color: var(--texto-suave); }
+    header p { margin: 6px 0 0; color: var(--texto-suave); }
     .contenedor { max-width: 760px; margin: 12px auto 0; padding: 0 16px; }
     .foto-altar { position: relative; border-radius: var(--radio); overflow: hidden; box-shadow: var(--sombra); }
     .foto-altar img { display: block; width: 100%; height: auto; }
 
     .punto {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      width: 44px; height: 44px;          /* área táctil cómoda */
-      border: 0; padding: 0; background: none; cursor: pointer;
+      position: absolute; transform: translate(-50%, -50%);
+      width: 44px; height: 44px; border: 0; padding: 0; background: none; cursor: pointer;
     }
-    .punto::before {                       /* halo que late */
+    .punto::before {
       content: ""; position: absolute; inset: 6px; border-radius: 50%;
-      background: var(--naranja); opacity: .45;
-      animation: latido 1.8s ease-out infinite;
+      background: var(--naranja); opacity: .45; animation: latido 1.8s ease-out infinite;
     }
-    .punto::after {                        /* centro */
-      content: attr(data-n); position: absolute; inset: 11px; border-radius: 50%;
+    .punto::after {
+      content: attr(data-n); position: absolute; inset: 9px; border-radius: 50%;
       background: var(--naranja); color: #2a1606; border: 2px solid #fff;
-      font: 700 12px/18px system-ui, sans-serif; text-align: center;
+      font: 700 11px/22px system-ui, sans-serif; text-align: center;
     }
     .punto:focus-visible { outline: 3px solid #fff; border-radius: 50%; }
     @keyframes latido { 0% { transform: scale(.7); opacity: .6 } 100% { transform: scale(1.7); opacity: 0 } }
     @media (prefers-reduced-motion: reduce) { .punto::before { animation: none } }
 
-    .lista { list-style: none; padding: 0; margin: 18px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grupo h2 { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--naranja); margin: 22px 0 8px; }
+    .lista { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .lista button {
-      width: 100%; min-height: 48px; text-align: left; padding: 8px 12px;
+      width: 100%; min-height: 52px; text-align: left; padding: 8px 12px;
       border-radius: 12px; border: 1px solid var(--borde); background: var(--fondo-2);
       color: var(--texto); font: inherit; cursor: pointer;
     }
-    .lista b { color: var(--naranja); margin-right: 6px; }
-    footer { max-width: 760px; margin: 0 auto; padding: 20px 16px 36px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .lista b { color: var(--naranja); margin-right: 6px; font-size: .85rem; }
+    .lista small { display: block; color: var(--texto-suave); font-size: .8rem; }
+    @media (min-width: 640px) { .lista { grid-template-columns: 1fr 1fr 1fr; } }
+    footer { max-width: 760px; margin: 0 auto; padding: 24px 16px 36px; display: flex; gap: 10px; flex-wrap: wrap; }
 
-    /* Modo edición (?editar): ayuda a colocar los puntos sobre la foto real */
     .editor-info {
       position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 40;
       padding: 12px 14px; border-radius: 12px; background: #000c; color: #fff;
@@ -53,20 +53,23 @@
 </head>
 <body>
   <header>
-    <h1>Nuestro altar</h1>
-    <p>Toca un punto para saber qué es y por qué está en el altar.</p>
+    <div class="fila">
+      <h1 data-t="nuestroAltar">Nuestro altar</h1>
+      <div data-idioma></div>
+    </div>
+    <p data-t="tocaPunto"></p>
   </header>
 
   <div class="contenedor">
     <div class="foto-altar" id="foto-altar">
       <img id="img-altar" alt="" src="">
     </div>
-    <ul class="lista" id="lista" aria-label="Elementos del altar"></ul>
+    <div id="grupos"></div>
   </div>
 
   <footer>
-    <a class="boton secundario" href="camara.html">📷 Probar con la cámara</a>
-    <a class="boton secundario" href="index.html">← Volver</a>
+    <a class="boton secundario" href="camara.html" data-t="probarCamara"></a>
+    <a class="boton secundario" href="index.html" data-t="volver"></a>
   </footer>
 
   <script src="js/datos.js"></script>

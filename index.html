@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#160f1f">
-  <title>Juega, Aprende y Entiende · Janal Pixan</title>
+  <title>Juega, Aprende y Entiende · Hanal Pixán</title>
   <!-- Inicio provisional: al unir las tres partes, este archivo se reemplaza por el diseño común -->
   <link rel="stylesheet" href="entiende/css/entiende.css">
   <style>
-    main { max-width: 520px; margin: 0 auto; padding: 28px 16px 40px; }
+    main { max-width: 520px; margin: 0 auto; padding: 20px 16px 40px; }
+    .arriba { display: flex; justify-content: flex-end; margin-bottom: 12px; }
     h1 { font-size: 2.2rem; line-height: 1.1; margin: 0 0 8px; }
     p { color: var(--texto-suave); margin: 0 0 24px; }
     a.parte {
@@ -22,11 +23,38 @@
 <body>
   <div class="papel-picado" aria-hidden="true"></div>
   <main>
-    <h1>Janal Pixan</h1>
-    <p>Juega, aprende y entiende nuestro altar.</p>
-    <a class="parte pendiente" href="juega/"><strong>Juega</strong>Arma el altar (próximamente)</a>
-    <a class="parte pendiente" href="aprende/"><strong>Aprende</strong>¿Qué es el Janal Pixan? (próximamente)</a>
-    <a class="parte" href="entiende/"><strong>Entiende</strong>Apunta la cámara al altar y descubre cada elemento</a>
+    <div class="arriba"><div class="selector-idioma" role="group" aria-label="Idioma / Language">
+      <button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>
+    </div></div>
+    <h1>Hanal Pixán</h1>
+    <p data-es="Juega, aprende y entiende nuestro altar." data-en="Play, learn and understand our altar."></p>
+    <a class="parte pendiente" href="juega/"><strong data-es="Juega" data-en="Play"></strong>
+      <span data-es="Arma el altar (próximamente)" data-en="Build the altar (coming soon)"></span></a>
+    <a class="parte pendiente" href="aprende/"><strong data-es="Aprende" data-en="Learn"></strong>
+      <span data-es="¿Qué es el Hanal Pixán? (próximamente)" data-en="What is Hanal Pixán? (coming soon)"></span></a>
+    <a class="parte" href="entiende/" id="link-entiende"><strong data-es="Entiende" data-en="Understand"></strong>
+      <span data-es="Apunta la cámara al altar y descubre cada elemento" data-en="Point your camera at the altar and discover each element"></span></a>
   </main>
+  <script>
+    (function () {
+      var K = 'jaye-idioma';
+      var q = new URLSearchParams(location.search).get('lang');
+      var lang = q === 'en' || q === 'es' ? q : null;
+      if (!lang) { try { lang = localStorage.getItem(K); } catch (e) {} }
+      if (lang !== 'en') lang = 'es';
+      function poner(l) {
+        lang = l;
+        document.documentElement.lang = l;
+        try { localStorage.setItem(K, l); } catch (e) {}
+        document.querySelectorAll('[data-es]').forEach(function (n) { n.textContent = n.getAttribute('data-' + l); });
+        document.querySelectorAll('[data-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === l)); });
+        document.getElementById('link-entiende').href = 'entiende/' + (l === 'en' ? '?lang=en' : '');
+      }
+      document.querySelectorAll('[data-lang]').forEach(function (b) {
+        b.addEventListener('click', function () { poner(b.dataset.lang); });
+      });
+      poner(lang);
+    })();
+  </script>
 </body>
 </html>

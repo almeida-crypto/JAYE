@@ -1,72 +1,133 @@
 /*
  * Entiende, opción 2: cámara con marcadores de imagen (MindAR + A-Frame).
  *
- * - Cada elemento de data/elementos.json con camara.targetIndex (0, 1, 2…) se
- *   asocia a la imagen número targetIndex dentro de targets/targets.mind.
- * - Cuando la cámara reconoce una tarjeta, aparece encima su nombre; al tocarlo
- *   se abre la ficha con la explicación (mismo JSON que el juego y la página).
+ * El altar se divide en "zonas" (partes). Cada zona tiene su propio archivo
+ * targets/<zona>.mind con sus tarjetas; así la página carga menos y reconoce más rápido.
+ * Cada elemento de data/elementos.json tiene camara.zona y camara.targetIndex
+ * (posición de su tarjeta dentro del .mind de esa zona).
+ *
+ * URL: camara.html?zona=comida&lang=en   (auto=1 enciende la cámara sin pedir el botón)
  */
 (function () {
   'use strict';
 
   var CONFIG = {
-    targets: 'targets/targets.mind',  // generado con herramientas/compilar.html
-    maxTrack: 2,                      // cuántas tarjetas se siguen a la vez (más = más lento)
-    ocultarTras: 500,                 // ms que la etiqueta sigue visible tras perder la tarjeta
-    pistaTras: 15000                  // ms sin detectar nada antes de mostrar consejos
+    carpetaTargets: 'targets/',   // targets/<zona>.mind, generado con herramientas/compilar.html
+    maxTrack: 2,                  // cuántas tarjetas se siguen a la vez (más = más lento)
+    ocultarTras: 500,             // ms que la etiqueta sigue visible tras perder la tarjeta
+    pistaTras: 15000              // ms sin detectar nada antes de mostrar consejos
   };
 
   var $ = function (id) { return document.getElementById(id); };
   var inicio = $('inicio'), estado = $('estado'), btn = $('btn-iniciar');
   var guia = $('guia'), guiaTexto = $('guia-texto'), capa = $('etiquetas');
+  var navZonas = $('zonas'), navZonasAR = $('zonas-ar'), tituloZona = $('titulo-zona');
 
-  var escena = null;
-  var seguidos = [];          // { el, target, ancla, etiqueta, visible, perdidoEn }
-  var corriendo = false;
-  var temporizadorPista = null;
-  var THREE, vec;
+  var params = new URLSearchParams(location.search);
+  var datos = null, zona = null, escena = null;
+  var seguidos = [];   // { el, ancla, etiqueta, visible, perdidoEn }
+  var corriendo = false, temporizadorPista = null, vec = null, estadoBoton = 'cargando';
 
+  function tx(k) { return Entiende.tx(k); }
   function mostrarEstado(html) { estado.innerHTML = html; }
+  function ponerBoton(clave, activo) {
+    estadoBoton = clave;
+    btn.textContent = tx(clave);
+    btn.disabled = !activo;
+  }
   function error(msg) {
     mostrarEstado('<p class="aviso-error">' + msg + '</p>');
-    btn.disabled = false;
-    btn.textContent = 'Intentar de nuevo';
+    ponerBoton('reintentar', true);
     inicio.hidden = false;
     guia.hidden = true;
+    navZonasAR.hidden = true;
   }
 
   // ---------- 1. Comprobaciones previas ----------
-  if (!window.isSecureContext) {
-    error('La cámara solo funciona con <b>HTTPS</b> (o en localhost). Abre el sitio desde su dirección https:// o usa la foto del altar.');
-    return;
-  }
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    error('Este navegador no permite usar la cámara. Prueba con Chrome o Safari actualizados, o usa la foto del altar.');
-    return;
-  }
-  if (!window.AFRAME || !window.MINDAR) {
-    error('No se cargaron las librerías de la cámara. Revisa tu conexión y recarga la página.');
-    return;
-  }
+  if (!window.isSecureContext) { error(tx('errHttps')); btn.disabled = true; return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { error(tx('errNavegador')); btn.disabled = true; return; }
+  if (!window.AFRAME || !window.MINDAR) { error(tx('errLibs')); btn.disabled = true; return; }
 
-  // ---------- 2. Cargar datos y armar la escena ----------
-  Entiende.cargarDatos().then(function (datos) {
-    var conTarjeta = datos.elementos.filter(function (el) {
-      return el.camara && typeof el.camara.targetIndex === 'number';
-    });
-    if (!conTarjeta.length) throw new Error('Ningún elemento tiene camara.targetIndex en elementos.json');
-    crearEscena(conTarjeta);
+  // ---------- 2. Cargar datos ----------
+  Entiende.cargarDatos().then(function (d) {
+    datos = d;
+    var zonas = Object.keys(d.zonas);
+    zona = zonas.indexOf(params.get('zona')) >= 0 ? params.get('zona') : zonas[0];
+    pintarZonas();
+    prepararEscena();
   }).catch(function (e) {
-    error('No se pudo preparar la cámara: ' + Entiende.esc(e.message));
+    error(tx('errPreparar') + Entiende.esc(e.message));
   });
 
-  function crearEscena(elementos) {
-    THREE = AFRAME.THREE;
+  document.addEventListener('idioma:cambio', function () {
+    if (!datos) return;
+    pintarZonas();
+    ponerBoton(estadoBoton, !btn.disabled);
+    seguidos.forEach(function (s) { pintarEtiqueta(s); });
+    actualizarGuia();
+  });
+
+  function pintarZonas() {
+    [navZonas, navZonasAR].forEach(function (nav) {
+      nav.innerHTML = '';
+      Object.keys(datos.zonas).forEach(function (z) {
+        var info = datos.zonas[z];
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'zona';
+        b.style.setProperty('--color-zona', info.color);
+        b.innerHTML = '<i aria-hidden="true"></i>' + Entiende.esc(Entiende.t(info));
+        if (z === zona) b.setAttribute('aria-current', 'true');
+        b.addEventListener('click', function () { elegirZona(z); });
+        nav.appendChild(b);
+      });
+    });
+    tituloZona.textContent = Entiende.t(datos.zonas[zona]);
+  }
+
+  function elegirZona(z) {
+    if (z === zona) return;
+    if (corriendo) {
+      // Con la cámara ya encendida, lo más fiable es recargar con la nueva zona
+      var url = new URL(location.href);
+      url.searchParams.set('zona', z);
+      url.searchParams.set('auto', '1');
+      url.searchParams.set('lang', Entiende.idioma);
+      location.replace(url);
+      return;
+    }
+    zona = z;
+    var url2 = new URL(location.href);
+    url2.searchParams.set('zona', z);
+    history.replaceState(null, '', url2);
+    pintarZonas();
+    prepararEscena();
+  }
+
+  // ---------- 3. Escena de A-Frame + MindAR para la zona elegida ----------
+  function prepararEscena() {
+    if (escena) {
+      // MindAR intenta apagar la cámara al quitar la escena; si nunca se encendió, eso falla
+      var sis = escena.systems['mindar-image-system'];
+      if (sis && !sis.video) sis.stop = function () {};
+      escena.parentNode.removeChild(escena);
+      escena = null;
+    }
+    capa.innerHTML = '';
+    seguidos = [];
+    ponerBoton('cargando', false);
+
+    var elementos = datos.elementos.filter(function (el) {
+      return el.camara && el.camara.zona === zona && typeof el.camara.targetIndex === 'number';
+    });
+    if (!elementos.length) { error(tx('errPreparar') + 'zona sin tarjetas'); return; }
+
+    var THREE = AFRAME.THREE;
     vec = new THREE.Vector3();
 
     escena = document.createElement('a-scene');
     escena.setAttribute('mindar-image',
-      'imageTargetSrc: ' + CONFIG.targets +
+      'imageTargetSrc: ' + CONFIG.carpetaTargets + zona + '.mind' +
       '; maxTrack: ' + CONFIG.maxTrack +
       '; autoStart: false; uiLoading: no; uiScanning: no; uiError: no' +
       '; filterMinCF: 0.0001; filterBeta: 0.001');
@@ -85,9 +146,7 @@
     elementos.forEach(function (el) {
       var target = document.createElement('a-entity');
       target.setAttribute('mindar-image-target', 'targetIndex: ' + el.camara.targetIndex);
-      // Punto donde se dibuja la etiqueta: el centro de la tarjeta
-      // (1 unidad = ancho de la tarjeta; y positivo = hacia arriba).
-      var ancla = document.createElement('a-entity');
+      var ancla = document.createElement('a-entity');   // centro de la tarjeta
       ancla.setAttribute('position', '0 0 0');
       target.appendChild(ancla);
       escena.appendChild(target);
@@ -95,69 +154,61 @@
       var etiqueta = document.createElement('button');
       etiqueta.className = 'etiqueta';
       etiqueta.hidden = true;
-      etiqueta.innerHTML = '<strong>' + Entiende.esc(el.nombre) + '</strong><span>Toca para saber más</span>';
       etiqueta.addEventListener('click', function () { Entiende.mostrarFicha(el); });
       capa.appendChild(etiqueta);
 
-      var s = { el: el, target: target, ancla: ancla, etiqueta: etiqueta, visible: false, perdidoEn: 0 };
-      target.addEventListener('targetFound', function () {
-        s.visible = true; s.perdidoEn = 0; actualizarGuia();
-      });
-      target.addEventListener('targetLost', function () {
-        s.visible = false; s.perdidoEn = performance.now(); actualizarGuia();
-      });
+      var s = { el: el, ancla: ancla, etiqueta: etiqueta, visible: false, perdidoEn: 0 };
+      pintarEtiqueta(s);
+      target.addEventListener('targetFound', function () { s.visible = true; s.perdidoEn = 0; actualizarGuia(); });
+      target.addEventListener('targetLost', function () { s.visible = false; s.perdidoEn = performance.now(); actualizarGuia(); });
       seguidos.push(s);
     });
 
     escena.addEventListener('arReady', function () {
       inicio.hidden = true;
+      navZonasAR.hidden = false;
       corriendo = true;
       actualizarGuia();
       requestAnimationFrame(bucle);
     });
-    escena.addEventListener('arError', function () {
-      error('No pudimos abrir la cámara. Revisa que hayas dado permiso (ícono de candado junto a la dirección) o usa la foto del altar.');
-    });
+    escena.addEventListener('arError', function () { corriendo = false; error(tx('errCamara')); });
 
     var listo = function () {
-      btn.disabled = false;
-      btn.textContent = 'Activar cámara';
+      ponerBoton('activar', true);
+      if (params.get('auto') === '1') { params.delete('auto'); iniciar(); }
     };
-    if (escena.hasLoaded) listo(); else escena.addEventListener('loaded', listo);
-
+    escena.addEventListener('loaded', listo);
     $('ar').appendChild(escena);
   }
 
-  // ---------- 3. Iniciar (con un toque del usuario: necesario en iPhone) ----------
-  btn.addEventListener('click', function () {
+  function pintarEtiqueta(s) {
+    var maya = s.el.maya && s.el.maya.nombre ? '<em lang="yua">' + Entiende.esc(s.el.maya.nombre) + '</em>' : '';
+    s.etiqueta.innerHTML = '<strong>' + Entiende.esc(Entiende.t(s.el.nombre)) + '</strong>' + maya +
+      '<span>' + tx('tocaSaber') + '</span>';
+  }
+
+  // ---------- 4. Encender la cámara (con un toque del usuario: necesario en iPhone) ----------
+  function iniciar() {
     if (!escena) return;
     var sistema = escena.systems['mindar-image-system'];
-    btn.disabled = true;
-    btn.textContent = 'Abriendo cámara…';
+    ponerBoton('abriendo', false);
     mostrarEstado('');
-    if (sistema.video) {             // reintento tras un error: limpiar el intento anterior
-      try { sistema.stop(); } catch (e) {}
-    }
-    try {
-      sistema.start();
-    } catch (e) {
-      error('No se pudo iniciar la cámara: ' + Entiende.esc(e.message));
-    }
-  });
+    if (sistema.video) { try { sistema.stop(); } catch (e) {} }
+    try { sistema.start(); } catch (e) { error(tx('errPreparar') + Entiende.esc(e.message)); }
+  }
+  btn.addEventListener('click', iniciar);
 
-  // Apagar la cámara al salir de la página (ahorra batería)
   window.addEventListener('pagehide', function () {
     if (!escena || !corriendo) return;
     try { escena.systems['mindar-image-system'].stop(); } catch (e) {}
   });
 
-  // ---------- 4. Etiquetas que siguen a cada tarjeta ----------
+  // ---------- 5. Etiquetas que siguen a cada tarjeta ----------
   function bucle() {
-    if (!corriendo) return;
+    if (!corriendo || !escena) return;
     var camara = escena.camera;
     var rect = escena.canvas.getBoundingClientRect();
     var ahora = performance.now();
-
     for (var i = 0; i < seguidos.length; i++) {
       var s = seguidos[i];
       var mostrar = s.visible || (s.perdidoEn && ahora - s.perdidoEn < CONFIG.ocultarTras);
@@ -176,14 +227,15 @@
   }
 
   function actualizarGuia() {
+    if (!corriendo) return;
     var alguno = seguidos.some(function (s) { return s.visible; });
     guia.hidden = alguno;
     clearTimeout(temporizadorPista);
     if (!alguno) {
-      guiaTexto.textContent = 'Apunta la cámara a una tarjeta del altar';
+      guiaTexto.textContent = tx('apunta');
       temporizadorPista = setTimeout(function () {
-        guiaTexto.innerHTML = '¿No la detecta? Acércate a unos 30–50 cm, ponte de frente y evita reflejos. ' +
-          'También puedes <a href="foto.html" style="pointer-events:auto">ver la foto del altar</a>.';
+        guiaTexto.innerHTML = Entiende.esc(tx('pista')) + ' <a href="' + Entiende.conIdioma('foto.html') +
+          '" style="pointer-events:auto">' + Entiende.esc(tx('pistaFoto')) + '</a>.';
       }, CONFIG.pistaTras);
     }
   }

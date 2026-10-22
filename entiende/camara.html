@@ -23,31 +23,37 @@
 
   <!-- Barra superior -->
   <div class="barra">
-    <a href="index.html" class="icono" aria-label="Volver">←</a>
-    <span class="titulo">Entiende el altar</span>
-    <a href="foto.html" class="enlace-foto">Ver foto</a>
+    <a href="index.html" class="icono" aria-label="←">←</a>
+    <span class="titulo" id="titulo-zona"></span>
+    <div data-idioma></div>
+    <a href="foto.html" class="enlace-foto" data-t="verFotoCorto">Ver foto</a>
   </div>
 
   <!-- Indicación mientras busca -->
   <div id="guia" class="guia" hidden>
     <div class="marco" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-    <p id="guia-texto">Apunta la cámara a una tarjeta del altar</p>
+    <p id="guia-texto"></p>
   </div>
+
+  <!-- Cambiar de parte del altar sin salir -->
+  <nav id="zonas-ar" class="zonas zonas-ar" hidden></nav>
 
   <!-- Pantalla de inicio / carga / error -->
   <section id="inicio" class="inicio">
     <div class="papel-picado" aria-hidden="true"></div>
     <div class="inicio-contenido">
-      <p class="eyebrow">Janal Pixan</p>
-      <h1>Apunta, toca y entiende</h1>
+      <p class="eyebrow">Hanal Pixán</p>
+      <h1 data-t="camTitulo">Apunta, toca y entiende</h1>
       <ol class="pasos">
-        <li>Permite el uso de la cámara.</li>
-        <li>Apunta a una de las tarjetas decoradas del altar.</li>
-        <li>Toca el nombre que aparece para saber qué es y por qué está ahí.</li>
+        <li data-t="paso1"></li>
+        <li data-t="paso2"></li>
+        <li data-t="paso3"></li>
       </ol>
+      <p class="etiqueta-zonas" data-t="parteAltar"></p>
+      <nav id="zonas" class="zonas"></nav>
       <div id="estado" class="estado" role="status" aria-live="polite"></div>
       <button id="btn-iniciar" class="boton" disabled>Cargando…</button>
-      <a class="boton secundario" href="foto.html">Ver la foto del altar</a>
+      <a class="boton secundario" href="foto.html" data-t="verFoto"></a>
     </div>
   </section>
 </body>

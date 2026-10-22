@@ -1,6 +1,7 @@
 /*
- * Entiende, opción 1: foto del altar con puntos tocables.
- * Las posiciones salen de data/elementos.json → elementos[].foto.{x,y} (en % de la foto).
+ * Entiende, opción 1: foto del altar con puntos tocables + lista por categorías.
+ * Los puntos salen de data/elementos.json → elementos[].foto.{x,y} (en % de la foto);
+ * los elementos con "foto": null solo aparecen en la lista.
  *
  * Modo edición: abre foto.html?editar y toca la foto; se muestran (y copian)
  * las coordenadas para pegarlas en el JSON.
@@ -10,50 +11,65 @@
 
   var cont = document.getElementById('foto-altar');
   var img = document.getElementById('img-altar');
-  var lista = document.getElementById('lista');
+  var grupos = document.getElementById('grupos');
   var editar = new URLSearchParams(location.search).has('editar');
+  var datos = null;
 
-  Entiende.cargarDatos().then(function (datos) {
-    img.src = Entiende.ruta(datos.altar.foto);
-    img.alt = datos.altar.fotoAlt || 'Foto del altar';
-
-    var conPunto = datos.elementos.filter(function (el) { return el.foto && el.foto.x != null; });
-
-    conPunto.forEach(function (el, i) {
-      var n = i + 1;
-
-      var punto = document.createElement('button');
-      punto.className = 'punto';
-      punto.dataset.n = n;
-      punto.style.left = el.foto.x + '%';
-      punto.style.top = el.foto.y + '%';
-      punto.setAttribute('aria-label', n + '. ' + el.nombre);
-      punto.addEventListener('click', function (e) {
-        e.stopPropagation();
-        Entiende.mostrarFicha(el);
-      });
-      cont.appendChild(punto);
-
-      var li = document.createElement('li');
-      var b = document.createElement('button');
-      b.innerHTML = '<b>' + n + '</b>' + Entiende.esc(el.nombre);
-      b.addEventListener('click', function () { Entiende.mostrarFicha(el); });
-      li.appendChild(b);
-      lista.appendChild(li);
-    });
-
+  Entiende.cargarDatos().then(function (d) {
+    datos = d;
+    img.src = Entiende.ruta(d.altar.foto);
+    pintar();
     if (editar) activarEditor();
   }).catch(function (err) {
-    cont.innerHTML = '<p class="aviso-error">No se pudo cargar la información del altar. ' +
-      Entiende.esc(err.message) + '</p>';
+    cont.innerHTML = '<p class="aviso-error">' + Entiende.tx('errorDatos') + ' ' + Entiende.esc(err.message) + '</p>';
   });
+
+  document.addEventListener('idioma:cambio', function () { if (datos) pintar(); });
+
+  function pintar() {
+    img.alt = Entiende.t(datos.altar.fotoAlt);
+    cont.querySelectorAll('.punto').forEach(function (p) { p.remove(); });
+    grupos.innerHTML = '';
+
+    datos.elementos.forEach(function (el) {
+      if (!el.foto || el.foto.x == null) return;
+      var punto = document.createElement('button');
+      punto.className = 'punto';
+      punto.dataset.n = el.n;
+      punto.style.left = el.foto.x + '%';
+      punto.style.top = el.foto.y + '%';
+      punto.setAttribute('aria-label', el.n + '. ' + Entiende.t(el.nombre));
+      punto.addEventListener('click', function (e) { e.stopPropagation(); Entiende.mostrarFicha(el); });
+      cont.appendChild(punto);
+    });
+
+    Object.keys(datos.categorias).forEach(function (cat) {
+      var del = datos.elementos.filter(function (el) { return el.categoria === cat; });
+      if (!del.length) return;
+      var sec = document.createElement('section');
+      sec.className = 'grupo';
+      sec.innerHTML = '<h2>' + Entiende.esc(Entiende.t(datos.categorias[cat])) + '</h2>';
+      var ul = document.createElement('ul');
+      ul.className = 'lista';
+      del.forEach(function (el) {
+        var li = document.createElement('li');
+        var b = document.createElement('button');
+        b.innerHTML = '<b>' + el.n + '</b>' + Entiende.esc(Entiende.t(el.nombre)) +
+          (el.maya.nombre ? '<small lang="yua">' + Entiende.esc(el.maya.nombre) + '</small>' : '');
+        b.addEventListener('click', function () { Entiende.mostrarFicha(el); });
+        li.appendChild(b);
+        ul.appendChild(li);
+      });
+      sec.appendChild(ul);
+      grupos.appendChild(sec);
+    });
+  }
 
   function activarEditor() {
     var info = document.createElement('div');
     info.className = 'editor-info';
     info.textContent = 'Modo edición: toca la foto donde va cada elemento.';
     document.body.appendChild(info);
-
     img.style.cursor = 'crosshair';
     img.addEventListener('click', function (e) {
       var r = img.getBoundingClientRect();

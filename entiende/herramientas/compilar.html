@@ -26,10 +26,14 @@
 </head>
 <body>
   <main>
-    <h1>Compilar tarjetas → targets.mind</h1>
+    <h1>Compilar tarjetas → &lt;zona&gt;.mind</h1>
     <p class="nota">Herramienta interna del equipo (no se enlaza desde el sitio). Sube las imágenes de las tarjetas
       <b>en orden</b>: la primera será <code>targetIndex: 0</code>, la segunda <code>1</code>, etc. Ese número es el que va en
-      <code>data/elementos.json → camara.targetIndex</code>.</p>
+      <code>data/elementos.json → camara.targetIndex</code>. Se compila <b>una zona a la vez</b>
+      (las tarjetas de <code>targets/tarjetas/&lt;zona&gt;/</code>, que ya están numeradas 00, 01, 02…).</p>
+    <p><label>Zona: <select id="zona">
+      <option>base</option><option>luz</option><option>comida</option><option>frutas</option><option>bebidas</option><option>ropa</option>
+    </select></label></p>
 
     <div class="zona">
       <input type="file" id="archivos" accept="image/png,image/jpeg" multiple>
@@ -40,12 +44,12 @@
 
     <div class="acciones">
       <button class="boton" id="btn-compilar" disabled>Compilar</button>
-      <a class="boton secundario" id="btn-descargar" hidden download="targets.mind">Descargar targets.mind</a>
+      <a class="boton secundario" id="btn-descargar" hidden download="base.mind">Descargar .mind</a>
     </div>
     <p id="estado" class="nota"></p>
     <progress id="progreso" value="0" max="100" hidden></progress>
 
-    <p class="nota">Después: guarda el archivo en <code>entiende/targets/targets.mind</code> (reemplaza el anterior) y súbelo al repositorio.</p>
+    <p class="nota">Después: guarda el archivo en <code>entiende/targets/&lt;zona&gt;.mind</code> (reemplaza el anterior) y súbelo al repositorio.</p>
   </main>
 
   <script src="../vendor/aframe-1.5.0.min.js"></script>
@@ -102,7 +106,7 @@
       // Reduce la imagen antes de compilar: el .mind crece mucho con la resolución
       // (≈ 750 KB por tarjeta a 1000×1400 px). Con ~600 px de lado mayor queda mucho más ligero
       // y se reconoce igual a la distancia normal de un visitante.
-      var LADO_MAX = 600;
+      var LADO_MAX = 480;
       function reducir(im) {
         var esc = Math.min(1, LADO_MAX / Math.max(im.naturalWidth, im.naturalHeight));
         if (esc === 1) return Promise.resolve(im);
@@ -133,6 +137,9 @@
           });
           var blob = new Blob([datos]);
           btnDescargar.href = URL.createObjectURL(blob);
+          var z = document.getElementById('zona').value;
+          btnDescargar.download = z + '.mind';
+          btnDescargar.textContent = 'Descargar ' + z + '.mind';
           btnDescargar.hidden = false;
           estado.textContent = 'Listo: ' + imagenes.length + ' tarjeta(s), ' + Math.round(blob.size / 1024) + ' KB.';
         } catch (e) {

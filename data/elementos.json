@@ -1,130 +1,1758 @@
 {
-  "version": 1,
-  "nota": "Archivo común para Juega, Aprende y Entiende. Las rutas son relativas a la raíz del sitio. TODO el texto es un BORRADOR: verificar con fuentes (INAH, cultura local) y con alguien que practique la tradición antes de publicar; al verificar un elemento, poner \"verificado\": true y llenar \"fuente\".",
+  "version": 2,
+  "nota": "Archivo común de Juega, Aprende y Entiende. Textos investigados con las fuentes citadas (oct 2026). Falta la revisión de una persona que practique la tradición: al revisar un elemento, poner \"verificado\": true. Rutas relativas a la raíz del sitio.",
+  "idiomas": [
+    "es",
+    "en"
+  ],
   "altar": {
     "foto": "entiende/img/altar-placeholder.svg",
-    "fotoAlt": "Altar de Janal Pixan del grupo de TICs, con sus elementos señalados"
+    "fotoAlt": {
+      "es": "Altar de Hanal Pixán del grupo de TICs",
+      "en": "The ICT group's Hanal Pixán altar"
+    }
+  },
+  "zonas": {
+    "base": {
+      "color": "#2e8b3d",
+      "es": "Mesa, cruz y recuerdos",
+      "en": "Table, cross & memories"
+    },
+    "luz": {
+      "color": "#f08a1c",
+      "es": "Luz, aroma y camino",
+      "en": "Light, scent & path"
+    },
+    "comida": {
+      "color": "#c8102e",
+      "es": "Comida",
+      "en": "Food"
+    },
+    "frutas": {
+      "color": "#e2457a",
+      "es": "Frutas y dulces",
+      "en": "Fruit & sweets"
+    },
+    "bebidas": {
+      "color": "#1f6fb2",
+      "es": "Bebidas y recipientes",
+      "en": "Drinks & vessels"
+    },
+    "ropa": {
+      "color": "#7a3fa0",
+      "es": "Ropa y cocina",
+      "en": "Clothes & kitchen"
+    }
+  },
+  "categorias": {
+    "estructura": {
+      "es": "Estructura",
+      "en": "Structure"
+    },
+    "religiosos": {
+      "es": "Religiosos",
+      "en": "Religious"
+    },
+    "personales": {
+      "es": "Personales",
+      "en": "Personal"
+    },
+    "luz": {
+      "es": "Luz, aroma y camino",
+      "en": "Light, scent and path"
+    },
+    "agua": {
+      "es": "Agua, sal y limpieza",
+      "en": "Water, salt and cleansing"
+    },
+    "comida": {
+      "es": "Comida",
+      "en": "Food"
+    },
+    "bebidas": {
+      "es": "Bebidas y otros",
+      "en": "Drinks and more"
+    },
+    "recipientes": {
+      "es": "Recipientes",
+      "en": "Vessels"
+    },
+    "complementos": {
+      "es": "Complementos rituales",
+      "en": "Ritual complements"
+    }
+  },
+  "fuentes": {
+    "uady-pixan": {
+      "titulo": "UADY – Hanal Pixan: alimento de las ánimas",
+      "url": "https://www.mayas.uady.mx/articulos/pixan.html"
+    },
+    "uady-dicc": {
+      "titulo": "UADY – Diccionario maya-español (Identidad y Cultura Maya)",
+      "url": "https://www.mayas.uady.mx/diccionario/a_maya.html"
+    },
+    "uady-voces": {
+      "titulo": "UADY – Voces mayas en el español de Yucatán",
+      "url": "https://www.mayas.uady.mx/articulos/voces.html"
+    },
+    "yuc-gob": {
+      "titulo": "Gobierno de Yucatán – Janal Pixan",
+      "url": "https://www.yucatan.gob.mx/?p=janal_pixan"
+    },
+    "yuc-travel": {
+      "titulo": "Yucatán Travel (Sefotur) – Janal Pixán",
+      "url": "https://yucatan.travel/cultura/janal-pixan/"
+    },
+    "diario-altar-2024": {
+      "titulo": "Diario de Yucatán – Altar de Hanal Pixán: qué elementos lleva (2024)",
+      "url": "https://www.yucatan.com.mx/yucatan/2024/10/24/altar-de-hanal-pixan-en-yucatan-que-elementos-lleva-y-su-significado.html"
+    },
+    "diario-altar-2021": {
+      "titulo": "Diario de Yucatán – Altar de muertos: lo que debe llevar (2021)",
+      "url": "https://www.yucatan.com.mx/imagen/2021/11/01/altar-muertos-lo-llevar-significado.html"
+    },
+    "diario-sabores": {
+      "titulo": "Diario de Yucatán – Del pib al balché: los sabores del Hanal Pixán (2025)",
+      "url": "https://www.yucatan.com.mx/yucatan/2025/10/22/hanal-pixan-en-yucatan-platillos-bebidas-dulces-tipicos.html"
+    },
+    "diario-china": {
+      "titulo": "Diario de Yucatán – ¿Por qué en Yucatán le dicen china a la naranja? (2025)",
+      "url": "https://www.yucatan.com.mx/merida/2025/02/19/por-que-en-yucatan-le-dicen-china-a-la-naranja.html"
+    },
+    "diario-frijol": {
+      "titulo": "Diario de Yucatán – ¿Por qué los lunes se come frijol con puerco? (2024)",
+      "url": "https://www.yucatan.com.mx/yucatan/2024/02/05/por-que-los-lunes-se-come-frijol-con-puerco-en-yucatan.html"
+    },
+    "poresto-guia": {
+      "titulo": "Por Esto! – Guía del Hanal Pixán (2025)",
+      "url": "https://www.poresto.com/yucatan/2025/10/8/guia-del-hanal-pixan-cuando-se-celebra-como-se-arma-el-altar-y-que-comidas-tradicionales-se-preparan-en-yucatan.html"
+    },
+    "posta-altar": {
+      "titulo": "Posta – ¿Cómo debe ser un altar tradicional yucateco?",
+      "url": "https://www.posta.com.mx/mexico/como-debe-ser-un-altar-tradicional-yucateco-de-dia-de-muertos/vl1621997"
+    },
+    "posta-pan": {
+      "titulo": "Posta – El pan de finados que se ofrenda en el Janal Pixán",
+      "url": "https://www.posta.com.mx/yucatan/conoces-el-pan-de-finados-el-pan-yucateco-que-se-ofrenda-en-el-janal-pixan/vl2110288"
+    },
+    "posta-dulces": {
+      "titulo": "Posta – Dulces yucatecos para el Janal Pixán",
+      "url": "https://www.posta.com.mx/yucatan/dulces-yucatecos-para-el-janal-pixan-recetas-y-tradiciones-que-debes-conocer/vl2107366"
+    },
+    "posta-escabeche": {
+      "titulo": "Posta – ¿Por qué el jueves es día de escabeche en Yucatán?",
+      "url": "https://www.posta.com.mx/yucatan/por-que-el-jueves-es-dia-de-escabeche-en-yucatan/vl2203099"
+    },
+    "elmomento": {
+      "titulo": "El Momento Yucatán – El altar del Janal Pixán y su significado",
+      "url": "https://elmomentoyucatan.mx/el-altar-de-muertos-en-el-hanal-pixan-lo-que-debe-llevar-el-altar-y-su-significado/"
+    },
+    "yt-jicara": {
+      "titulo": "Yucatán Today – The simple and humble jícara",
+      "url": "https://yucatantoday.com/en/blog/simple-and-humble-jicara-what-is-it"
+    },
+    "yt-filigrana": {
+      "titulo": "Yucatán Today – Yucatecan filigree",
+      "url": "https://yucatantoday.com/en/blog/yucatecan-filigree/"
+    },
+    "travel-cocoyol": {
+      "titulo": "Yucatán Travel – Dulce de cocoyol",
+      "url": "https://yucatan.travel/en/flavor/244-cocoyol-sweet"
+    },
+    "landuum": {
+      "titulo": "Landuum – Plantas y flores del Hanal Pixán",
+      "url": "https://www.landuum.com/en/plantae-and-fauna/celebration-of-the-souls-plants-and-flowers/"
+    },
+    "cicy-cempasuchil": {
+      "titulo": "CICY, Desde el Herbario – Cempasúchil (2012)",
+      "url": "https://cicy.repositorioinstitucional.mx/jspui/bitstream/1003/2226/1/2012-11-01-Ramirez-Tapia-Cempazuchil.pdf"
+    },
+    "mongabay": {
+      "titulo": "Mongabay – Mayas recuperan las abejas nativas (2020)",
+      "url": "https://es.mongabay.com/2020/06/mexico-mayas-recuperan-las-abejas-nativas/"
+    },
+    "tdar-cera": {
+      "titulo": "Dedrick, Batún y McAnany (2017) – Beeswax production in colonial Yucatán",
+      "url": "https://core.tdar.org/document/430776/imperfect-beeswax-production-in-the-land-of-honeyyucatan-mexico"
+    },
+    "atlas-rioazul": {
+      "titulo": "Atlas Obscura – La vasija de cacao de Río Azul",
+      "url": "https://www.atlasobscura.com/articles/mayan-chocolate"
+    },
+    "arqmex-yuca": {
+      "titulo": "Arqueología Mexicana – Yuca (Manihot esculenta)",
+      "url": "https://arqueologiamexicana.mx/mexico-antiguo/yuca-manihot-esculenta"
+    },
+    "ceren": {
+      "titulo": "Campos de yuca mayas en Joya de Cerén (Payson Sheets, 2007)",
+      "url": "https://www.elsalvadorperspectives.com/2007/08/ancient-fields-where-mayas-cultivated.html"
+    },
+    "descubro-traje": {
+      "titulo": "Descubro – Vestimenta típica de Yucatán",
+      "url": "https://descubro.mx/vestimenta-tipica-yucatan/"
+    },
+    "traje-regional": {
+      "titulo": "El traje regional de Yucatán",
+      "url": "https://patadehuech.wordpress.com/2015/09/23/el-traje-regional-de-yucatn/"
+    },
+    "wiki-relleno": {
+      "titulo": "Wikipedia – Relleno negro",
+      "url": "https://en.wikipedia.org/wiki/Relleno_negro"
+    }
   },
   "elementos": [
     {
-      "id": "pib",
-      "nombre": "Mukbil pollo (pib)",
-      "nombreMaya": "Mukbil pollo",
-      "pronunciacion": "muk-BIL PO-yo",
-      "descripcion": "Tamal grande de masa de maíz con relleno de pollo y cerdo en k'óol (caldo espesado) con achiote, envuelto en hojas de plátano y cocido bajo tierra en un horno llamado pib.",
-      "significado": "Es el platillo principal del Janal Pixan («comida de las ánimas»). Se prepara en familia y se ofrece a los difuntos antes de compartirlo entre los vivos.",
-      "imagen": "",
-      "audio": "",
-      "nivel": 2,
-      "camara": { "targetIndex": 0 },
-      "foto": { "x": 50, "y": 47 },
-      "verificado": false,
-      "fuente": ""
+      "id": "mantel",
+      "n": 1,
+      "categoria": "estructura",
+      "nombre": {
+        "es": "Mantel blanco",
+        "en": "White tablecloth"
+      },
+      "maya": {
+        "nombre": "Sak nook'",
+        "tipo": "descriptivo",
+        "nota": {
+          "es": "Sak = blanco; nook' = ropa, paño, manta.",
+          "en": "Sak = white; nook' = cloth, garment."
+        }
+      },
+      "queEs": {
+        "es": "Mantel blanco, casi siempre bordado a mano, que cubre la mesa del altar.",
+        "en": "A white tablecloth, usually hand-embroidered, that covers the altar table."
+      },
+      "porQue": {
+        "es": "El blanco expresa limpieza y respeto para recibir a las ánimas. En Yucatán el bordado dice para quién es la mesa: con bordados de colores para los niños (31 de octubre) y con bordados negros para los adultos (1 de noviembre).",
+        "en": "White expresses cleanliness and respect for receiving the souls. In Yucatán the embroidery tells who the table is for: colorful embroidery for children (October 31) and black embroidery for adults (November 1)."
+      },
+      "historia": {
+        "es": "El bordado de punto de cruz, en maya xokbil chuuy («hilo contado»), es una de las técnicas más reconocidas de la península y se usa también en hipiles y ternos.",
+        "en": "Cross-stitch embroidery, called xokbil chuuy (\"counted thread\") in Maya, is one of the peninsula's best-known techniques and is also used on hipiles and ternos."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "elmomento",
+        "uady-voces"
+      ],
+      "camara": {
+        "zona": "base",
+        "targetIndex": 0
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "hojas-platano",
+      "n": 2,
+      "categoria": "estructura",
+      "nombre": {
+        "es": "Hojas de plátano",
+        "en": "Banana leaves"
+      },
+      "maya": {
+        "nombre": "Ja'as",
+        "tipo": "relacionado",
+        "nota": {
+          "es": "Ja'as = plátano. No encontramos un término propio para «hoja de plátano» en el diccionario consultado.",
+          "en": "Ja'as = banana. We found no specific term for \"banana leaf\" in the dictionary we used."
+        }
+      },
+      "queEs": {
+        "es": "Hojas grandes y verdes de la planta de plátano, que se colocan sobre la mesa o bajo las ofrendas y con las que se envuelven el pib y los tamales.",
+        "en": "Large green leaves from the banana plant, laid on the table or under the offerings, and used to wrap the pib and tamales."
+      },
+      "porQue": {
+        "es": "Envuelven y protegen la comida de las ánimas y le dan su aroma al cocerse. Para el altar de adultos del 1 de noviembre, el mantel también puede ser de hojas de plátano.",
+        "en": "They wrap and protect the food of the souls and give it its aroma as it cooks. On the adults' altar of November 1, the table covering can also be made of banana leaves."
+      },
+      "historia": {
+        "es": "El plátano no es planta americana: llegó con los europeos después de la Conquista. En Yucatán sus hojas se volvieron indispensables para envolver el mukbil pollo antes de enterrarlo en el pib.",
+        "en": "The banana is not native to the Americas: it arrived with Europeans after the Conquest. In Yucatán its leaves became essential for wrapping the mukbil pollo before burying it in the pib."
+      },
+      "fuentes": [
+        "poresto-guia",
+        "landuum",
+        "uady-pixan"
+      ],
+      "camara": {
+        "zona": "base",
+        "targetIndex": 1
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "cruz-verde",
+      "n": 8,
+      "categoria": "religiosos",
+      "nombre": {
+        "es": "Cruz verde de madera",
+        "en": "Green wooden cross"
+      },
+      "maya": {
+        "nombre": "Ya'ax che'",
+        "tipo": "relacionado",
+        "nota": {
+          "es": "Ya'ax che' = ceiba (ya'ax = verde; che' = árbol). La cruz verde representa a la ceiba.",
+          "en": "Ya'ax che' = ceiba tree (ya'ax = green; che' = tree). The green cross stands for the ceiba."
+        }
+      },
+      "queEs": {
+        "es": "Cruz de madera pintada de verde que preside el altar.",
+        "en": "A wooden cross painted green that presides over the altar."
+      },
+      "porQue": {
+        "es": "Representa a la ceiba sagrada, el árbol de la vida de los mayas, que une el cielo, la tierra y el inframundo. Al mismo tiempo es la cruz cristiana: los dos símbolos conviven en el altar.",
+        "en": "It represents the sacred ceiba, the Maya tree of life that joins the sky, the earth and the underworld. It is also the Christian cross: both symbols live together on the altar."
+      },
+      "historia": {
+        "es": "Para los mayas la ceiba estaba en el centro del mundo, con un árbol en cada uno de los cuatro rumbos. En la época colonial las creencias mayas y católicas se mezclaron, y la ceiba se expresó en forma de cruz verde.",
+        "en": "For the Maya the ceiba stood at the center of the world, with one tree in each of the four directions. In colonial times Maya and Catholic beliefs blended, and the ceiba took the form of a green cross."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "yuc-travel",
+        "posta-altar"
+      ],
+      "camara": {
+        "zona": "base",
+        "targetIndex": 2
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "rosario",
+      "n": 9,
+      "categoria": "religiosos",
+      "nombre": {
+        "es": "Rosario de filigrana",
+        "en": "Gold filigree rosary"
+      },
+      "maya": {
+        "nombre": "",
+        "tipo": "sin",
+        "nota": {
+          "es": "No tiene un nombre maya tradicional: es una pieza de origen colonial.",
+          "en": "It has no traditional Maya name: it is a piece of colonial origin."
+        }
+      },
+      "queEs": {
+        "es": "Rosario largo de oro (o plata) trabajado en filigrana: hilos finísimos de metal doblados a mano, con una cruz al final.",
+        "en": "A long gold (or silver) rosary made in filigree, with very fine threads of metal bent by hand and a cross at the end."
+      },
+      "porQue": {
+        "es": "Representa la fe y la oración por los difuntos: durante el Hanal Pixán se rezan rosarios por las ánimas. También recuerda a las mestizas que lo lucían con el terno.",
+        "en": "It represents faith and prayer for the dead: rosaries are prayed for the souls during Hanal Pixán. It also recalls the mestiza women who wore it with the terno."
+      },
+      "historia": {
+        "es": "La filigrana llegó con artesanos españoles. En el siglo XIX el rosario de filigrana, tan largo que llega casi a la cintura, se volvió la joya principal del terno yucateco. Para muchas familias ha sido además una forma de ahorro.",
+        "en": "Filigree arrived with Spanish artisans. In the 19th century the filigree rosary, long enough to reach almost to the waist, became the main jewel of the Yucatecan terno. For many families it has also been a way of saving."
+      },
+      "fuentes": [
+        "yt-filigrana",
+        "posta-altar",
+        "uady-pixan",
+        "traje-regional"
+      ],
+      "camara": {
+        "zona": "base",
+        "targetIndex": 3
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "fotografia",
+      "n": 11,
+      "categoria": "personales",
+      "nombre": {
+        "es": "Fotografía del difunto",
+        "en": "Photograph of the departed"
+      },
+      "maya": {
+        "nombre": "",
+        "tipo": "sin",
+        "nota": {
+          "es": "Sin término tradicional verificado.",
+          "en": "No verified traditional term."
+        }
+      },
+      "queEs": {
+        "es": "Retrato de la persona a quien se dedica el altar, en el nivel más alto.",
+        "en": "A portrait of the person the altar is dedicated to, placed on the highest level."
+      },
+      "porQue": {
+        "es": "Indica a quién está dedicada la ofrenda y muestra que se le recuerda y se reza por él o ella.",
+        "en": "It shows who the offering is for, and that the person is remembered and prayed for."
+      },
+      "historia": {
+        "es": "Es una costumbre más reciente que el resto del altar: llegó cuando la fotografía se volvió común en las familias, ya en el siglo XX. Antes, la memoria se guardaba en los rezos y en los nombres.",
+        "en": "It is a newer custom than the rest of the altar. It arrived when photographs became common in families, in the 20th century. Before that, memory was kept through prayers and names."
+      },
+      "fuentes": [
+        "diario-altar-2024",
+        "diario-altar-2021",
+        "posta-altar"
+      ],
+      "camara": {
+        "zona": "base",
+        "targetIndex": 4
+      },
+      "foto": {
+        "x": 50,
+        "y": 15
+      },
+      "verificado": false
+    },
+    {
+      "id": "objetos",
+      "n": 12,
+      "categoria": "personales",
+      "nombre": {
+        "es": "Objetos favoritos del difunto",
+        "en": "The departed's favorite belongings"
+      },
+      "maya": {
+        "nombre": "",
+        "tipo": "sin",
+        "nota": {
+          "es": "Sin término tradicional verificado.",
+          "en": "No verified traditional term."
+        }
+      },
+      "queEs": {
+        "es": "Cosas que la persona apreciaba en vida: joyas, ropa, su sombrero, un juguete en el caso de los niños.",
+        "en": "Things the person treasured in life: jewelry, clothes, a hat, or a toy for children."
+      },
+      "porQue": {
+        "es": "Ayudan a recordar a la persona tal como era y le hacen sentir que su casa la sigue esperando.",
+        "en": "They help remember the person as they were, and let them feel their home is still waiting for them."
+      },
+      "historia": {
+        "es": "En los altares de niños es tradicional poner juguetes; en los de adultos, los objetos que usaban o querían.",
+        "en": "Children's altars traditionally hold toys; adults' altars hold the things they used or loved."
+      },
+      "fuentes": [
+        "diario-altar-2024",
+        "diario-altar-2021",
+        "uady-pixan"
+      ],
+      "camara": {
+        "zona": "base",
+        "targetIndex": 5
+      },
+      "foto": null,
+      "verificado": false
     },
     {
       "id": "velas",
-      "nombre": "Velas",
-      "nombreMaya": "Kib",
-      "pronunciacion": "KIB",
-      "descripcion": "Velas encendidas sobre el altar y, a veces, en el camino hacia la casa.",
-      "significado": "Su luz guía a las ánimas para que encuentren el camino a casa. En algunas familias se usan velas de colores para los niños y blancas o negras para los adultos.",
-      "imagen": "",
-      "audio": "",
-      "nivel": 1,
-      "camara": { "targetIndex": 1 },
-      "foto": { "x": 21, "y": 21 },
-      "verificado": false,
-      "fuente": ""
+      "n": 14,
+      "categoria": "luz",
+      "nombre": {
+        "es": "Velas blancas grandes",
+        "en": "Large white candles"
+      },
+      "maya": {
+        "nombre": "Kib",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Kib = vela.",
+          "en": "Kib = candle."
+        }
+      },
+      "queEs": {
+        "es": "Velas grandes de cera, de preferencia blancas, encendidas en el altar.",
+        "en": "Large wax candles, preferably white, lit on the altar."
+      },
+      "porQue": {
+        "es": "Su luz guía a las ánimas en su camino de regreso a casa. Las velas grandes y blancas son para los adultos; las de colores, para los niños.",
+        "en": "Their light guides the souls on their way home. Large white candles are for adults; colored ones are for children."
+      },
+      "historia": {
+        "es": "En la Colonia, los españoles exigieron cera como tributo a los pueblos mayas, porque las velas eran indispensables en las ceremonias católicas. En algunas comunidades también se ponen velas sobre las albarradas para alumbrar el camino.",
+        "en": "In colonial times, the Spanish demanded wax as tribute from Maya towns, because candles were essential to Catholic ceremonies. In some communities, candles are also placed on the stone walls (albarradas) to light the way."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "tdar-cera",
+        "yuc-gob"
+      ],
+      "camara": {
+        "zona": "luz",
+        "targetIndex": 0
+      },
+      "foto": {
+        "x": 21,
+        "y": 21
+      },
+      "verificado": false
+    },
+    {
+      "id": "incienso",
+      "n": 15,
+      "categoria": "luz",
+      "nombre": {
+        "es": "Incienso (copal)",
+        "en": "Incense (copal)"
+      },
+      "maya": {
+        "nombre": "Pom",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Pom (también escrito poom) = copal, incienso.",
+          "en": "Pom (also spelled poom) = copal, incense."
+        }
+      },
+      "queEs": {
+        "es": "Resina aromática que se quema; la tradicional es el copal, que sale del árbol del mismo nombre.",
+        "en": "An aromatic resin that is burned; the traditional one is copal, from the copal tree."
+      },
+      "porQue": {
+        "es": "Su humo y su aroma llevan el olor de la comida hasta las ánimas y las invitan a venir. También purifica el lugar.",
+        "en": "Its smoke and scent carry the smell of the food to the souls and invite them to come. It also purifies the space."
+      },
+      "historia": {
+        "es": "El copal es una de las ofrendas más antiguas de Mesoamérica: los mayas lo quemaban para sus dioses mucho antes de la llegada de los españoles, y se sigue usando en las ceremonias de los pueblos.",
+        "en": "Copal is one of the oldest offerings in Mesoamerica: the Maya burned it for their gods long before the Spanish arrived, and it is still used in village ceremonies."
+      },
+      "fuentes": [
+        "uady-dicc",
+        "landuum",
+        "diario-altar-2024",
+        "elmomento"
+      ],
+      "camara": {
+        "zona": "luz",
+        "targetIndex": 1
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "incensario",
+      "n": 16,
+      "categoria": "luz",
+      "nombre": {
+        "es": "Incensario",
+        "en": "Incense burner (censer)"
+      },
+      "maya": {
+        "nombre": "",
+        "tipo": "sin",
+        "nota": {
+          "es": "Sin término propio verificado; se relaciona con pom (copal).",
+          "en": "No verified term of its own; related to pom (copal)."
+        }
+      },
+      "queEs": {
+        "es": "Recipiente, casi siempre de barro, donde se quema el incienso sobre brasas.",
+        "en": "A container, usually made of clay, where incense is burned over hot coals."
+      },
+      "porQue": {
+        "es": "Es el lugar donde el copal se convierte en humo. Al encenderlo se invita a las ánimas a llegar a la ofrenda.",
+        "en": "It is where copal turns into smoke. Lighting it invites the souls to come to the offering."
+      },
+      "historia": {
+        "es": "Los mayas fabricaban incensarios de barro desde hace siglos; en ciudades como Mayapán se hicieron incensarios con figuras de dioses. Hoy se usan de barro sencillo o de metal.",
+        "en": "The Maya have made clay censers for centuries; cities such as Mayapán produced censers shaped like gods. Today simple clay or metal censers are used."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "diario-altar-2021"
+      ],
+      "camara": {
+        "zona": "luz",
+        "targetIndex": 2
+      },
+      "foto": null,
+      "verificado": false
     },
     {
       "id": "flores",
-      "nombre": "Flores de xpujuk",
-      "nombreMaya": "Xpujuk",
-      "pronunciacion": "shpu-HUK",
-      "descripcion": "Flores amarillas y naranjas parecidas al cempasúchil, junto con flores moradas como la virginia (sempiterna).",
-      "significado": "Su color y su aroma adornan el altar y ayudan a atraer a las ánimas.",
-      "imagen": "",
-      "audio": "",
-      "nivel": 1,
-      "camara": { "targetIndex": 2 },
-      "foto": { "x": 79, "y": 19 },
-      "verificado": false,
-      "fuente": ""
+      "n": 17,
+      "categoria": "luz",
+      "nombre": {
+        "es": "Flores (xpujuk, xtés y virginias)",
+        "en": "Flowers (xpujuk, xtés and virginias)"
+      },
+      "maya": {
+        "nombre": "Lool",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Lool = flor. Xpujuk es la flor amarilla silvestre del Hanal Pixán; xtés es la cresta de gallo.",
+          "en": "Lool = flower. Xpujuk is the wild yellow flower of Hanal Pixán; xtés is cockscomb."
+        }
+      },
+      "queEs": {
+        "es": "Flores de la región: xpujuk (amarilla, Tagetes patula), xtés (roja, cresta de gallo) y virginias moradas.",
+        "en": "Local flowers: xpujuk (yellow, Tagetes patula), xtés (red cockscomb) and purple virginias."
+      },
+      "porQue": {
+        "es": "Con su color y su aroma alegran la visita de las ánimas y adornan la mesa.",
+        "en": "Their color and scent brighten the souls' visit and decorate the table."
+      },
+      "historia": {
+        "es": "El cempasúchil grande (Tagetes erecta) es tradición del centro de México y llegó a los altares yucatecos hace poco. La flor propia de la península es el xpujuk, su pariente silvestre y más pequeño.",
+        "en": "The large marigold (cempasúchil, Tagetes erecta) is a central Mexican tradition that reached Yucatecan altars only recently. The peninsula's own flower is xpujuk, its smaller wild relative."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "poresto-guia",
+        "landuum",
+        "cicy-cempasuchil"
+      ],
+      "camara": {
+        "zona": "luz",
+        "targetIndex": 3
+      },
+      "foto": {
+        "x": 79,
+        "y": 19
+      },
+      "verificado": false
     },
     {
-      "id": "atole",
-      "nombre": "Atole nuevo",
-      "nombreMaya": "Sa'",
-      "pronunciacion": "SA (con corte de voz al final)",
-      "descripcion": "Atole hecho con maíz nuevo de la cosecha, servido en jícaras.",
-      "significado": "Es una ofrenda del primer maíz de la temporada: se comparte con las ánimas lo mejor de la cosecha.",
-      "imagen": "",
-      "audio": "",
-      "nivel": 2,
-      "camara": { "targetIndex": 3 },
-      "foto": { "x": 27, "y": 50 },
-      "verificado": false,
-      "fuente": ""
+      "id": "cal",
+      "n": 18,
+      "categoria": "luz",
+      "nombre": {
+        "es": "Cal a los lados del camino",
+        "en": "Lime powder lining the path"
+      },
+      "maya": {
+        "nombre": "Ta'an",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Ta'an = cal o ceniza (la misma palabra para ambas).",
+          "en": "Ta'an = lime or ash (the same word for both)."
+        }
+      },
+      "queEs": {
+        "es": "Líneas de cal blanca a los lados del camino que va de la entrada hasta el altar.",
+        "en": "Lines of white lime along both sides of the path from the entrance to the altar."
+      },
+      "porQue": {
+        "es": "Marcan el camino para que las ánimas lleguen a la ofrenda sin perderse. En Yucatán el camino se marca con velas, ceniza o flores; en maya la cal y la ceniza se dicen igual: ta'an.",
+        "en": "They mark the way so the souls reach the offering without getting lost. In Yucatán the path is marked with candles, ash or flowers; in Maya, lime and ash share one word: ta'an."
+      },
+      "historia": {
+        "es": "La cal está en el centro de la vida maya: con ella se cuece el maíz (nixtamal), se curan las jícaras y se blanquean las casas.",
+        "en": "Lime is central to Maya life: it is used to cook maize (nixtamal), to cure jícaras and to whitewash houses."
+      },
+      "fuentes": [
+        "diario-altar-2024",
+        "uady-dicc",
+        "yt-jicara"
+      ],
+      "camara": {
+        "zona": "luz",
+        "targetIndex": 4
+      },
+      "foto": null,
+      "verificado": false
     },
     {
-      "id": "agua-sal",
-      "nombre": "Agua y sal",
-      "nombreMaya": "Ja' yéetel taab",
-      "pronunciacion": "HA YE-tel TAAB",
-      "descripcion": "Un vaso o jícara con agua y un poco de sal.",
-      "significado": "El agua calma la sed de las ánimas después de su largo viaje; la sal se asocia con la purificación.",
-      "imagen": "",
-      "audio": "",
-      "nivel": 2,
-      "camara": { "targetIndex": null },
-      "foto": { "x": 73, "y": 50 },
-      "verificado": false,
-      "fuente": ""
+      "id": "jicaras-bejuco",
+      "n": 23,
+      "categoria": "agua",
+      "nombre": {
+        "es": "Jícaras sobre base de bejuco",
+        "en": "Gourd bowls on vine rings"
+      },
+      "maya": {
+        "nombre": "Luuch",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Luuch = jícara. Aak' = bejuco.",
+          "en": "Luuch = gourd bowl. Aak' = vine."
+        }
+      },
+      "queEs": {
+        "es": "Jícaras con agua, sal y bebidas, apoyadas en aros tejidos de bejuco para que no se volteen.",
+        "en": "Gourd bowls with water, salt and drinks, resting on woven vine rings so they don't tip over."
+      },
+      "porQue": {
+        "es": "El agua calma la sed de las ánimas tras su largo viaje y la sal purifica. En el altar antiguo se ponían cuatro jícaras en las esquinas y una al centro: los cuatro rumbos del mundo y su centro.",
+        "en": "Water quenches the souls' thirst after their long journey, and salt purifies. On the old altar, four jícaras were set at the corners and one in the center, standing for the four directions of the world and its center."
+      },
+      "historia": {
+        "es": "La jícara es el fruto del árbol de jícaro. Se parte a la mitad, se le saca la pulpa, se hierve con cal, se limpia con hojas de ciricote y se seca al sol. Es el vaso tradicional maya.",
+        "en": "The jícara is the fruit of the calabash tree. It is cut in half, the pulp removed, boiled with lime, cleaned with ciricote leaves and dried in the sun. It is the traditional Maya cup."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "uady-dicc",
+        "yt-jicara",
+        "yuc-travel"
+      ],
+      "camara": {
+        "zona": "luz",
+        "targetIndex": 5
+      },
+      "foto": {
+        "x": 73,
+        "y": 50
+      },
+      "verificado": false
+    },
+    {
+      "id": "pib",
+      "n": 29,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Pib (mukbil pollo)",
+        "en": "Pib (mukbil pollo, pit-baked tamale)"
+      },
+      "maya": {
+        "nombre": "Mukbil pollo",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Muuk = enterrar; píib = horno bajo tierra. Mukbil pollo: «pollo enterrado».",
+          "en": "Muuk = to bury; píib = underground oven. Mukbil pollo means \"buried chicken\"."
+        }
+      },
+      "queEs": {
+        "es": "Tamal grande de masa de maíz con manteca, relleno de pollo y cerdo en k'óol (caldo espeso con achiote), envuelto en hojas de plátano y cocido bajo tierra.",
+        "en": "A large corn-dough tamale with lard, filled with chicken and pork in k'óol (a thick achiote broth), wrapped in banana leaves and cooked underground."
+      },
+      "porQue": {
+        "es": "Es el platillo central del Hanal Pixán. Se prepara en familia y primero se ofrece a las ánimas; después de que «toman la gracia», los vivos lo comparten.",
+        "en": "It is the centerpiece of Hanal Pixán. Families prepare it together and offer it to the souls first; once the souls have \"taken the grace\", the living share it."
+      },
+      "historia": {
+        "es": "La técnica del horno bajo tierra es maya: se cava un hoyo, se calientan piedras con leña, se entierra la comida y se cuece entre hora y media y dos horas. El pollo y el cerdo llegaron con los españoles. Se dice que quien tiene las manos frías no debe ayudar, porque los pibes no se cuecen.",
+        "en": "The underground oven is a Maya technique: a pit is dug, stones are heated with firewood, the food is buried and cooks for about two hours. Chicken and pork arrived with the Spanish. It is said that people with cold hands shouldn't help, or the pibes won't cook."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "uady-dicc",
+        "diario-sabores",
+        "yuc-gob"
+      ],
+      "camara": {
+        "zona": "comida",
+        "targetIndex": 0
+      },
+      "foto": {
+        "x": 50,
+        "y": 47
+      },
+      "verificado": false
+    },
+    {
+      "id": "tamales",
+      "n": 30,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Tamales",
+        "en": "Tamales"
+      },
+      "maya": {
+        "nombre": "Chachak waaj",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Chachak waaj = «tortilla roja», el tamal colorado. Waaj = tortilla o pan.",
+          "en": "Chachak waaj = \"red tortilla\", the red tamale. Waaj = tortilla or bread."
+        }
+      },
+      "queEs": {
+        "es": "Masa de maíz con relleno, envuelta en hoja: colorados (chachak waaj), vaporcitos y tamales de x'pelón (frijol tierno).",
+        "en": "Filled corn dough wrapped in leaves: red tamales (chachak waaj), vaporcitos and x'pelón (fresh bean) tamales."
+      },
+      "porQue": {
+        "es": "Son comida de fiesta y forman parte de los desayunos y comidas que se ofrecen a las ánimas, sobre todo en el altar de los niños.",
+        "en": "They are festive food and part of the breakfasts and meals offered to the souls, especially on the children's altar."
+      },
+      "historia": {
+        "es": "El tamal es uno de los alimentos más antiguos de Mesoamérica, hecho con maíz nixtamalizado. En Yucatán se envuelve en hoja de plátano y se condimenta con achiote.",
+        "en": "The tamale is one of Mesoamerica's oldest foods, made with nixtamalized maize. In Yucatán it is wrapped in banana leaf and seasoned with achiote."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "yuc-gob",
+        "diario-sabores",
+        "diario-altar-2024"
+      ],
+      "camara": {
+        "zona": "comida",
+        "targetIndex": 1
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "relleno-negro",
+      "n": 31,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Relleno negro",
+        "en": "Relleno negro (black turkey stew)"
+      },
+      "maya": {
+        "nombre": "But'",
+        "tipo": "relacionado",
+        "nota": {
+          "es": "But' = picadillo para rellenar. El platillo se conoce por su nombre en español.",
+          "en": "But' = minced meat used as stuffing. The dish is known by its Spanish name."
+        }
+      },
+      "queEs": {
+        "es": "Guiso de pavo con albóndigas de carne (but') y huevo cocido, en una salsa negra hecha con chiles quemados (recado negro o chilmole).",
+        "en": "A turkey stew with meatballs (but') and boiled egg, in a black sauce made with charred chiles (recado negro or chilmole)."
+      },
+      "porQue": {
+        "es": "Es uno de los guisos de caldo propios de estos días y se ofrece a los adultos, sobre todo si era su platillo favorito.",
+        "en": "It is one of the broth dishes typical of these days and is offered to the adults, especially if it was their favorite."
+      },
+      "historia": {
+        "es": "Mezcla ingredientes mayas, como el pavo y los chiles, con otros que llegaron de Europa, como el cerdo y algunas especias. Tradicionalmente se prepara en noviembre, durante el Hanal Pixán.",
+        "en": "It combines Maya ingredients such as turkey and chiles with ones brought from Europe, such as pork and some spices. It is traditionally made in November, during Hanal Pixán."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "wiki-relleno",
+        "diario-altar-2024",
+        "uady-voces"
+      ],
+      "camara": {
+        "zona": "comida",
+        "targetIndex": 2
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "frijol-puerco",
+      "n": 32,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Frijol con puerco",
+        "en": "Beans with pork"
+      },
+      "maya": {
+        "nombre": "Bu'ul yéetel k'éek'en",
+        "tipo": "descriptivo",
+        "nota": {
+          "es": "Traducción literal: bu'ul = frijol, yéetel = con, k'éek'en = cerdo.",
+          "en": "Literal translation: bu'ul = bean, yéetel = with, k'éek'en = pig."
+        }
+      },
+      "queEs": {
+        "es": "Frijol negro cocido con carne de cerdo y epazote; se acompaña de arroz, rábano, cilantro, cebolla, limón y chiltomate.",
+        "en": "Black beans cooked with pork and epazote, served with rice, radish, cilantro, onion, lime and tomato-chile sauce."
+      },
+      "porQue": {
+        "es": "Se pone porque las ánimas vuelven a probar lo que comían en casa: el altar lleva los platillos favoritos de cada difunto.",
+        "en": "It is offered because the souls come back to taste what they ate at home: the altar carries each person's favorite dishes."
+      },
+      "historia": {
+        "es": "El frijol es maya; el cerdo llegó con los españoles. La costumbre de comerlo los lunes se explica porque los cerdos se mataban el sábado y la carne salada se cocinaba con frijol al empezar la semana.",
+        "en": "Beans are Maya; pork came with the Spanish. Eating it on Mondays is explained by pigs being slaughtered on Saturdays, so the salted meat was cooked with beans at the start of the week."
+      },
+      "fuentes": [
+        "diario-frijol",
+        "uady-pixan",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "comida",
+        "targetIndex": 3
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "escabeche",
+      "n": 33,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Escabeche",
+        "en": "Escabeche (pickled chicken or turkey)"
+      },
+      "maya": {
+        "nombre": "",
+        "tipo": "sin",
+        "nota": {
+          "es": "Platillo de origen español, sin nombre maya.",
+          "en": "A dish of Spanish origin, with no Maya name."
+        }
+      },
+      "queEs": {
+        "es": "Pollo o pavo cocido en caldo con especias y naranja agria, servido con cebolla morada encurtida y chile xcatic. El más famoso es el escabeche oriental de Valladolid.",
+        "en": "Chicken or turkey cooked in a spiced broth with sour orange, served with pickled red onion and xcatic chile. The best known is the eastern (Valladolid) style."
+      },
+      "porQue": {
+        "es": "Es otro de los guisos de caldo de la temporada que se ponen en el altar de los adultos.",
+        "en": "It is another of the season's broth dishes placed on the adults' altar."
+      },
+      "historia": {
+        "es": "La palabra viene del árabe sikbâg, un guiso con vinagre. Llegó a Yucatán desde España en la Colonia y se mezcló con la naranja agria y los chiles de la región.",
+        "en": "The word comes from the Arabic sikbâg, a vinegar stew. It came to Yucatán from Spain in colonial times and blended with local sour orange and chiles."
+      },
+      "fuentes": [
+        "posta-escabeche",
+        "uady-pixan",
+        "diario-altar-2024"
+      ],
+      "camara": {
+        "zona": "comida",
+        "targetIndex": 4
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "pan",
+      "n": 34,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Pan (de elote, hojaldra, concha y escotafí)",
+        "en": "Bread (corn bread, hojaldra, concha and escotafí)"
+      },
+      "maya": {
+        "nombre": "Waaj",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Waaj = tortilla de maíz o pan en general. Nal = elote.",
+          "en": "Waaj = corn tortilla or bread in general. Nal = fresh corn."
+        }
+      },
+      "queEs": {
+        "es": "Panes dulces de panadería yucateca (concha, hojaldra, escotafí) y pan de elote hecho con maíz tierno.",
+        "en": "Sweet breads from Yucatecan bakeries (concha, hojaldra, escotafí) and corn bread made with fresh maize."
+      },
+      "porQue": {
+        "es": "El pan dulce acompaña el chocolate y el atole del desayuno de las ánimas, sobre todo el de los niños.",
+        "en": "Sweet bread goes with the chocolate and atole served for the souls' breakfast, especially the children's."
+      },
+      "historia": {
+        "es": "El trigo llegó con los españoles; frailes franciscanos y monjas enseñaron a hornear. El pan de muerto del centro de México no es tradicional en el Hanal Pixán: en Yucatán se ponía el pan de finados, con aroma de anís.",
+        "en": "Wheat came with the Spanish; Franciscan friars and nuns taught baking. The pan de muerto of central Mexico is not traditional in Hanal Pixán; Yucatán had its own anise-scented pan de finados."
+      },
+      "fuentes": [
+        "posta-pan",
+        "uady-pixan",
+        "poresto-guia",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "comida",
+        "targetIndex": 5
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "china",
+      "n": 35,
+      "categoria": "comida",
+      "nombre": {
+        "es": "China (naranja dulce)",
+        "en": "China (sweet orange)"
+      },
+      "maya": {
+        "nombre": "Ch'u'ujuk pak'áal",
+        "tipo": "descriptivo",
+        "nota": {
+          "es": "Pak'áal = naranja agria; ch'u'ujuk = dulce.",
+          "en": "Pak'áal = sour orange; ch'u'ujuk = sweet."
+        }
+      },
+      "queEs": {
+        "es": "Naranja dulce, que en Yucatán se llama «china».",
+        "en": "Sweet orange, which Yucatecans call \"china\"."
+      },
+      "porQue": {
+        "es": "Es fruta de temporada y forma parte del xe'ek, la mezcla de cítricos y jícama con chile que se ofrece a las ánimas.",
+        "en": "It is in season and is part of xe'ek, the mix of citrus and jícama with chile offered to the souls."
+      },
+      "historia": {
+        "es": "La naranja dulce viene de Asia. Llegó a la Nueva España en el Galeón de Manila (1565–1815) en cajas marcadas «China», y por eso los yucatecos la llamaron así.",
+        "en": "The sweet orange comes from Asia. It reached New Spain on the Manila Galleon (1565–1815) in crates marked \"China\", which is why Yucatecans named it that."
+      },
+      "fuentes": [
+        "diario-china",
+        "uady-pixan",
+        "yuc-gob",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "frutas",
+        "targetIndex": 0
+      },
+      "foto": {
+        "x": 65,
+        "y": 74
+      },
+      "verificado": false
+    },
+    {
+      "id": "mandarina",
+      "n": 36,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Mandarina",
+        "en": "Mandarin orange"
+      },
+      "maya": {
+        "nombre": "",
+        "tipo": "sin",
+        "nota": {
+          "es": "Fruta llegada de Asia; sin nombre maya tradicional.",
+          "en": "A fruit from Asia; no traditional Maya name."
+        }
+      },
+      "queEs": {
+        "es": "Cítrico pequeño y dulce, de cáscara fácil de pelar.",
+        "en": "A small, sweet citrus fruit with easy-to-peel skin."
+      },
+      "porQue": {
+        "es": "Madura justo en estos días, por eso es de las frutas que nunca faltan en el altar y en el xe'ek.",
+        "en": "It ripens right at this time of year, so it is one of the fruits always found on the altar and in xe'ek."
+      },
+      "historia": {
+        "es": "Como la naranja, es originaria de Asia y llegó a México después de la Conquista; hoy es una de las frutas típicas de esta temporada en Yucatán.",
+        "en": "Like the orange, it is native to Asia and reached Mexico after the Conquest; today it is one of the typical fruits of this season in Yucatán."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "yuc-gob",
+        "diario-sabores"
+      ],
+      "camara": {
+        "zona": "frutas",
+        "targetIndex": 1
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "platano",
+      "n": 37,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Plátano manzano",
+        "en": "Apple banana"
+      },
+      "maya": {
+        "nombre": "Ja'as",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Ja'as = plátano.",
+          "en": "Ja'as = banana."
+        }
+      },
+      "queEs": {
+        "es": "Variedad de plátano pequeño, de sabor dulce y un poco ácido, parecido a la manzana.",
+        "en": "A small banana variety with a sweet, slightly tart, apple-like flavor."
+      },
+      "porQue": {
+        "es": "Es una de las frutas de temporada que se ofrecen a las ánimas.",
+        "en": "It is one of the seasonal fruits offered to the souls."
+      },
+      "historia": {
+        "es": "El plátano llegó a América con los europeos en el siglo XVI y se adaptó tan bien al clima de la península que hoy es parte de la comida diaria.",
+        "en": "The banana reached the Americas with Europeans in the 16th century and adapted so well to the peninsula's climate that it is now everyday food."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "frutas",
+        "targetIndex": 2
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "yuca",
+      "n": 38,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Yuca",
+        "en": "Cassava (yuca)"
+      },
+      "maya": {
+        "nombre": "Ts'íin",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Ts'íin = yuca.",
+          "en": "Ts'íin = cassava."
+        }
+      },
+      "queEs": {
+        "es": "Raíz feculenta que se ofrece cocida, muchas veces bañada en miel.",
+        "en": "A starchy root offered cooked, often drizzled with honey."
+      },
+      "porQue": {
+        "es": "La yuca con miel es uno de los dulces tradicionales del Hanal Pixán y representa la dulzura de la vida.",
+        "en": "Cassava with honey is one of the traditional Hanal Pixán sweets and stands for the sweetness of life."
+      },
+      "historia": {
+        "es": "Es un alimento más antiguo que el maíz en tierras mayas. En Joya de Cerén (El Salvador) se encontraron campos de yuca mayas de hace unos 1,400 años, sepultados por un volcán.",
+        "en": "It is a food older than maize in Maya lands. At Joya de Cerén (El Salvador), Maya cassava fields about 1,400 years old were found buried by a volcano."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "arqmex-yuca",
+        "ceren",
+        "posta-altar"
+      ],
+      "camara": {
+        "zona": "frutas",
+        "targetIndex": 3
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "dulce-calabaza",
+      "n": 39,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Dulce de calabaza",
+        "en": "Candied squash"
+      },
+      "maya": {
+        "nombre": "K'úum",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "K'úum = calabaza.",
+          "en": "K'úum = squash."
+        }
+      },
+      "queEs": {
+        "es": "Calabaza cocida en agua con canela y endulzada con miel, azúcar o piloncillo; en Yucatán también se llama calabaza melada.",
+        "en": "Squash simmered with cinnamon and sweetened with honey, sugar or piloncillo; in Yucatán it is also called calabaza melada."
+      },
+      "porQue": {
+        "es": "Es de los dulces que no faltan en el altar: recuerda a las ánimas los sabores que disfrutaban en vida.",
+        "en": "It is one of the sweets always on the altar, reminding the souls of flavors they enjoyed in life."
+      },
+      "historia": {
+        "es": "La calabaza es uno de los cultivos de la milpa maya, junto con el maíz y el frijol. Con sus semillas (pepita) se hacen otros dulces y salsas.",
+        "en": "Squash is one of the Maya milpa crops, along with maize and beans. Its seeds (pepita) are used for other sweets and sauces."
+      },
+      "fuentes": [
+        "posta-dulces",
+        "uady-pixan",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "frutas",
+        "targetIndex": 4
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "jicama",
+      "n": 40,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Jícama",
+        "en": "Jícama"
+      },
+      "maya": {
+        "nombre": "Chi'ikam",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Chi'ikam = jícama.",
+          "en": "Chi'ikam = jícama."
+        }
+      },
+      "queEs": {
+        "es": "Raíz blanca, crujiente y jugosa que se come cruda.",
+        "en": "A white, crunchy, juicy root eaten raw."
+      },
+      "porQue": {
+        "es": "Es fruta de la temporada y base del xe'ek (que en maya significa «revuelto»), la mezcla con naranja, mandarina, chile y cilantro.",
+        "en": "It is in season and is the base of xe'ek (Maya for \"mixed\"), combined with orange, mandarin, chile and cilantro."
+      },
+      "historia": {
+        "es": "Es una planta americana. Su nombre en español viene del náhuatl xicamatl, y en maya se dice chi'ikam.",
+        "en": "It is native to the Americas. Its Spanish name comes from the Nahuatl xicamatl, and in Maya it is chi'ikam."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "uady-dicc",
+        "uady-voces",
+        "diario-sabores"
+      ],
+      "camara": {
+        "zona": "frutas",
+        "targetIndex": 5
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "dulce-coco",
+      "n": 41,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Dulce de coco",
+        "en": "Coconut candy"
+      },
+      "maya": {
+        "nombre": "",
+        "tipo": "sin",
+        "nota": {
+          "es": "El coco no es planta nativa; sin nombre maya tradicional.",
+          "en": "Coconut is not native; no traditional Maya name."
+        }
+      },
+      "queEs": {
+        "es": "Dulces de coco rallado cocido con azúcar: cocadas, cuadritos y labradas de coco.",
+        "en": "Sweets of grated coconut cooked with sugar: cocadas, little squares and labradas."
+      },
+      "porQue": {
+        "es": "Forman parte de la mesa de dulces, sobre todo en el altar de los niños.",
+        "en": "They are part of the sweets table, especially on the children's altar."
+      },
+      "historia": {
+        "es": "El coco no es originario de la península, pero la palmera se volvió abundante en sus costas y la dulcería yucateca lo adoptó.",
+        "en": "Coconut is not native to the peninsula, but the palm became abundant along its coasts and Yucatecan candy makers adopted it."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "diario-sabores",
+        "poresto-guia"
+      ],
+      "camara": {
+        "zona": "frutas",
+        "targetIndex": 6
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "dulce-cocoyol",
+      "n": 42,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Dulce de cocoyol",
+        "en": "Cocoyol palm-fruit candy"
+      },
+      "maya": {
+        "nombre": "Tuk'",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Tuk' = cocoyol (fruto de la palma); la palma es tuk' che'.",
+          "en": "Tuk' = cocoyol (the palm fruit); the palm is tuk' che'."
+        }
+      },
+      "queEs": {
+        "es": "Frutos de la palma de cocoyol cocidos en miel de piloncillo con canela.",
+        "en": "Cocoyol palm fruits cooked in piloncillo syrup with cinnamon."
+      },
+      "porQue": {
+        "es": "Es un dulce tradicional de la temporada que se ofrece a las ánimas. Prepararlo es tan laborioso (pelar, lavar y cocer puede llevar más de cinco días) que es un regalo de mucho cariño.",
+        "en": "It is a traditional seasonal sweet offered to the souls. Making it is so laborious (peeling, washing and cooking can take more than five days) that it is a gift of great care."
+      },
+      "historia": {
+        "es": "El cocoyol es una palma nativa. La receta se atribuye al pueblo de Muna, en la región Puuc, y hoy es difícil de conseguir.",
+        "en": "Cocoyol is a native palm. The recipe is attributed to the town of Muna in the Puuc region, and it is hard to find today."
+      },
+      "fuentes": [
+        "travel-cocoyol",
+        "posta-dulces",
+        "uady-pixan",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "frutas",
+        "targetIndex": 7
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "miel",
+      "n": 43,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Miel",
+        "en": "Honey"
+      },
+      "maya": {
+        "nombre": "Kaab",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Kaab = miel, abeja (y también mundo). La abeja nativa es xunáan kaab, «señora abeja».",
+          "en": "Kaab = honey, bee (and also world). The native bee is xunáan kaab, \"lady bee\"."
+        }
+      },
+      "queEs": {
+        "es": "Miel de abeja, de preferencia de la abeja nativa sin aguijón (Melipona beecheii).",
+        "en": "Bee honey, ideally from the native stingless bee (Melipona beecheii)."
+      },
+      "porQue": {
+        "es": "Endulza la ofrenda: se pone sola o sobre la yuca. Es uno de los alimentos más apreciados de la tradición maya.",
+        "en": "It sweetens the offering, on its own or over cassava. It is one of the most prized foods in Maya tradition."
+      },
+      "historia": {
+        "es": "Los mayas crían a la xunáan kaab desde hace al menos 3,000 años. Su miel se usaba sobre todo como medicina y para preparar el balché, la bebida ceremonial.",
+        "en": "The Maya have kept the xunáan kaab for at least 3,000 years. Its honey was used mainly as medicine and to make balché, the ceremonial drink."
+      },
+      "fuentes": [
+        "mongabay",
+        "uady-pixan",
+        "uady-dicc",
+        "landuum"
+      ],
+      "camara": {
+        "zona": "frutas",
+        "targetIndex": 8
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "aguardiente",
+      "n": 57,
+      "categoria": "bebidas",
+      "nombre": {
+        "es": "Aguardiente",
+        "en": "Aguardiente (cane liquor)"
+      },
+      "maya": {
+        "nombre": "Báalche'",
+        "tipo": "relacionado",
+        "nota": {
+          "es": "No hay un nombre maya para el aguardiente; báalche' es el licor ceremonial maya que ocupaba ese lugar.",
+          "en": "There is no Maya name for aguardiente; báalche' is the Maya ceremonial liquor that held that place."
+        }
+      },
+      "queEs": {
+        "es": "Licor fuerte de caña de azúcar.",
+        "en": "A strong liquor made from sugarcane."
+      },
+      "porQue": {
+        "es": "Se ofrece en el altar de los adultos, junto con los cigarros, como un gusto que tenían en vida.",
+        "en": "It is offered on the adults' altar, together with cigarettes, as a pleasure they enjoyed in life."
+      },
+      "historia": {
+        "es": "La caña de azúcar llegó con los españoles. Antes, la bebida ceremonial era el balché, hecho con la corteza del árbol balché y miel de melipona, que todavía se ofrece en algunos altares.",
+        "en": "Sugarcane arrived with the Spanish. Before that, the ceremonial drink was balché, made from balché tree bark and stingless-bee honey, and some altars still offer it."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "landuum",
+        "diario-sabores",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "bebidas",
+        "targetIndex": 0
+      },
+      "foto": null,
+      "verificado": false
     },
     {
       "id": "chocolate",
-      "nombre": "Chocolate",
-      "nombreMaya": "Chukwa'",
-      "pronunciacion": "chuk-WA",
-      "descripcion": "Chocolate caliente o tablillas de chocolate, muchas veces acompañado de pan.",
-      "significado": "Es una de las bebidas favoritas que se ofrecen, sobre todo a las ánimas de los niños.",
-      "imagen": "",
-      "audio": "",
-      "nivel": 3,
-      "camara": { "targetIndex": null },
-      "foto": { "x": 35, "y": 74 },
-      "verificado": false,
-      "fuente": ""
+      "n": 58,
+      "categoria": "bebidas",
+      "nombre": {
+        "es": "Chocolate",
+        "en": "Hot chocolate"
+      },
+      "maya": {
+        "nombre": "Chukwa'",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Chukwa' = chocolate. Táanchukwa' es el atole con cacao, pimienta y anís.",
+          "en": "Chukwa' = chocolate. Táanchukwa' is a corn drink with cacao, pepper and anise."
+        }
+      },
+      "queEs": {
+        "es": "Chocolate caliente servido en jícara, o táanchukwa', una bebida espesa de masa de maíz con cacao, pimienta y anís.",
+        "en": "Hot chocolate served in a jícara, or táanchukwa', a thick drink of corn dough with cacao, pepper and anise."
+      },
+      "porQue": {
+        "es": "Es parte del desayuno de las ánimas, sobre todo de los niños el 31 de octubre, y se ofrece en jícaras también a los adultos.",
+        "en": "It is part of the souls' breakfast, especially the children's on October 31, and is also offered to adults in jícaras."
+      },
+      "historia": {
+        "es": "El cacao era sagrado para los mayas, que incluso lo usaban como moneda. En una tumba de Río Azul (Guatemala), de hacia el año 400, se halló una vasija con restos de cacao y el glifo kakaw.",
+        "en": "Cacao was sacred to the Maya, who even used it as currency. In a tomb at Río Azul (Guatemala), from around AD 400, a vessel was found with cacao residue and the glyph kakaw."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "atlas-rioazul",
+        "diario-sabores",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "bebidas",
+        "targetIndex": 1
+      },
+      "foto": {
+        "x": 35,
+        "y": 74
+      },
+      "verificado": false
     },
     {
-      "id": "frutas-dulces",
-      "nombre": "Frutas y dulces",
-      "nombreMaya": "",
-      "pronunciacion": "",
-      "descripcion": "Mandarinas, naranjas, jícamas, dulce de calabaza y otros dulces típicos de la temporada.",
-      "significado": "Son los sabores de la temporada que se comparten con los difuntos; los dulces se ponen especialmente para los niños.",
-      "imagen": "",
-      "audio": "",
-      "nivel": 3,
-      "camara": { "targetIndex": null },
-      "foto": { "x": 65, "y": 74 },
-      "verificado": false,
-      "fuente": ""
+      "id": "atole-nuevo",
+      "n": 59,
+      "categoria": "bebidas",
+      "nombre": {
+        "es": "Atole nuevo",
+        "en": "New-corn atole"
+      },
+      "maya": {
+        "nombre": "Sa'",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Sa' = atole. Jo'oche' = ofrenda de primicia.",
+          "en": "Sa' = atole. Jo'oche' = offering of the first fruits."
+        }
+      },
+      "queEs": {
+        "es": "Atole hecho con el maíz nuevo de la cosecha, servido en jícaras.",
+        "en": "Atole made with the new maize from the harvest, served in jícaras."
+      },
+      "porQue": {
+        "es": "Es la primicia: se ofrece a las ánimas lo primero y mejor de la cosecha. En el altar antiguo se ponían jícaras de atole nuevo en las cuatro esquinas y una al centro.",
+        "en": "It is the first-fruits offering: the souls receive the first and best of the harvest. On the old altar, jícaras of new atole were set at the four corners and one in the center."
+      },
+      "historia": {
+        "es": "El maíz es el centro de la vida maya; según el Popol Vuh, libro sagrado de los mayas k'iche', los primeros humanos verdaderos fueron hechos de maíz. El Hanal Pixán coincide con la cosecha, por eso el atole es «nuevo».",
+        "en": "Maize is at the heart of Maya life; according to the Popol Vuh, the sacred book of the K'iche' Maya, the first true humans were made from maize. Hanal Pixán coincides with the harvest, which is why the atole is \"new\"."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "uady-dicc",
+        "diario-altar-2024"
+      ],
+      "camara": {
+        "zona": "bebidas",
+        "targetIndex": 2
+      },
+      "foto": {
+        "x": 27,
+        "y": 50
+      },
+      "verificado": false
     },
     {
-      "id": "fotos",
-      "nombre": "Fotografías de los difuntos",
-      "nombreMaya": "",
-      "pronunciacion": "",
-      "descripcion": "Fotos de los familiares que se recuerdan, en la parte alta del altar.",
-      "significado": "Indican a quién está dedicado el altar y mantienen viva su memoria.",
-      "imagen": "",
-      "audio": "",
-      "nivel": 1,
-      "camara": { "targetIndex": null },
-      "foto": { "x": 50, "y": 15 },
-      "verificado": false,
-      "fuente": ""
+      "id": "cigarros",
+      "n": 60,
+      "categoria": "bebidas",
+      "nombre": {
+        "es": "Cigarros",
+        "en": "Cigarettes"
+      },
+      "maya": {
+        "nombre": "Chamal",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Chamal = cigarro; k'úuts = tabaco. El holoch es el cigarro liado en hoja de maíz.",
+          "en": "Chamal = cigarette; k'úuts = tobacco. Holoch is a cigarette rolled in corn husk."
+        }
+      },
+      "queEs": {
+        "es": "Cigarros o tabaco que fumaba el difunto.",
+        "en": "Cigarettes or tobacco the departed used to smoke."
+      },
+      "porQue": {
+        "es": "Se ponen en el altar de los adultos, junto con el aguardiente, para que el ánima disfrute lo que le gustaba.",
+        "en": "They go on the adults' altar, together with aguardiente, so the soul can enjoy what it liked."
+      },
+      "historia": {
+        "es": "El tabaco es una planta americana y los mayas lo usaban en sus ceremonias desde antes de la llegada de los españoles. En los pueblos se fumaba el holoch, liado en hoja de maíz.",
+        "en": "Tobacco is native to the Americas, and the Maya used it in ceremonies before the Spanish arrived. In villages people smoked holoch, rolled in corn husk."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "uady-dicc",
+        "uady-voces",
+        "poresto-guia"
+      ],
+      "camara": {
+        "zona": "bebidas",
+        "targetIndex": 3
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "lek",
+      "n": 66,
+      "categoria": "recipientes",
+      "nombre": {
+        "es": "Lek (calabazo para tortillas)",
+        "en": "Lek (gourd tortilla holder)"
+      },
+      "maya": {
+        "nombre": "Lek",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Lek = calabazo seco que sirve para guardar las tortillas. (La jícara de beber se llama luuch.)",
+          "en": "Lek = a dried gourd used to keep tortillas. (The drinking jícara is called luuch.)"
+        }
+      },
+      "queEs": {
+        "es": "Recipiente redondo hecho con un calabazo seco, con tapa, que mantiene calientes las tortillas.",
+        "en": "A round container made from a dried gourd, with a lid, that keeps tortillas warm."
+      },
+      "porQue": {
+        "es": "Guarda las tortillas recién hechas para la comida de las ánimas, como en cualquier mesa maya.",
+        "en": "It holds the fresh tortillas for the souls' meal, just as on any Maya table."
+      },
+      "historia": {
+        "es": "Sale de una planta rastrera (Lagenaria). Junto con la jícara (luuch), es uno de los recipientes tradicionales de la cocina maya, biodegradables y hechos en casa.",
+        "en": "It comes from a trailing gourd plant (Lagenaria). Together with the jícara (luuch), it is one of the traditional, biodegradable, homemade vessels of the Maya kitchen."
+      },
+      "fuentes": [
+        "uady-voces",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "bebidas",
+        "targetIndex": 4
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "platos-barro",
+      "n": 67,
+      "categoria": "recipientes",
+      "nombre": {
+        "es": "Platos pequeños de barro",
+        "en": "Small clay plates"
+      },
+      "maya": {
+        "nombre": "Lak",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Lak = taza, plato o cazuela de barro.",
+          "en": "Lak = clay cup, plate or pot."
+        }
+      },
+      "queEs": {
+        "es": "Platos y cazuelas pequeñas de barro donde se sirve la comida del altar.",
+        "en": "Small clay plates and pots in which the altar food is served."
+      },
+      "porQue": {
+        "es": "La comida de las ánimas se sirve en loza sencilla y tradicional, como se hacía en las casas antes de la vajilla moderna.",
+        "en": "The souls' food is served on simple, traditional earthenware, as in homes before modern dishware."
+      },
+      "historia": {
+        "es": "La alfarería es una de las artes mayas más antiguas. En Yucatán, el pueblo de Ticul es famoso por su barro.",
+        "en": "Pottery is one of the oldest Maya crafts. In Yucatán, the town of Ticul is famous for its clay work."
+      },
+      "fuentes": [
+        "uady-dicc",
+        "uady-pixan"
+      ],
+      "camara": {
+        "zona": "bebidas",
+        "targetIndex": 5
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "tortear",
+      "n": 68,
+      "categoria": "complementos",
+      "nombre": {
+        "es": "Tortear (tortillas hechas a mano)",
+        "en": "Hand-made tortillas"
+      },
+      "maya": {
+        "nombre": "Waaj",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Waaj = tortilla de maíz.",
+          "en": "Waaj = corn tortilla."
+        }
+      },
+      "queEs": {
+        "es": "Tortillas de maíz palmeadas a mano («torteadas») y cocidas en el comal.",
+        "en": "Corn tortillas patted out by hand and cooked on the comal."
+      },
+      "porQue": {
+        "es": "La tortilla acompaña toda la comida de las ánimas. En el altar maya antiguo se ponían siete montones de trece tortillas, en recuerdo de la cuenta del calendario sagrado.",
+        "en": "Tortillas accompany all of the souls' food. On the old Maya altar, seven stacks of thirteen tortillas were set out, recalling the count of the sacred calendar."
+      },
+      "historia": {
+        "es": "La tortilla de maíz nixtamalizado es la base de la alimentación maya desde hace siglos; tortear a mano es un saber que se aprende en familia.",
+        "en": "Tortillas of nixtamalized maize have been the base of Maya food for centuries; making them by hand is a skill learned in the family."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "ropa",
+        "targetIndex": 0
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "comal",
+      "n": 69,
+      "categoria": "complementos",
+      "nombre": {
+        "es": "Comal",
+        "en": "Comal (griddle)"
+      },
+      "maya": {
+        "nombre": "Xamach",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Xamach = comal.",
+          "en": "Xamach = comal."
+        }
+      },
+      "queEs": {
+        "es": "Disco plano de barro o de metal que se pone sobre el fogón para cocer las tortillas.",
+        "en": "A flat clay or metal disk set over the fire to cook tortillas."
+      },
+      "porQue": {
+        "es": "Representa la cocina de la casa, donde se prepara la comida que se ofrece a las ánimas.",
+        "en": "It represents the home kitchen, where the food offered to the souls is prepared."
+      },
+      "historia": {
+        "es": "Es un utensilio prehispánico: los comales de barro se usaban en toda Mesoamérica. La palabra «comal» viene del náhuatl comalli; en maya se dice xamach.",
+        "en": "It is a pre-Hispanic utensil: clay comales were used throughout Mesoamerica. \"Comal\" comes from the Nahuatl comalli; in Maya it is xamach."
+      },
+      "fuentes": [
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "ropa",
+        "targetIndex": 1
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "filipina",
+      "n": 70,
+      "categoria": "complementos",
+      "nombre": {
+        "es": "Filipina",
+        "en": "Filipina (Yucatecan formal shirt)"
+      },
+      "maya": {
+        "nombre": "Nook'",
+        "tipo": "relacionado",
+        "nota": {
+          "es": "Nook' = ropa o vestido en general.",
+          "en": "Nook' = clothing in general."
+        }
+      },
+      "queEs": {
+        "es": "Camisa blanca de lino o algodón, de manga larga y cuello alto y redondo, con botonadura de oro: la prenda de gala del hombre yucateco.",
+        "en": "A white linen or cotton shirt with long sleeves and a high round collar, with gold buttons: the Yucatecan man's formal garment."
+      },
+      "porQue": {
+        "es": "En el altar de los adultos se pone ropa y calzado para que el ánima regrese limpia a su morada.",
+        "en": "Clothing and shoes are placed on the adults' altar so the soul can return clean to its resting place."
+      },
+      "historia": {
+        "es": "Forma parte del traje regional masculino, junto con el pantalón blanco, las alpargatas y el sombrero de jipi, y se usa en jaranas y vaquerías.",
+        "en": "It is part of the men's regional outfit, with white trousers, alpargatas and a jipi hat, worn at jaranas and vaquerías."
+      },
+      "fuentes": [
+        "poresto-guia",
+        "descubro-traje",
+        "traje-regional"
+      ],
+      "camara": {
+        "zona": "ropa",
+        "targetIndex": 2
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "pantalon",
+      "n": 71,
+      "categoria": "complementos",
+      "nombre": {
+        "es": "Pantalón blanco",
+        "en": "White trousers"
+      },
+      "maya": {
+        "nombre": "Eex",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Eex = pantalón, calzón.",
+          "en": "Eex = trousers."
+        }
+      },
+      "queEs": {
+        "es": "Pantalón blanco de dril, de corte recto, que completa el traje de gala con la filipina.",
+        "en": "Straight-cut white drill-cotton trousers that complete the formal outfit with the filipina."
+      },
+      "porQue": {
+        "es": "Como la filipina, es ropa limpia que se ofrece al ánima para su regreso.",
+        "en": "Like the filipina, it is clean clothing offered to the soul for its return."
+      },
+      "historia": {
+        "es": "El blanco es el color de la ropa de fiesta del campesino y del mestizo yucateco: fresca para el calor y símbolo de limpieza.",
+        "en": "White is the festive color of Yucatecan farmers and mestizos: cool in the heat and a sign of cleanliness."
+      },
+      "fuentes": [
+        "descubro-traje",
+        "poresto-guia",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "ropa",
+        "targetIndex": 3
+      },
+      "foto": null,
+      "verificado": false
+    },
+    {
+      "id": "alpargatas",
+      "n": 72,
+      "categoria": "complementos",
+      "nombre": {
+        "es": "Alpargatas",
+        "en": "Alpargatas (leather sandals)"
+      },
+      "maya": {
+        "nombre": "Xanab",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Xanab = zapato, alpargata o cualquier calzado.",
+          "en": "Xanab = shoe, sandal or any footwear."
+        }
+      },
+      "queEs": {
+        "es": "Calzado blanco de piel de res (vaqueta) con tacón bajo y grueso, típico del traje regional.",
+        "en": "White cowhide footwear with a low, thick heel, typical of the regional outfit."
+      },
+      "porQue": {
+        "es": "Se pone calzado en el altar para que el ánima pueda emprender su camino de regreso.",
+        "en": "Footwear is placed on the altar so the soul can set out on its way back."
+      },
+      "historia": {
+        "es": "Su nombre llegó con el español (viene del árabe hispánico). En Yucatán se llama así al calzado blanco de piel del traje regional, que se usa para bailar jarana.",
+        "en": "The name came with Spanish (from Hispanic Arabic). In Yucatán it refers to the white leather shoes of the regional outfit, worn to dance the jarana."
+      },
+      "fuentes": [
+        "poresto-guia",
+        "descubro-traje",
+        "uady-dicc"
+      ],
+      "camara": {
+        "zona": "ropa",
+        "targetIndex": 4
+      },
+      "foto": null,
+      "verificado": false
     }
   ]
 }

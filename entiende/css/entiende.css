@@ -121,3 +121,31 @@ a { color: var(--naranja); }
   background: rgba(226, 69, 122, 0.15);
   border: 1px solid var(--rosa);
 }
+
+/* ---------- Selector de idioma ---------- */
+.selector-idioma {
+  display: inline-flex; padding: 3px; gap: 2px;
+  border-radius: 999px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--borde);
+}
+.selector-idioma button {
+  min-width: 44px; min-height: 36px; padding: 0 10px; border: 0; border-radius: 999px;
+  background: transparent; color: var(--texto); font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer;
+}
+.selector-idioma button[aria-pressed="true"] { background: var(--naranja); color: #2a1606; }
+
+/* ---------- Ficha: nombres y fuentes ---------- */
+.ficha .ficha-num { margin: 0 0 2px; color: var(--texto-suave); font-size: .8rem; letter-spacing: .06em; }
+.ficha .nombres { margin: 10px 0 4px; display: grid; gap: 8px; }
+.ficha .nombres > div {
+  display: grid; grid-template-columns: 92px 1fr; gap: 8px; align-items: baseline;
+  padding: 8px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.05);
+}
+.ficha .nombres dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-suave); }
+.ficha .nombres dd { margin: 0; }
+.ficha .nombre-maya strong { color: var(--naranja); font-size: 1.15rem; }
+.ficha .nombres small { color: var(--texto-suave); }
+.ficha .nombres .nota { display: block; margin-top: 2px; font-size: .85rem; color: var(--texto-suave); }
+.ficha .fuentes { margin-top: 18px; font-size: .85rem; color: var(--texto-suave); }
+.ficha .fuentes summary { cursor: pointer; min-height: 32px; }
+.ficha .fuentes ul { margin: 6px 0 0; padding-left: 1.1em; }
+.ficha .fuentes li { margin-bottom: 4px; }
