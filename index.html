@@ -30,8 +30,8 @@
     <p data-es="Juega, aprende y entiende nuestro altar." data-en="Play, learn and understand our altar."></p>
     <a class="parte pendiente" href="juega/"><strong data-es="Juega" data-en="Play"></strong>
       <span data-es="Arma el altar (próximamente)" data-en="Build the altar (coming soon)"></span></a>
-    <a class="parte pendiente" href="aprende/"><strong data-es="Aprende" data-en="Learn"></strong>
-      <span data-es="¿Qué es el Hanal Pixán? (próximamente)" data-en="What is Hanal Pixán? (coming soon)"></span></a>
+    <a class="parte" href="aprende/" id="link-aprende"><strong data-es="Aprende" data-en="Learn"></strong>
+      <span data-es="¿Qué es el Hanal Pixán? Historia, fechas y palabras en maya" data-en="What is Hanal Pixán? History, dates and Maya words"></span></a>
     <a class="parte" href="entiende/" id="link-entiende"><strong data-es="Entiende" data-en="Understand"></strong>
       <span data-es="Apunta la cámara al altar y descubre cada elemento" data-en="Point your camera at the altar and discover each element"></span></a>
   </main>
@@ -49,6 +49,7 @@
         document.querySelectorAll('[data-es]').forEach(function (n) { n.textContent = n.getAttribute('data-' + l); });
         document.querySelectorAll('[data-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === l)); });
         document.getElementById('link-entiende').href = 'entiende/' + (l === 'en' ? '?lang=en' : '');
+        document.getElementById('link-aprende').href = 'aprende/' + (l === 'en' ? '?lang=en' : '');
       }
       document.querySelectorAll('[data-lang]').forEach(function (b) {
         b.addEventListener('click', function () { poner(b.dataset.lang); });

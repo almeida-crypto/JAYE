@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#160f1f">
+  <meta name="description" content="Aprende qué es el Hanal Pixán de Yucatán: cuándo se celebra, cómo se arma el altar, qué se come y las palabras en maya.">
+  <title>Aprende · Hanal Pixán</title>
+  <link rel="stylesheet" href="css/aprende.css">
+</head>
+<body>
+  <div class="papel-picado" aria-hidden="true"></div>
+
+  <noscript>
+    <div class="noscript-aviso">
+      <p lang="es">Esta página necesita JavaScript: los textos, las fichas y el cambio de idioma se cargan con él. Mientras tanto puedes ver la sección <a href="../entiende/">Entiende</a>.</p>
+      <p lang="en">This page needs JavaScript: its texts, cards and language switch are loaded with it. In the meantime you can visit the <a href="../entiende/">Understand</a> section.</p>
+    </div>
+  </noscript>
+
+  <main>
+    <!-- 1) Cabecera -->
+    <header class="cabecera" id="cabecera">
+      <img class="silueta-altar silueta-altar--cabecera" src="img/iconos/altar-silueta.svg" alt="" loading="lazy" width="160" height="48" aria-hidden="true">
+      <div class="fila-arriba">
+        <p class="eyebrow"><span data-t="navJuega"></span> · <span class="resalta" data-t="navAprende"></span> · <span data-t="navEntiende"></span></p>
+        <div data-idioma></div>
+      </div>
+      <h1 data-t="tituloPagina">Aprende sobre el Hanal Pixán</h1>
+      <p class="intro" data-t-html="subtitulo">La comida de las ánimas: cómo se vive el Hanal Pixán en Yucatán.</p>
+      <img class="cabecera-svg" data-img="cabecera" src="img/iconos/cabecera.svg" alt="" loading="lazy" width="160" height="40">
+    </header>
+
+    <!-- Menú de anclas -->
+    <nav class="menu-anclas" aria-label="Secciones / Sections">
+      <ul>
+        <li><a href="#que-es" data-t="navQueEs"></a></li>
+        <li><a href="#cuando" data-t="navCuando"></a></li>
+        <li><a href="#camino" data-t="navCamino"></a></li>
+        <li><a href="#altar" data-t="navAltar"></a></li>
+        <li><a href="#sabores" data-t="navSabores"></a></li>
+        <li><a href="#maya" data-t="navMaya"></a></li>
+        <li><a href="#curiosos" data-t="navCuriosos"></a></li>
+        <li><a href="#no-es" data-t="navNoEs"></a></li>
+        <li><a href="#fuentes" data-t="navFuentes"></a></li>
+      </ul>
+    </nav>
+
+    <p class="aviso-error" id="aviso-error" hidden></p>
+    <p class="glos-vacio" id="cargando"></p>
+
+    <!-- 2) ¿Qué es el Hanal Pixán? -->
+    <section class="seccion" id="que-es">
+      <h2 data-t="queEsTitulo">¿Qué es el Hanal Pixán?</h2>
+      <div class="tarjeta">
+        <p class="parrafo" data-t-html="textoB"></p>
+        <span class="etiqueta" data-t="vocabTitulo"></span>
+        <ul class="vocab">
+          <li><b lang="yua">hanal</b><span data-t="significadoHanal"></span></li>
+          <li><b lang="yua">pixán</b><span data-t="significadoPixan"></span></li>
+        </ul>
+        <p class="borrador" data-aviso hidden></p>
+      </div>
+    </section>
+
+    <div class="separador-cruz" aria-hidden="true"></div>
+
+    <!-- 3) ¿Cuándo se celebra? -->
+    <section class="seccion" id="cuando">
+      <h2 data-t="cuandoTitulo">¿Cuándo se celebra?</h2>
+      <div class="fechas">
+        <article class="fecha">
+          <img class="fecha-svg" data-img="ninos" src="img/iconos/ninos.svg" alt="" loading="lazy">
+          <h3 data-t="fecha31">31 de octubre · niños</h3>
+          <p data-t="fecha31Texto"></p>
+          <div class="chips" data-chips="ninos"></div>
+        </article>
+        <article class="fecha">
+          <img class="fecha-svg" data-img="adultos" src="img/iconos/adultos.svg" alt="" loading="lazy">
+          <h3 data-t="fecha1">1 de noviembre · adultos</h3>
+          <p data-t="fecha1Texto"></p>
+          <div class="chips" data-chips="adultos"></div>
+        </article>
+      </div>
+    </section>
+
+    <div class="separador-cruz" aria-hidden="true"></div>
+
+    <!-- 4) El camino de las ánimas -->
+    <section class="seccion" id="camino">
+      <h2 data-t="caminoTitulo">El camino de las ánimas</h2>
+      <ol class="camino" id="camino-pasos"></ol>
+    </section>
+
+    <div class="separador-cruz" aria-hidden="true"></div>
+
+    <!-- 5) El altar por partes -->
+    <section class="seccion" id="altar">
+      <h2 data-t="altarTitulo">El altar por partes</h2>
+      <div id="altar-zonas"></div>
+    </section>
+
+    <div class="separador-cruz" aria-hidden="true"></div>
+
+    <!-- 6) Sabores del Hanal Pixán -->
+    <section class="seccion" id="sabores">
+      <h2 data-t="saboresTitulo">Sabores del Hanal Pixán</h2>
+      <p class="pista-carrusel" data-t="desliza"></p>
+      <div class="carrusel" id="sabores-carrusel"></div>
+    </section>
+
+    <div class="separador-cruz" aria-hidden="true"></div>
+
+    <!-- 7) Palabras en maya -->
+    <section class="seccion" id="maya">
+      <h2 data-t="mayaTitulo">Palabras en maya</h2>
+      <label class="etiqueta suave" for="buscador" data-t="buscadorLabel"></label>
+      <input class="buscador" id="buscador" type="search" autocomplete="off">
+      <p class="glos-vacio" id="glos-vacio" hidden></p>
+      <ul class="glosario" id="glosario"></ul>
+      <p class="nota-glosario" data-t="notaSin"></p>
+    </section>
+
+    <div class="separador-cruz" aria-hidden="true"></div>
+
+    <!-- 8) Datos curiosos -->
+    <section class="seccion" id="curiosos">
+      <h2 data-t="curiososTitulo">Datos curiosos</h2>
+      <p class="pista-carrusel" data-t="desliza"></p>
+      <div class="carrusel" id="curiosos-carrusel"></div>
+    </section>
+
+    <div class="separador-cruz" aria-hidden="true"></div>
+
+    <!-- 9) Lo que no es -->
+    <section class="seccion" id="no-es">
+      <h2 data-t="noEsTitulo">Lo que no es</h2>
+      <div class="tarjeta" id="tarjeta-no-es">
+        <p class="parrafo" data-t-html="textoC"></p>
+        <div class="chips" id="no-es-chips"></div>
+        <p class="borrador" data-aviso hidden></p>
+      </div>
+    </section>
+
+    <div class="separador-cruz" aria-hidden="true"></div>
+
+    <!-- 10) Fuentes -->
+    <section class="seccion" id="fuentes">
+      <h2 data-t="fuentesTitulo">Fuentes</h2>
+      <ul class="fuentes-lista" id="fuentes-lista"></ul>
+      <p class="borrador" data-aviso hidden></p>
+    </section>
+
+    <!-- 11) Pie -->
+    <footer class="pie">
+      <img class="silueta-altar silueta-altar--pie" src="img/iconos/altar-silueta.svg" alt="" loading="lazy" width="160" height="48" aria-hidden="true">
+      <a class="boton secundario" href="../index.html" data-interno="../index.html" data-t="inicio"></a>
+      <a class="boton" href="../entiende/" data-interno="../entiende/" data-t="irEntiende"></a>
+      <a class="boton secundario" href="../juega/" data-interno="../juega/" data-t="irJuega"></a>
+    </footer>
+  </main>
+
+  <script src="js/textos.js"></script>
+  <script src="js/aprende.js"></script>
+</body>
+</html>
