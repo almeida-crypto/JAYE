@@ -291,9 +291,13 @@ h1 {
   background-clip: content-box;
 }
 
-/* ---------- Fechas (31 oct / 1 nov) ---------- */
+/* ---------- Fechas (31 oct / 1 nov / 2 nov) ---------- */
 .fechas { display: grid; gap: 12px; }
-@media (min-width: 560px) { .fechas { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 560px) {
+  .fechas { grid-template-columns: 1fr 1fr; }
+  /* La tercera fecha (2 de noviembre) ocupa todo el ancho */
+  .fechas > .fecha:nth-child(3) { grid-column: 1 / -1; }
+}
 
 .fecha {
   display: flex;

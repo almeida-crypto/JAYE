@@ -38,6 +38,10 @@ var TEXTOS = {
     fecha31Texto: 'Se dedica a los niños. El mantel lleva bordados de colores y las velas son de colores.',
     fecha1: '1 de noviembre · adultos',
     fecha1Texto: 'Se dedica a los adultos. El mantel lleva bordados negros y las velas son grandes y blancas.',
+    // 2 de noviembre: revisado por practicantes de la tradición
+    // (Amada Rosado, 70 años de tradición; Socorro Rodríguez, Mérida, ~76 años) — oct 2026.
+    fecha2: '2 de noviembre · Día de Todos los Santos',
+    fecha2Texto: 'Aquí se celebran los niños, las mascotas y los adultos por igual. Generalmente es un día que usan las familias, pero no siempre.',
 
     // 3) El camino de las ánimas
     caminoTitulo: 'El camino de las ánimas',
@@ -113,6 +117,8 @@ var TEXTOS = {
     fecha31Texto: 'Dedicated to children. The tablecloth has colorful embroidery and the candles are colored.',
     fecha1: 'November 1 · adults',
     fecha1Texto: 'Dedicated to adults. The tablecloth has black embroidery and the candles are large and white.',
+    fecha2: 'November 2 · All Saints’ Day',
+    fecha2Texto: 'Children, pets and adults are celebrated alike. It is generally a day families share, though not always.',
 
     caminoTitulo: 'The path of the souls',
 

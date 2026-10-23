@@ -142,6 +142,13 @@ mientras sea así, la página y cada ficha muestran el aviso «Texto investigado
 revisión final de alguien que practica la tradición.». Al revisar un elemento, cambien
 `verificado` a `true` en `data/elementos.json`.
 
+**Revisión de practicantes (oct 2026):** el texto de la tercera fecha, **«2 de noviembre ·
+Día de Todos los Santos»** (sección «¿Cuándo se celebra?»), fue revisado por
+**Amada Rosado** (habitante de pueblo, 70 años de tradición) y **Socorro Rodríguez**
+(habitante de Mérida, ~76 años de tradición). La fecha en sí se apoya en la fuente
+`yuc-gob` (Gobierno de Yucatán: tercer día, *u janal pixanoob* o misa pixán). El resto de
+los textos sigue esperando esa revisión.
+
 ## Peso
 
 HTML + CSS + JS < 150 KB (sin contar `data/elementos.json`). Los SVG se cargan con

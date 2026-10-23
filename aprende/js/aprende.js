@@ -13,6 +13,7 @@
     cabecera:   { src: '', alt: { es: '', en: '' } },
     ninos:      { src: '', alt: { es: '', en: '' } },   // 31 de octubre
     adultos:    { src: '', alt: { es: '', en: '' } },   // 1 de noviembre
+    santos:     { src: '', alt: { es: '', en: '' } },   // 2 de noviembre · Todos los Santos
     loQueNoEs:  { src: '', alt: { es: '', en: '' } }
   };
 
