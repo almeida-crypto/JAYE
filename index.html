@@ -3,38 +3,77 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#160f1f">
+  <meta name="theme-color" content="#140c1f">
+  <meta name="description" content="Altar de Hanal Pixán del Grupo DSM 4D (UTM): juega, aprende y entiende cada elemento del altar yucateco.">
   <title>Juega, Aprende y Entiende · Hanal Pixán</title>
-  <!-- Inicio provisional: al unir las tres partes, este archivo se reemplaza por el diseño común -->
-  <link rel="stylesheet" href="entiende/css/entiende.css">
-  <style>
-    main { max-width: 520px; margin: 0 auto; padding: 20px 16px 40px; }
-    .arriba { display: flex; justify-content: flex-end; margin-bottom: 12px; }
-    h1 { font-size: 2.2rem; line-height: 1.1; margin: 0 0 8px; }
-    p { color: var(--texto-suave); margin: 0 0 24px; }
-    a.parte {
-      display: block; padding: 20px; margin-bottom: 14px; border-radius: var(--radio);
-      background: var(--fondo-2); border: 1px solid var(--borde); color: var(--texto); text-decoration: none;
-    }
-    a.parte strong { display: block; font-size: 1.3rem; color: var(--naranja); }
-    a.parte.pendiente { opacity: .55; }
-  </style>
+  <link rel="preload" href="assets/fonts/yeseva-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/portada.css">
 </head>
 <body>
-  <div class="papel-picado" aria-hidden="true"></div>
-  <main>
-    <div class="arriba"><div class="selector-idioma" role="group" aria-label="Idioma / Language">
-      <button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>
-    </div></div>
-    <h1>Hanal Pixán</h1>
-    <p data-es="Juega, aprende y entiende nuestro altar." data-en="Play, learn and understand our altar."></p>
-    <a class="parte pendiente" href="juega/"><strong data-es="Juega" data-en="Play"></strong>
-      <span data-es="Arma el altar (próximamente)" data-en="Build the altar (coming soon)"></span></a>
-    <a class="parte" href="aprende/" id="link-aprende"><strong data-es="Aprende" data-en="Learn"></strong>
-      <span data-es="¿Qué es el Hanal Pixán? Historia, fechas y palabras en maya" data-en="What is Hanal Pixán? History, dates and Maya words"></span></a>
-    <a class="parte" href="entiende/" id="link-entiende"><strong data-es="Entiende" data-en="Understand"></strong>
-      <span data-es="Apunta la cámara al altar y descubre cada elemento" data-en="Point your camera at the altar and discover each element"></span></a>
-  </main>
+  <svg class="papel" aria-hidden="true"></svg>
+
+  <div class="envoltura">
+    <div class="barra">
+      <span class="chip"><i></i><span data-es="Grupo DSM 4D · UTM" data-en="DSM 4D group · UTM"></span></span>
+      <div class="selector-idioma" role="group" aria-label="Idioma / Language">
+        <button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <main class="bento">
+      <!-- Héroe -->
+      <section class="tile heroe ancha" aria-labelledby="titulo">
+        <span class="vela-glow" aria-hidden="true"></span>
+        <img class="adorno" src="entiende/img/iconos/velas.png" alt="" aria-hidden="true">
+        <p class="eyebrow" data-es="Altar de Día de Muertos · Yucatán" data-en="Day of the Dead altar · Yucatán"></p>
+        <h1 id="titulo">Hanal Pixán</h1>
+        <p class="sub" data-es="La comida de las ánimas" data-en="The food of the souls"></p>
+        <p class="lema" data-es="Juega, aprende y entiende nuestro altar: qué es cada elemento, por qué está ahí y cómo se dice en maya." data-en="Play, learn and understand our altar: what each element is, why it is there and how to say it in Maya."></p>
+        <div class="datos">
+          <span class="chip" data-es="38 elementos" data-en="38 elements"></span>
+          <span class="chip">Español · Maaya t'aan · English</span>
+        </div>
+      </section>
+
+      <!-- Juega (pendiente: cuando esté lista, cambia este <div> por <a href="juega/"> y quita "apagada") -->
+      <div class="tile apagada" id="tile-juega" aria-disabled="true">
+        <div class="cabeza"><span class="num">01</span><span class="chip pronto" data-es="Próximamente" data-en="Coming soon"></span></div>
+        <div class="parches" aria-hidden="true">
+          <img src="entiende/img/iconos/comal.png" alt=""><img src="entiende/img/iconos/tortear.png" alt=""><img src="entiende/img/iconos/platano.png" alt="">
+        </div>
+        <h3 data-es="Juega" data-en="Play"></h3>
+        <p data-es="Arma el altar: pon cada elemento en su lugar." data-en="Build the altar: put each element in its place."></p>
+        <span class="ir suave" data-es="En camino…" data-en="On its way…"></span>
+      </div>
+
+      <a class="tile" href="aprende/" id="link-aprende">
+        <div class="cabeza"><span class="num">02</span><span class="chip"><i></i><span data-es="Listo" data-en="Ready"></span></span></div>
+        <div class="parches" aria-hidden="true">
+          <img src="entiende/img/iconos/flores.png" alt=""><img src="entiende/img/iconos/cruz-verde.png" alt=""><img src="entiende/img/iconos/incienso.png" alt="">
+        </div>
+        <h3 data-es="Aprende" data-en="Learn"></h3>
+        <p data-es="¿Qué es el Hanal Pixán? Historia, fechas, sabores y palabras en maya." data-en="What is Hanal Pixán? History, dates, flavors and Maya words."></p>
+        <span class="ir"><span data-es="Aprender" data-en="Learn"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+
+      <a class="tile" href="entiende/" id="link-entiende">
+        <div class="cabeza"><span class="num">03</span><span class="chip"><i></i><span data-es="Listo" data-en="Ready"></span></span></div>
+        <div class="parches" aria-hidden="true">
+          <img src="entiende/img/iconos/pib.png" alt=""><img src="entiende/img/iconos/jicaras-bejuco.png" alt=""><img src="entiende/img/iconos/chocolate.png" alt="">
+        </div>
+        <h3 data-es="Entiende" data-en="Understand"></h3>
+        <p data-es="Apunta la cámara a las tarjetas del altar o recorre el altar digital." data-en="Point your camera at the altar cards or explore the digital altar."></p>
+        <span class="ir"><span data-es="Entender" data-en="Explore"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </main>
+
+    <footer class="pie">
+      <span class="logo"><img src="assets/img/utm.png" alt="Universidad Tecnológica Metropolitana" width="480" height="172"></span>
+      <span data-es="Hecho por el Grupo DSM 4D" data-en="Made by the DSM 4D group"></span>
+    </footer>
+  </div>
+
+  <script src="assets/js/portada.js"></script>
   <script>
     (function () {
       var K = 'jaye-idioma';

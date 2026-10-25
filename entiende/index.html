@@ -3,47 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#160f1f">
+  <meta name="theme-color" content="#140c1f">
   <title>Entiende el altar · Hanal Pixán</title>
-  <link rel="stylesheet" href="css/entiende.css">
-  <style>
-    main { max-width: 520px; margin: 0 auto; padding: 20px 16px 40px; }
-    .arriba { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .eyebrow { color: var(--naranja); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: .8rem; margin: 0; }
-    h1 { font-size: 2.2rem; line-height: 1.1; margin: 0 0 12px; }
-    .intro { color: var(--texto-suave); margin: 0 0 28px; }
-    .opcion {
-      display: block; padding: 20px; margin-bottom: 14px;
-      border-radius: var(--radio); border: 1px solid var(--borde);
-      background: var(--fondo-2); color: var(--texto); text-decoration: none;
-    }
-    .opcion strong { display: block; font-size: 1.2rem; margin-bottom: 4px; }
-    .opcion span { color: var(--texto-suave); }
-    .opcion.principal { border-color: var(--naranja); }
-    .volver { display: inline-block; margin-top: 18px; }
-  </style>
+  <link rel="preload" href="../assets/fonts/yeseva-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/portada.css">
 </head>
 <body>
-  <div class="papel-picado" aria-hidden="true"></div>
-  <main>
-    <div class="arriba">
-      <p class="eyebrow">Juega · Aprende · Entiende</p>
+  <svg class="papel" aria-hidden="true"></svg>
+
+  <div class="envoltura">
+    <div class="barra">
+      <a class="volver-link" href="../index.html" data-t="inicio"></a>
       <div data-idioma></div>
     </div>
-    <h1 data-t="tituloEntiende">Entiende el altar</h1>
-    <p class="intro" data-t="introEntiende"></p>
 
-    <a class="opcion principal" href="camara.html">
-      <strong data-t="usarCamara"></strong>
-      <span data-t="usarCamaraDesc"></span>
-    </a>
-    <a class="opcion" href="foto.html">
-      <strong data-t="verFoto"></strong>
-      <span data-t="verFotoDesc"></span>
-    </a>
+    <main class="bento dos">
+      <section class="tile heroe ancha" aria-labelledby="titulo">
+        <span class="vela-glow" aria-hidden="true"></span>
+        <img class="adorno" src="img/iconos/cruz-verde.png" alt="" aria-hidden="true">
+        <p class="eyebrow" data-t="eyebrowEntiende"></p>
+        <h1 id="titulo" data-t="tituloEntiende">Entiende el altar</h1>
+        <p class="lema" data-t="introEntiende"></p>
+        <div class="datos">
+          <span class="chip" data-t="dato38"></span>
+          <span class="chip" data-t="datoIdiomas"></span>
+        </div>
+      </section>
 
-    <a class="volver" href="../index.html" data-t="inicio"></a>
-  </main>
+      <a class="tile" href="camara.html">
+        <div class="cabeza"><span class="num">A</span><span class="chip naranja" data-t="recomendado"></span></div>
+        <div class="parches" aria-hidden="true">
+          <img src="img/iconos/fotografia.png" alt=""><img src="img/iconos/velas.png" alt=""><img src="img/iconos/rosario.png" alt=""><img src="img/iconos/flores.png" alt="">
+        </div>
+        <h3 data-t="tCamara"></h3>
+        <p data-t="usarCamaraDesc"></p>
+        <span class="ir"><span data-t="abrirCamara"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+
+      <a class="tile" href="foto.html">
+        <div class="cabeza"><span class="num">B</span><span class="chip" data-t="sinCamara"></span></div>
+        <div class="parches" aria-hidden="true">
+          <img src="img/iconos/pib.png" alt=""><img src="img/iconos/china.png" alt=""><img src="img/iconos/atole-nuevo.png" alt="">
+        </div>
+        <h3 data-t="tAltar"></h3>
+        <p data-t="verFotoDesc"></p>
+        <span class="ir suave"><span data-t="verAltar"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </main>
+
+    <footer class="pie">
+      <span class="logo"><img src="../assets/img/utm.png" alt="Universidad Tecnológica Metropolitana" width="480" height="172"></span>
+      <span data-t="hechoPor">Grupo DSM 4D</span>
+    </footer>
+  </div>
+
   <script src="js/datos.js"></script>
+  <script src="../assets/js/portada.js"></script>
 </body>
 </html>

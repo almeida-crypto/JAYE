@@ -36,6 +36,10 @@
       tituloEntiende: 'Entiende el altar', introEntiende: 'Descubre qué es cada elemento de nuestro altar de Hanal Pixán y por qué está ahí.',
       usarCamara: '📷 Usar la cámara', usarCamaraDesc: 'Apunta a las tarjetas bordadas del altar y toca el nombre que aparece.',
       verFoto: '🏮 Ver el altar digital', verFotoDesc: 'Recorre el altar ilustrado y toca cualquier elemento. Funciona sin cámara.',
+      // portada de Entiende
+      eyebrowEntiende: 'Parte 3 · Entiende', tCamara: 'Con la cámara', tAltar: 'Altar digital',
+      recomendado: 'Recomendado', sinCamara: 'Sin cámara', abrirCamara: 'Abrir cámara', verAltar: 'Ver el altar',
+      dato38: '38 elementos', hechoPor: 'Hecho por el Grupo DSM 4D', datoIdiomas: 'Español · Maaya t\'aan · English',
       // foto
       nuestroAltar: 'Altar digital', tocaPunto: 'Toca cualquier elemento del altar para saber qué es y por qué está ahí.',
       todos: 'Todo', ampliar: '🔍 Ampliar', reducir: '🔍 Reducir', recorrer: '▶ Recorrer el altar',
@@ -67,6 +71,9 @@
       tituloEntiende: 'Understand the altar', introEntiende: 'Discover what each element of our Hanal Pixán altar is and why it is there.',
       usarCamara: '📷 Use the camera', usarCamaraDesc: 'Point at the embroidered cards on the altar and tap the name that appears.',
       verFoto: '🏮 See the digital altar', verFotoDesc: 'Explore the illustrated altar and tap any element. Works without a camera.',
+      eyebrowEntiende: 'Part 3 · Understand', tCamara: 'With the camera', tAltar: 'Digital altar',
+      recomendado: 'Recommended', sinCamara: 'No camera', abrirCamara: 'Open camera', verAltar: 'See the altar',
+      dato38: '38 elements', hechoPor: 'Made by the DSM 4D group', datoIdiomas: 'Spanish · Maaya t\'aan · English',
       nuestroAltar: 'Digital altar', tocaPunto: 'Tap any element on the altar to learn what it is and why it is there.',
       todos: 'All', ampliar: '🔍 Zoom in', reducir: '🔍 Zoom out', recorrer: '▶ Tour the altar',
       verLista: 'List of the 38 elements', buscar: 'Search (Spanish, Maya or English)…', sinResultados: 'No elements match that name.',
