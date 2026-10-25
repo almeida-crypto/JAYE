@@ -149,3 +149,16 @@ a { color: var(--naranja); }
 .ficha .fuentes summary { cursor: pointer; min-height: 32px; }
 .ficha .fuentes ul { margin: 6px 0 0; padding-left: 1.1em; }
 .ficha .fuentes li { margin-bottom: 4px; }
+
+/* ---------- Ficha: ícono bordado y navegación ---------- */
+.ficha .ficha-cabeza { display: flex; align-items: center; gap: 12px; }
+.ficha .icono-ficha {
+  width: 64px; height: 64px; flex: none; padding: 6px; border-radius: 14px;
+  background: #fbf6ea; image-rendering: auto;
+}
+.ficha .ficha-nav {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin: 0 0 14px; font-size: .85rem; color: var(--texto-suave);
+}
+.ficha .ficha-nav .boton { min-height: 40px; padding: 0 14px; font-size: .9rem; }
+.ficha .ficha-nav .boton[disabled] { opacity: .35; pointer-events: none; }

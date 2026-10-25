@@ -10,11 +10,12 @@ Toda la interfaz se puede ver en **español o inglés** (botón ES | EN). El idi
 
 | Página | Qué hace |
 |---|---|
-| `index.html` | Elegir entre cámara o foto |
+| `index.html` | Elegir entre cámara o altar digital |
 | `camara.html` | **Opción 2 (prioridad):** cámara con marcadores de imagen (MindAR + A-Frame), reconoce las 38 tarjetas |
-| `foto.html` | **Opción 1 (respaldo):** foto del altar con puntos + lista de los 38 elementos por categoría |
+| `foto.html` | **Altar digital (respaldo sin cámara):** altar yucateco ilustrado con los 38 elementos bordados; se tocan, se filtran por categoría y se recorren en orden |
 | `herramientas/compilar.html` | Herramienta interna: convierte las 38 tarjetas en `targets/altar.mind` |
 | `herramientas/generar_tarjetas.py` | Genera las 38 tarjetas (estilo bordado de hipil) |
+| `herramientas/exportar_iconos.py` | Exporta el ícono bordado de cada elemento a `img/iconos/<id>.png` (altar digital y fichas) |
 
 Todo el texto sale de **`/data/elementos.json`**, el mismo archivo que usan Juega y Aprende.
 
@@ -51,11 +52,17 @@ Abre `http://localhost:8000/entiende/`. Para probar la cámara, abre una tarjeta
 
 En el celular: `https://almeida-crypto.github.io/JAYE/entiende/` (GitHub Pages).
 
-## Foto del altar (opción 1)
+## Altar digital
 
-1. Toma la foto cuando el altar esté terminado. Guárdala como `img/altar.jpg`, de unos 1200 px de ancho y comprimida.
-2. En `data/elementos.json` cambia `"altar": { "foto": "entiende/img/altar.jpg", … }`.
-3. Abre `foto.html?editar`, toca la foto donde está cada elemento y pega las coordenadas copiadas en su `"foto": { "x": …, "y": … }`. Los elementos con `"foto": null` aparecen solo en la lista.
+`foto.html` dibuja un altar yucateco (papel picado, arco de bejuco con xpujuk, mesa de cuatro niveles con mantel bordado, piso de petate y camino de cal) y coloca los 38 íconos bordados en su lugar. Todo se dibuja en el navegador (SVG), así que pesa poco.
+
+- Tocar un elemento abre su ficha. La ficha tiene **Anterior / Siguiente** para recorrer el altar.
+- **Recorrer el altar** abre el primer elemento y deja avanzar en orden. Si hay una categoría elegida, recorre solo esa.
+- Los botones de categoría resaltan esos elementos en el altar y filtran la lista.
+- **Ampliar** hace el altar más grande (en el celular se desliza con el dedo).
+- La lista plegable tiene buscador en español, maya o inglés.
+
+Para cambiar algo de lugar, edita `FILAS` al inicio de `js/altar.js`. Cada fila es un nivel de la mesa (`mesa: true`) o del piso, con los `id` de izquierda a derecha. Si cambian los dibujos de las tarjetas, corre `python herramientas/exportar_iconos.py` para actualizar los íconos.
 
 ## Ajustes en `js/camara.js`
 

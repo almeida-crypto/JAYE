@@ -35,9 +35,12 @@
       // index
       tituloEntiende: 'Entiende el altar', introEntiende: 'Descubre qué es cada elemento de nuestro altar de Hanal Pixán y por qué está ahí.',
       usarCamara: '📷 Usar la cámara', usarCamaraDesc: 'Apunta a las tarjetas bordadas del altar y toca el nombre que aparece.',
-      verFoto: '🖼️ Ver la foto del altar', verFotoDesc: 'Toca los puntos de la foto o elige de la lista. Funciona sin cámara.',
+      verFoto: '🏮 Ver el altar digital', verFotoDesc: 'Recorre el altar ilustrado y toca cualquier elemento. Funciona sin cámara.',
       // foto
-      nuestroAltar: 'Nuestro altar', tocaPunto: 'Toca un punto o un elemento de la lista para saber qué es y por qué está en el altar.',
+      nuestroAltar: 'Altar digital', tocaPunto: 'Toca cualquier elemento del altar para saber qué es y por qué está ahí.',
+      todos: 'Todo', ampliar: '🔍 Ampliar', reducir: '🔍 Reducir', recorrer: '▶ Recorrer el altar',
+      verLista: 'Lista de los 38 elementos', buscar: 'Buscar (español, maya o inglés)…', sinResultados: 'No hay elementos con ese nombre.',
+      anterior: '‹ Anterior', siguiente: 'Siguiente ›', deslizaAmpliado: 'Desliza para recorrer el altar ampliado.',
       probarCamara: '📷 Probar con la cámara', errorDatos: 'No se pudo cargar la información del altar.',
       // cámara
       camTitulo: 'Apunta, toca y entiende',
@@ -47,12 +50,12 @@
       activar: 'Activar cámara', cargando: 'Cargando…', abriendo: 'Abriendo cámara…', reintentar: 'Intentar de nuevo',
       apunta: 'Apunta la cámara a una tarjeta del altar', descargando: 'Descargando tarjetas…',
       pista: '¿No la detecta? Ponte de frente, acércate a unos 30–50 cm, que la tarjeta se vea completa y sin reflejos. También puedes',
-      pistaFoto: 'ver la foto del altar', tocaSaber: 'Toca para saber más', verFotoCorto: 'Ver foto', parteAltar: 'Parte del altar',
-      errHttps: 'La cámara solo funciona con HTTPS (o en localhost). Abre el sitio desde su dirección https:// o usa la foto del altar.',
-      errNavegador: 'Este navegador no permite usar la cámara. Prueba con Chrome o Safari actualizados, o usa la foto del altar.',
+      pistaFoto: 'ver el altar digital', tocaSaber: 'Toca para saber más', verFotoCorto: 'Altar digital', parteAltar: 'Parte del altar',
+      errHttps: 'La cámara solo funciona con HTTPS (o en localhost). Abre el sitio desde su dirección https:// o usa el altar digital.',
+      errNavegador: 'Este navegador no permite usar la cámara. Prueba con Chrome o Safari actualizados, o usa el altar digital.',
       errLibs: 'No se cargaron las librerías de la cámara. Revisa tu conexión y recarga la página.',
       errPreparar: 'No se pudo preparar la cámara: ',
-      errCamara: 'No pudimos abrir la cámara. Revisa que hayas dado permiso (ícono junto a la dirección) o usa la foto del altar.'
+      errCamara: 'No pudimos abrir la cámara. Revisa que hayas dado permiso (ícono junto a la dirección) o usa el altar digital.'
     },
     en: {
       volver: '← Back', inicio: '← Back to home', cerrar: 'Got it',
@@ -63,8 +66,11 @@
       escuchar: '🔊 Listen in Maya',
       tituloEntiende: 'Understand the altar', introEntiende: 'Discover what each element of our Hanal Pixán altar is and why it is there.',
       usarCamara: '📷 Use the camera', usarCamaraDesc: 'Point at the embroidered cards on the altar and tap the name that appears.',
-      verFoto: '🖼️ See the altar photo', verFotoDesc: 'Tap the dots on the photo or pick from the list. Works without a camera.',
-      nuestroAltar: 'Our altar', tocaPunto: 'Tap a dot or an item on the list to learn what it is and why it is on the altar.',
+      verFoto: '🏮 See the digital altar', verFotoDesc: 'Explore the illustrated altar and tap any element. Works without a camera.',
+      nuestroAltar: 'Digital altar', tocaPunto: 'Tap any element on the altar to learn what it is and why it is there.',
+      todos: 'All', ampliar: '🔍 Zoom in', reducir: '🔍 Zoom out', recorrer: '▶ Tour the altar',
+      verLista: 'List of the 38 elements', buscar: 'Search (Spanish, Maya or English)…', sinResultados: 'No elements match that name.',
+      anterior: '‹ Previous', siguiente: 'Next ›', deslizaAmpliado: 'Swipe to explore the zoomed-in altar.',
       probarCamara: '📷 Try the camera', errorDatos: 'The altar information could not be loaded.',
       camTitulo: 'Point, tap and understand',
       paso1: 'Wait for the cards to download (first time only).',
@@ -73,12 +79,12 @@
       activar: 'Turn on camera', cargando: 'Loading…', abriendo: 'Opening camera…', reintentar: 'Try again',
       apunta: 'Point the camera at a card on the altar', descargando: 'Downloading cards…',
       pista: 'Not detecting it? Face the card, move to about 30–50 cm, keep the whole card in view and avoid glare. You can also',
-      pistaFoto: 'see the altar photo', tocaSaber: 'Tap to learn more', verFotoCorto: 'Photo', parteAltar: 'Part of the altar',
-      errHttps: 'The camera only works over HTTPS (or on localhost). Open the site from its https:// address or use the altar photo.',
-      errNavegador: 'This browser cannot use the camera. Try an up-to-date Chrome or Safari, or use the altar photo.',
+      pistaFoto: 'see the digital altar', tocaSaber: 'Tap to learn more', verFotoCorto: 'Digital altar', parteAltar: 'Part of the altar',
+      errHttps: 'The camera only works over HTTPS (or on localhost). Open the site from its https:// address or use the digital altar.',
+      errNavegador: 'This browser cannot use the camera. Try an up-to-date Chrome or Safari, or use the digital altar.',
       errLibs: 'The camera libraries did not load. Check your connection and reload the page.',
       errPreparar: 'The camera could not be prepared: ',
-      errCamara: 'We could not open the camera. Check that you allowed access (icon next to the address) or use the altar photo.'
+      errCamara: 'We could not open the camera. Check that you allowed access (icon next to the address) or use the digital altar.'
     }
   };
 
@@ -160,7 +166,7 @@
   }
 
   // ---------- Ficha ----------
-  var fondo, ficha, audioActual, actual, datosFuentes = {};
+  var fondo, ficha, audioActual, actual, listaActual = null, datosFuentes = {};
 
   function crearFicha() {
     if (ficha) return;
@@ -184,9 +190,16 @@
     var otro = idioma === 'es' ? 'en' : 'es';
     var m = el.maya || {};
     var html = '<div class="agarre"></div>';
+    var pos = listaActual ? listaActual.indexOf(el) : -1;
+    if (pos >= 0) {
+      html += '<nav class="ficha-nav"><button class="boton secundario" data-accion="anterior"' + (pos === 0 ? ' disabled' : '') + '>' + tx('anterior') + '</button>' +
+        '<span>' + (pos + 1) + ' / ' + listaActual.length + '</span>' +
+        '<button class="boton secundario" data-accion="siguiente"' + (pos === listaActual.length - 1 ? ' disabled' : '') + '>' + tx('siguiente') + '</button></nav>';
+    }
     if (el.imagen) html += '<img class="foto-elemento" src="' + esc(ruta(el.imagen)) + '" alt="" loading="lazy">';
-    html += '<p class="ficha-num">Nº ' + esc(el.n) + '</p>';
-    html += '<h2 id="ficha-titulo">' + esc(t(el.nombre)) + '</h2>';
+    html += '<div class="ficha-cabeza"><img class="icono-ficha" src="' + esc(ruta('entiende/img/iconos/' + el.id + '.png')) + '" alt="" onerror="this.remove()">';
+    html += '<div><p class="ficha-num">Nº ' + esc(el.n) + '</p>';
+    html += '<h2 id="ficha-titulo">' + esc(t(el.nombre)) + '</h2></div></div>';
 
     // Los tres nombres
     html += '<dl class="nombres">';
@@ -224,6 +237,10 @@
 
     ficha.innerHTML = html;
     ficha.querySelector('[data-accion="cerrar"]').addEventListener('click', cerrarFicha);
+    [['anterior', -1], ['siguiente', 1]].forEach(function (par) {
+      var b = ficha.querySelector('[data-accion="' + par[0] + '"]');
+      if (b) b.addEventListener('click', function () { mostrarFicha(listaActual[pos + par[1]], { lista: listaActual }); });
+    });
     var btnAudio = ficha.querySelector('[data-accion="audio"]');
     if (btnAudio) {
       btnAudio.addEventListener('click', function () {
@@ -234,9 +251,11 @@
     }
   }
 
-  function mostrarFicha(el) {
+  // opciones.lista: arreglo de elementos para mostrar "Anterior / Siguiente" en la ficha
+  function mostrarFicha(el, opciones) {
     crearFicha();
     actual = el;
+    listaActual = (opciones && opciones.lista) || null;
     cargarDatos().then(function (d) { datosFuentes = d.fuentes || {}; pintarFicha(el); });
     pintarFicha(el);
     fondo.classList.add('abierta');

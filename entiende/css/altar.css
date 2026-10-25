@@ -1,0 +1,79 @@
+/* Entiende — altar digital (foto.html) */
+.cabecera { padding: 16px 16px 4px; max-width: 900px; margin: 0 auto; }
+.cabecera .fila { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.cabecera h1 { margin: 0; font-size: 1.5rem; }
+.cabecera p { margin: 6px 0 0; color: var(--texto-suave); }
+
+/* Chips de categoría (se desplazan de lado en el celular) */
+.filtros {
+  display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px 4px; max-width: 900px; margin: 0 auto;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.filtros::-webkit-scrollbar { display: none; }
+.filtros button {
+  flex: none; min-height: 38px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--borde); background: var(--fondo-2); color: var(--texto);
+  font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.filtros button[aria-pressed="true"] { background: var(--naranja); border-color: var(--naranja); color: #2a1606; }
+
+/* Escena */
+.escena-marco { max-width: 640px; margin: 8px auto 0; padding: 0 12px; }
+.escena {
+  border-radius: var(--radio); overflow: hidden; box-shadow: var(--sombra); background: #140c22;
+  outline: none;
+}
+.altar-svg { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
+.ampliado .escena { overflow: auto; -webkit-overflow-scrolling: touch; max-height: 82vh; overscroll-behavior: contain; }
+.ampliado .altar-svg { width: 200%; }
+@media (min-width: 700px) { .ampliado .altar-svg { width: 150%; } }
+
+.escena-botones { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+.boton.chico { min-height: 44px; font-size: .95rem; padding: 0 1.1em; }
+.aviso-ampliado { text-align: center; color: var(--texto-suave); font-size: .85rem; margin: 8px 0 0; }
+
+/* Elementos del altar */
+.item { cursor: pointer; outline: none; transition: opacity .25s; }
+.item .ico { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .18s ease; }
+.item:hover .ico, .item:focus-visible .ico { transform: translateY(-8px) scale(1.08); }
+.item:focus-visible .zona { stroke: #fff; stroke-width: 4; stroke-dasharray: 8 6; rx: 12; }
+.item.actual .ico { transform: translateY(-10px) scale(1.15); }
+.item.actual .insignia { fill: #fff; }
+.item.apagado { opacity: .16; }
+.insignia-num { font: 800 19px system-ui, sans-serif; fill: #1d1230; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .item .ico { transition: none; } }
+
+/* Globo con el nombre (ratón o teclado) */
+.globo {
+  position: absolute; z-index: 30; max-width: 240px; pointer-events: none;
+  padding: 8px 12px; border-radius: 12px; background: #fbf6ea; color: #1d1230;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .4); font-size: .9rem; line-height: 1.3;
+}
+.globo b { display: block; }
+.globo span { color: #b2401a; font-weight: 600; }
+
+/* Lista plegable */
+.lista-altar { max-width: 900px; margin: 22px auto 0; padding: 0 16px; }
+.lista-altar summary {
+  cursor: pointer; min-height: 52px; display: flex; align-items: center; padding: 0 16px;
+  border-radius: 14px; background: var(--fondo-2); border: 1px solid var(--borde); font-weight: 700;
+}
+.lista-altar[open] summary { margin-bottom: 12px; }
+.buscar {
+  width: 100%; min-height: 48px; padding: 0 14px; border-radius: 12px;
+  border: 1px solid var(--borde); background: #0f0a17; color: var(--texto); font: inherit;
+}
+.grupo h2 { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--naranja); margin: 20px 0 8px; }
+.lista { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (min-width: 640px) { .lista { grid-template-columns: 1fr 1fr 1fr; } }
+.lista button {
+  width: 100%; min-height: 56px; display: flex; align-items: center; gap: 10px; text-align: left;
+  padding: 6px 10px; border-radius: 12px; border: 1px solid var(--borde); background: var(--fondo-2);
+  color: var(--texto); font: inherit; font-size: .92rem; line-height: 1.25; cursor: pointer;
+}
+.lista img { width: 40px; height: 40px; flex: none; border-radius: 8px; background: #fbf6ea; padding: 3px; }
+.lista b { color: var(--naranja); font-size: .82rem; }
+.lista small { display: block; color: var(--texto-suave); font-size: .8rem; }
+.sin-resultados { color: var(--texto-suave); }
+
+.pie { max-width: 900px; margin: 0 auto; padding: 24px 16px 36px; display: flex; gap: 10px; flex-wrap: wrap; }
