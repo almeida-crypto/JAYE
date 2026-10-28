@@ -198,6 +198,10 @@
     "wiki-relleno": {
       "titulo": "Wikipedia – Relleno negro",
       "url": "https://en.wikipedia.org/wiki/Relleno_negro"
+    },
+    "posta-mascotas": {
+      "titulo": "Posta – Hanal Pixán: ¿quándo se pone el altar para las mascotas en Yucatán?",
+      "url": "https://www.posta.com.mx/yucatan/hanal-pixan-cuando-se-pone-el-altar-para-las-mascotas-en-yucatan-y-que-elementos-debe-llevar/vl2111197"
     }
   },
   "elementos": [
@@ -239,7 +243,8 @@
         "targetIndex": 0
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/mantel.jpg",
+      "verificado": true
     },
     {
       "id": "hojas-platano",
@@ -279,7 +284,8 @@
         "targetIndex": 1
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/hojas-platano.jpg",
+      "verificado": true
     },
     {
       "id": "cruz-verde",
@@ -319,7 +325,8 @@
         "targetIndex": 2
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/cruz-verde.jpg",
+      "verificado": true
     },
     {
       "id": "rosario",
@@ -360,7 +367,8 @@
         "targetIndex": 3
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/rosario.jpg",
+      "verificado": true
     },
     {
       "id": "fotografia",
@@ -403,7 +411,8 @@
         "x": 50,
         "y": 15
       },
-      "verificado": false
+      "imagen": "aprende/img/fotos/fotografia.jpg",
+      "verificado": true
     },
     {
       "id": "objetos",
@@ -443,7 +452,8 @@
         "targetIndex": 5
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/objetos.jpg",
+      "verificado": true
     },
     {
       "id": "velas",
@@ -486,7 +496,48 @@
         "x": 21,
         "y": 21
       },
-      "verificado": false
+      "imagen": "aprende/img/fotos/velas.webp",
+      "verificado": true
+    },
+    {
+      "id": "velas-colores",
+      "n": 14,
+      "categoria": "luz",
+      "nombre": {
+        "es": "Velas de colores",
+        "en": "Colored candles"
+      },
+      "maya": {
+        "nombre": "Kib",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Kib = vela; la misma palabra que para las velas blancas.",
+          "en": "Kib = candle; the same word as for the white candles."
+        }
+      },
+      "queEs": {
+        "es": "Velas de cera de muchos colores que se encienden el 31 de octubre en el altar de los niños.",
+        "en": "Many-colored wax candles lit on October 31 at the children's altar."
+      },
+      "porQue": {
+        "es": "Su luz guía a las ánimas de los niños de regreso a casa, y su color alegre acompaña el mantel bordado de colores del altar infantil.",
+        "en": "Their light guides the children's souls back home, and their bright colors accompany the embroidered, colorful tablecloth of the children's altar."
+      },
+      "historia": {
+        "es": "Son de cera, como las velas blancas: en la Colonia los españoles exigieron cera como tributo a los pueblos mayas, porque las velas eran indispensables en las ceremonias católicas. En el altar de los niños todo se decora con tonos alegres.",
+        "en": "They are made of wax, like the white candles: in colonial times the Spanish demanded wax as tribute from Maya towns, because candles were essential to Catholic ceremonies. Everything on the children's altar is decorated in bright colors."
+      },
+      "fuentes": [
+        "uady-pixan",
+        "tdar-cera",
+        "yuc-gob"
+      ],
+      "camara": {
+        "zona": "luz"
+      },
+      "foto": null,
+      "imagen": "aprende/img/fotos/velas-colores.jpg",
+      "verificado": true
     },
     {
       "id": "incienso",
@@ -527,7 +578,8 @@
         "targetIndex": 7
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/incienso.webp",
+      "verificado": true
     },
     {
       "id": "incensario",
@@ -566,7 +618,8 @@
         "targetIndex": 8
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/incensario.jpg",
+      "verificado": true
     },
     {
       "id": "flores",
@@ -610,7 +663,8 @@
         "x": 79,
         "y": 19
       },
-      "verificado": false
+      "imagen": "aprende/img/fotos/flores.jpg",
+      "verificado": true
     },
     {
       "id": "cal",
@@ -650,7 +704,8 @@
         "targetIndex": 10
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/cal.webp",
+      "verificado": true
     },
     {
       "id": "jicaras-bejuco",
@@ -694,7 +749,8 @@
         "x": 73,
         "y": 50
       },
-      "verificado": false
+      "imagen": "aprende/img/fotos/jicaras-bejuco.jpg",
+      "verificado": true
     },
     {
       "id": "pib",
@@ -738,7 +794,8 @@
         "x": 50,
         "y": 47
       },
-      "verificado": false
+      "imagen": "aprende/img/fotos/pib.jpg",
+      "verificado": true
     },
     {
       "id": "tamales",
@@ -779,7 +836,8 @@
         "targetIndex": 13
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/tamales.webp",
+      "verificado": true
     },
     {
       "id": "relleno-negro",
@@ -820,7 +878,8 @@
         "targetIndex": 14
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/relleno-negro.jpg",
+      "verificado": true
     },
     {
       "id": "frijol-puerco",
@@ -860,7 +919,8 @@
         "targetIndex": 15
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/frijol-puerco.jpg",
+      "verificado": true
     },
     {
       "id": "escabeche",
@@ -900,7 +960,8 @@
         "targetIndex": 16
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/escabeche.jpg",
+      "verificado": true
     },
     {
       "id": "pan",
@@ -941,7 +1002,8 @@
         "targetIndex": 17
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/pan.webp",
+      "verificado": true
     },
     {
       "id": "china",
@@ -985,7 +1047,8 @@
         "x": 65,
         "y": 74
       },
-      "verificado": false
+      "imagen": "aprende/img/fotos/china.jpg",
+      "verificado": true
     },
     {
       "id": "mandarina",
@@ -1025,7 +1088,8 @@
         "targetIndex": 19
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/mandarina.webp",
+      "verificado": true
     },
     {
       "id": "platano",
@@ -1064,7 +1128,8 @@
         "targetIndex": 20
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/platano.jpg",
+      "verificado": true
     },
     {
       "id": "yuca",
@@ -1105,7 +1170,8 @@
         "targetIndex": 21
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/yuca.jpg",
+      "verificado": true
     },
     {
       "id": "dulce-calabaza",
@@ -1145,7 +1211,8 @@
         "targetIndex": 22
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/dulce-calabaza.webp",
+      "verificado": true
     },
     {
       "id": "jicama",
@@ -1186,7 +1253,8 @@
         "targetIndex": 23
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/jicama.webp",
+      "verificado": true
     },
     {
       "id": "dulce-coco",
@@ -1226,7 +1294,8 @@
         "targetIndex": 24
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/dulce-coco.jpg",
+      "verificado": true
     },
     {
       "id": "dulce-cocoyol",
@@ -1267,48 +1336,8 @@
         "targetIndex": 25
       },
       "foto": null,
-      "verificado": false
-    },
-    {
-      "id": "miel",
-      "n": 43,
-      "categoria": "comida",
-      "nombre": {
-        "es": "Miel",
-        "en": "Honey"
-      },
-      "maya": {
-        "nombre": "Kaab",
-        "tipo": "tradicional",
-        "nota": {
-          "es": "Kaab = miel, abeja (y también mundo). La abeja nativa es xunáan kaab, «señora abeja».",
-          "en": "Kaab = honey, bee (and also world). The native bee is xunáan kaab, \"lady bee\"."
-        }
-      },
-      "queEs": {
-        "es": "Miel de abeja, de preferencia de la abeja nativa sin aguijón (Melipona beecheii).",
-        "en": "Bee honey, ideally from the native stingless bee (Melipona beecheii)."
-      },
-      "porQue": {
-        "es": "Endulza la ofrenda: se pone sola o sobre la yuca. Es uno de los alimentos más apreciados de la tradición maya.",
-        "en": "It sweetens the offering, on its own or over cassava. It is one of the most prized foods in Maya tradition."
-      },
-      "historia": {
-        "es": "Los mayas crían a la xunáan kaab desde hace al menos 3,000 años. Su miel se usaba sobre todo como medicina y para preparar el balché, la bebida ceremonial.",
-        "en": "The Maya have kept the xunáan kaab for at least 3,000 years. Its honey was used mainly as medicine and to make balché, the ceremonial drink."
-      },
-      "fuentes": [
-        "mongabay",
-        "uady-pixan",
-        "uady-dicc",
-        "landuum"
-      ],
-      "camara": {
-        "zona": "frutas",
-        "targetIndex": 26
-      },
-      "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/dulce-cocoyol.jpg",
+      "verificado": true
     },
     {
       "id": "aguardiente",
@@ -1349,7 +1378,8 @@
         "targetIndex": 27
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/aguardiente.webp",
+      "verificado": true
     },
     {
       "id": "chocolate",
@@ -1393,7 +1423,8 @@
         "x": 35,
         "y": 74
       },
-      "verificado": false
+      "imagen": "aprende/img/fotos/chocolate.webp",
+      "verificado": true
     },
     {
       "id": "atole-nuevo",
@@ -1436,12 +1467,13 @@
         "x": 27,
         "y": 50
       },
-      "verificado": false
+      "imagen": "aprende/img/fotos/atole-nuevo.jpg",
+      "verificado": true
     },
     {
       "id": "cigarros",
       "n": 60,
-      "categoria": "bebidas",
+      "categoria": "personales",
       "nombre": {
         "es": "Cigarros",
         "en": "Cigarettes"
@@ -1473,11 +1505,12 @@
         "poresto-guia"
       ],
       "camara": {
-        "zona": "bebidas",
+        "zona": "base",
         "targetIndex": 30
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/cigarros.jpg",
+      "verificado": true
     },
     {
       "id": "lek",
@@ -1516,7 +1549,8 @@
         "targetIndex": 31
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/lek.jpg",
+      "verificado": true
     },
     {
       "id": "platos-barro",
@@ -1555,7 +1589,8 @@
         "targetIndex": 32
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/platos-barro.webp",
+      "verificado": true
     },
     {
       "id": "tortear",
@@ -1594,7 +1629,8 @@
         "targetIndex": 33
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/tortear.jpg",
+      "verificado": true
     },
     {
       "id": "comal",
@@ -1632,7 +1668,8 @@
         "targetIndex": 34
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/comal.jpg",
+      "verificado": true
     },
     {
       "id": "filipina",
@@ -1672,7 +1709,8 @@
         "targetIndex": 35
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/filipina.jpg",
+      "verificado": true
     },
     {
       "id": "pantalon",
@@ -1712,7 +1750,8 @@
         "targetIndex": 36
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/pantalon.jpg",
+      "verificado": true
     },
     {
       "id": "alpargatas",
@@ -1752,7 +1791,8 @@
         "targetIndex": 37
       },
       "foto": null,
-      "verificado": false
+      "imagen": "aprende/img/fotos/alpargatas.jpg",
+      "verificado": true
     }
   ]
 }

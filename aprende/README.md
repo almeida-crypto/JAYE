@@ -18,6 +18,7 @@ aprende/
 ├── js/textos.js                    # interfaz y contenido general (es / en)
 ├── js/aprende.js                   # idioma, JSON, pintado, ficha, imágenes/SVG
 ├── img/iconos/                     # 38 SVG de elemento + genérico + zonas + fechas + cabecera + silueta
+├── img/fotos/                      # fotos reales de los elementos (jpg/png/webp, < 100 KB)
 ├── herramientas/exportar_iconos_svg.py
 └── README.md
 ```
@@ -40,6 +41,11 @@ Desde la **raíz** del repositorio (no desde `aprende/`, porque se lee `../data/
 python -m http.server 8000
 # abrir http://localhost:8000/aprende/
 ```
+
+> ⚠️ **Caché del navegador:** los `<script>` y el CSS se cargan con `?v=N`
+> (`js/textos.js?v=2`). Si editas `textos.js`, `aprende.js` o `aprende.css`, **sube ese
+> número** en `index.html`; si no, el navegador seguirá usando la versión guardada y la
+> página puede mostrar llaves sin traducir (por ejemplo `notaMascota`).
 
 En el celular (misma red): `http://<ip-de-la-computadora>:8000/aprende/`.
 
@@ -74,6 +80,15 @@ Salida en `img/iconos/`:
 | `cabecera.svg` | franja de grecas y flores de hipil (160 × 40) |
 | `altar-silueta.svg` | silueta del altar (160 × 48): mesa con mantel, cruz, velas, incensario, comida y flores |
 
+### La franja de bordado
+
+`img/bordado-franja.svg` (en la **raíz** del sitio) es la franja de bordado en punto de
+cruz que corona las tres secciones (inicio, Aprende y Entiende); **reemplaza al papel
+picado**, que no es tradición de Yucatán. Es una baldosa de 24 × 14 puntadas con flores
+de xpujuk, grecas y una bastilla de colores, que se repite en horizontal (`repeat-x`).
+Para regenerarla: `python herramientas/generar_franza_bordado.py` (usa los motivos
+`FLOR` y `GRECA` y la paleta `HILO` del script de tarjetas, sin modificarlo).
+
 ### La silueta de fondo
 
 `altar-silueta.svg` se usa como **marca de agua al 10%** en dos puntos: **detrás del
@@ -102,12 +117,13 @@ grande. La flor del sitio es el **xpujuk**.
 
 Las ilustraciones por defecto son los SVG. Si el equipo quiere usar **fotos reales**:
 
-1. Guarda la foto en `aprende/img/` (local, nunca enlaces a otros sitios): JPG o WebP,
+1. Guarda la foto en `aprende/img/fotos/` (local, nunca enlaces a otros sitios): JPG, WebP o PNG,
    unos 800 px de ancho, menos de 100 KB, propias o con licencia libre, y que muestre
-   solo cosas de la tradición yucateca.
+   solo cosas de la tradición yucateca. **Nómbrala con el `id` del elemento**
+   (`pib.jpg`, `velas.webp`, `platos-barro.jpg`…).
 2. **Imagen de un elemento:** escribe la ruta relativa a la raíz del sitio en el campo
    `imagen` de ese elemento en `data/elementos.json` (por ejemplo
-   `"entiende/img/altar-placeholder.svg"` o `"aprende/img/pib.jpg"`).
+   `"aprende/img/fotos/pib.jpg"`). Las 37 fotos actuales ya vienen enlazadas así.
    Aparece en su ficha y en sus tarjetas, y al quitarla (o si la ruta falla) vuelve el SVG.
 3. **Imagen general de la página:** edita el bloque `IMAGENES` al inicio de
    `js/aprende.js` y pon la ruta relativa a `aprende/`:
@@ -137,17 +153,21 @@ Nunca se ve un ícono roto ni un hueco.
 
 ## Verificado
 
-Los textos están investigados con las fuentes citadas pero **`"verificado": false`**:
-mientras sea así, la página y cada ficha muestran el aviso «Texto investigado; falta la
-revisión final de alguien que practica la tradición.». Al revisar un elemento, cambien
-`verificado` a `true` en `data/elementos.json`.
+Todo el contenido de la página **fue revisado por practicantes de la tradición** en
+octubre de 2026: **Amada Rosado** (habitante de pueblo, 70 años de tradición) y
+**Socorro Rodríguez** (habitante de Mérida, ~76 años de tradición). Los 38 elementos de
+`data/elementos.json` están con `"verificado": true`, así que la página ya no muestra el
+aviso de «texto investigado»; el crédito aparece en la sección Fuentes. Si algún texto
+cambia después, poner `"verificado": false` hasta que lo revisen de nuevo.
 
-**Revisión de practicantes (oct 2026):** el texto de la tercera fecha, **«2 de noviembre ·
-Día de Todos los Santos»** (sección «¿Cuándo se celebra?»), fue revisado por
-**Amada Rosado** (habitante de pueblo, 70 años de tradición) y **Socorro Rodríguez**
-(habitante de Mérida, ~76 años de tradición). La fecha en sí se apoya en la fuente
-`yuc-gob` (Gobierno de Yucatán: tercer día, *u janal pixanoob* o misa pixán). El resto de
-los textos sigue esperando esa revisión.
+La fecha del **2 de noviembre** («Día de Todos los Santos») se apoya en la fuente
+`yuc-gob` (Gobierno de Yucatán: tercer día, *u janal pixanoob* o misa pixán) y el
+**Día de la Mascota (27 de octubre)** en `posta-mascotas`; se presenta como mención
+especial, ya que no es parte del Hanal Pixán tradicional.
+
+**Pendiente del equipo de Entiende:** el elemento nuevo `velas-colores` no tiene tarjeta
+impresa todavía (viene sin `camara.targetIndex`, así que la cámara lo ignora sin error).
+Cuando impriman su tarjeta, agregar el `targetIndex` y regenerar `altar.mind`.
 
 ## Peso
 

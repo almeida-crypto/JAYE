@@ -42,6 +42,8 @@ var TEXTOS = {
     // (Amada Rosado, 70 años de tradición; Socorro Rodríguez, Mérida, ~76 años) — oct 2026.
     fecha2: '2 de noviembre · Día de Todos los Santos',
     fecha2Texto: 'Aquí se celebran los niños, las mascotas y los adultos por igual. Generalmente es un día que usan las familias, pero no siempre.',
+    notaMascota: 'Mención especial: el 27 de octubre es el Día de la Mascota. No es parte del Hanal Pixán tradicional, pero se está popularizando y cada vez más familias le ponen su ofrenda.',
+    verifPor: 'Textos revisados por practicantes de la tradición: Amada Rosado y Socorro Rodríguez (Mérida, octubre de 2026).',
 
     // 3) El camino de las ánimas
     caminoTitulo: 'El camino de las ánimas',
@@ -72,6 +74,7 @@ var TEXTOS = {
     // 8) Lo que no es
     noEsTitulo: 'Lo que no es',
     textoC: 'El Hanal Pixán yucateco tiene su propia identidad. En nuestro altar no hay calaveritas ni catrinas: lo que se destaca es la comida compartida, la luz y el camino que guía a las ánimas. La flor propia de la península es el <em lang="yua">xpujuk</em> (<i>Tagetes patula</i>); el cempasúchil grande es una tradición del centro de México que llegó a los altares yucatecos hace poco.',
+    notaHJ: 'Sobre el nombre: escribirlo Hanal Pixán con H o Janal Pixán con J está bien. En la escritura maya no existe la letra H: ese sonido se representa con J, por eso en las fuentes oficiales (como la del Gobierno de Yucatán) aparece «Janal Pixan».',
 
     // 9) Fuentes y avisos
     fuentesTitulo: 'Fuentes',
@@ -119,6 +122,8 @@ var TEXTOS = {
     fecha1Texto: 'Dedicated to adults. The tablecloth has black embroidery and the candles are large and white.',
     fecha2: 'November 2 · All Saints’ Day',
     fecha2Texto: 'Children, pets and adults are celebrated alike. It is generally a day families share, though not always.',
+    notaMascota: 'Special mention: October 27 is Pet Day. It is not part of traditional Hanal Pixán, but it is becoming more popular, and more families set up an offering for their pets each year.',
+    verifPor: 'Texts reviewed by practitioners of the tradition: Amada Rosado and Socorro Rodríguez (Mérida, October 2026).',
 
     caminoTitulo: 'The path of the souls',
 
@@ -143,6 +148,7 @@ var TEXTOS = {
 
     noEsTitulo: 'What it is not',
     textoC: 'Yucatecan Hanal Pixán has its own identity. Our altar has no sugar skulls or catrinas: what stands out is the shared food, the light and the path that guides the souls. The peninsula\'s own flower is <em lang="yua">xpujuk</em> (<i>Tagetes patula</i>); the large marigold (cempasúchil) is a central Mexican tradition that reached Yucatecan altars only recently.',
+    notaHJ: 'About the name: both spellings are correct, Hanal Pixán with H and Janal Pixán with J. Maya writing has no letter H —that sound is written with J—, which is why official sources (such as the Government of Yucatán’s) spell it «Janal Pixan».',
 
     fuentesTitulo: 'Sources',
     enRevision: 'Researched text; final review by a practitioner of the tradition is pending.',

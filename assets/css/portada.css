@@ -50,12 +50,14 @@ a { color: var(--naranja); }
 
 .envoltura { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 0 16px calc(40px + env(safe-area-inset-bottom)); }
 
-/* ---------- Papel picado (SVG) ---------- */
-.papel {
-  display: block; width: 100%; height: 72px; position: relative; z-index: 1;
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35));
+/* ---------- Franja de bordado yucateco (punto de cruz) ---------- */
+/* Reemplaza al papel picado, que no es tradición de Yucatán. La baldosa
+   img/bordado-franja.svg se repite en horizontal. */
+.franja-bordado {
+  display: block; width: 100%; height: 48px; position: relative; z-index: 1;
+  background: url("../../img/bordado-franja.svg") repeat-x center / auto 48px;
 }
-@media (min-width: 700px) { .papel { height: 96px; } }
+@media (min-width: 700px) { .franja-bordado { height: 64px; } }
 
 /* ---------- Barra superior ---------- */
 .barra { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0 6px; }

@@ -46,14 +46,10 @@ main {
 }
 @media (min-width: 900px) { main { max-width: 760px; } }
 
-/* ---------- Franja de papel picado (CSS puro) ---------- */
-.papel-picado {
+/* ---------- Franja de bordado yucateco (punto de cruz) ---------- */
+.franja-bordado {
   height: 34px;
-  background:
-    radial-gradient(circle at 50% 40%, var(--fondo) 5px, transparent 6px) 0 0 / 28px 34px,
-    linear-gradient(135deg, transparent 40%, var(--fondo) 41% 59%, transparent 60%) 0 22px / 28px 12px,
-    linear-gradient(90deg, var(--rosa), var(--naranja), var(--morado), var(--rosa));
-  clip-path: polygon(0 0, 100% 0, 100% 75%, 97% 100%, 94% 75%, 91% 100%, 88% 75%, 85% 100%, 82% 75%, 79% 100%, 76% 75%, 73% 100%, 70% 75%, 67% 100%, 64% 75%, 61% 100%, 58% 75%, 55% 100%, 52% 75%, 49% 100%, 46% 75%, 43% 100%, 40% 75%, 37% 100%, 34% 75%, 31% 100%, 28% 75%, 25% 100%, 22% 75%, 19% 100%, 16% 75%, 13% 100%, 10% 75%, 7% 100%, 4% 75%, 1% 100%, 0 75%);
+  background: url(../../img/bordado-franja.svg) repeat-x center / auto 34px;
 }
 
 /* ---------- Botones y píldoras ---------- */
@@ -312,6 +308,31 @@ h1 {
 .fecha h3 { margin: 0; font-size: 1.12rem; }
 .fecha p { margin: 0; color: var(--texto-suave); font-size: 0.95rem; }
 
+/* Mención del Día de la Mascota (27 de octubre) */
+.nota-mascota {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-left: 4px solid var(--naranja);
+  background: var(--fondo-2);
+  border-radius: 12px;
+  color: var(--texto-suave);
+  font-size: 0.92rem;
+}
+
+/* Crédito de la revisión por practicantes */
+.verif-por {
+  margin: 0 0 10px;
+  color: var(--texto-suave);
+  font-size: 0.88rem;
+}
+
+/* Nota sobre el nombre (Hanal / Janal Pixán) */
+.nota-hj {
+  margin: 10px 0 0;
+  color: var(--texto-suave);
+  font-size: 0.93rem;
+}
+
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 4px; }
 .chip {
   display: inline-flex;
@@ -562,6 +583,23 @@ h1 {
 }
 .fuentes-lista a::after { content: "↗"; margin-left: auto; color: var(--naranja); }
 .fuentes-lista a:hover { border-color: var(--naranja); }
+
+/* La lista de fuentes está oculta hasta que el usuario la abre */
+.fuentes-detalle summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--texto);
+}
+.fuentes-detalle summary::-webkit-details-marker { display: none; }
+.fuentes-detalle summary::after { content: "▾"; color: var(--naranja); font-size: 1rem; }
+.fuentes-detalle[open] summary::after { content: "▴"; }
+.fuentes-detalle[open] summary { margin-bottom: 12px; }
 
 .borrador {
   margin: 14px 0 0;

@@ -10,7 +10,7 @@ Sitio web del altar de Hanal Pixán del grupo de TICs. Un solo QR abre el sitio,
 
 ## Datos comunes: `data/elementos.json`
 
-Tiene los **38 elementos** del altar, con los números de nuestra planeación (1 Mantel blanco … 72 Alpargatas). Cada elemento trae sus nombres en español, maya e inglés y su explicación en español e inglés. Lo usan las tres partes, así nada se escribe dos veces.
+Tiene los **38 elementos** del altar (los 37 originales menos la miel, más las velas de colores del 31 de octubre), con los números de nuestra planeación (1 Mantel blanco … 72 Alpargatas). Cada elemento trae sus nombres en español, maya e inglés y su explicación en español e inglés. Lo usan las tres partes, así nada se escribe dos veces.
 
 ```jsonc
 {

@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#160f1f">
   <meta name="description" content="Aprende qué es el Hanal Pixán de Yucatán: cuándo se celebra, cómo se arma el altar, qué se come y las palabras en maya.">
   <title>Aprende · Hanal Pixán</title>
-  <link rel="stylesheet" href="css/aprende.css">
+  <link rel="stylesheet" href="css/aprende.css?v=4">
 </head>
 <body>
-  <div class="papel-picado" aria-hidden="true"></div>
+  <div class="franja-bordado" aria-hidden="true"></div>
 
   <noscript>
     <div class="noscript-aviso">
@@ -88,6 +88,7 @@
           <div class="chips" data-chips="santos"></div>
         </article>
       </div>
+      <p class="nota-mascota" data-t="notaMascota"></p>
     </section>
 
     <div class="separador-cruz" aria-hidden="true"></div>
@@ -143,6 +144,7 @@
       <h2 data-t="noEsTitulo">Lo que no es</h2>
       <div class="tarjeta" id="tarjeta-no-es">
         <p class="parrafo" data-t-html="textoC"></p>
+        <p class="nota-hj" data-t="notaHJ"></p>
         <div class="chips" id="no-es-chips"></div>
         <p class="borrador" data-aviso hidden></p>
       </div>
@@ -150,10 +152,13 @@
 
     <div class="separador-cruz" aria-hidden="true"></div>
 
-    <!-- 10) Fuentes -->
+    <!-- 10) Fuentes (colapsadas: solo se abren si el usuario quiere) -->
     <section class="seccion" id="fuentes">
-      <h2 data-t="fuentesTitulo">Fuentes</h2>
-      <ul class="fuentes-lista" id="fuentes-lista"></ul>
+      <p class="verif-por" data-t="verifPor"></p>
+      <details class="fuentes-detalle">
+        <summary data-t="fuentesTitulo">Fuentes</summary>
+        <ul class="fuentes-lista" id="fuentes-lista"></ul>
+      </details>
       <p class="borrador" data-aviso hidden></p>
     </section>
 
@@ -166,7 +171,8 @@
     </footer>
   </main>
 
-  <script src="js/textos.js"></script>
-  <script src="js/aprende.js"></script>
+  <!-- ?v=N evita la caché del navegador: al cambiar textos.js, aprende.js o aprende.css, sube el número -->
+  <script src="js/textos.js?v=3"></script>
+  <script src="js/aprende.js?v=3"></script>
 </body>
 </html>

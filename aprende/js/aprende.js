@@ -11,10 +11,10 @@
   // Imágenes de Aprende. '' = usar el SVG por defecto; con ruta (relativa a aprende/) = usar esa imagen.
   var IMAGENES = {
     cabecera:   { src: '', alt: { es: '', en: '' } },
-    ninos:      { src: '', alt: { es: '', en: '' } },   // 31 de octubre
+    ninos:      { src: '', alt: { es: '', en: '' } },   // 31 de octubre (velas de colores)
     adultos:    { src: '', alt: { es: '', en: '' } },   // 1 de noviembre
     santos:     { src: '', alt: { es: '', en: '' } },   // 2 de noviembre · Todos los Santos
-    loQueNoEs:  { src: '', alt: { es: '', en: '' } }
+    loQueNoEs:  { src: 'img/fotos/xpujuk.jpg', alt: { es: 'Flor de xpujuk con una nota sobre el nombre: Hanal Pixán también se escribe Janal Pixán', en: 'Xpujuk flower with a note on the name: Hanal Pixán can also be spelled Janal Pixán' } }
   };
 
   var RAIZ = '../';
@@ -26,7 +26,11 @@
   var PASOS_CAMINO = ['cal', 'velas', 'incienso', 'pib'];   // marca → guía → aroma → comida
   var CURIOSOS = ['velas', 'pib', 'cal', 'flores', 'china', 'yuca'];
   var FUENTES_SECCION = ['uady-pixan', 'diario-altar-2024']; // fuentes del texto «Lo que no es»
-  var CHIP_FECHA = ['mantel', 'velas'];
+  var CHIP_FECHA = {          // chips de cada fecha en «¿Cuándo se celebra?»
+    ninos:   ['mantel', 'velas-colores'],   // 31 oct: velas de colores
+    adultos: ['mantel', 'velas'],           // 1 nov: velas blancas
+    santos:  ['velas', 'velas-colores']     // 2 nov: ambas
+  };
 
   var idioma = idiomaInicial();
   var datos = null;
@@ -241,7 +245,8 @@
 
   function pintarFechas() {
     document.querySelectorAll('[data-chips]').forEach(function (cont) {
-      cont.innerHTML = CHIP_FECHA.map(function (id) { return chipHtml(porId[id]); }).join('');
+      var ids = CHIP_FECHA[cont.getAttribute('data-chips')] || CHIP_FECHA.adultos;
+      cont.innerHTML = ids.map(function (id) { return chipHtml(porId[id]); }).join('');
     });
   }
 
