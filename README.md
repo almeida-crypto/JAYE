@@ -4,7 +4,7 @@ Sitio web del altar de Hanal Pixán del grupo de TICs. Un solo QR abre el sitio,
 
 | Sección | Carpeta | Qué es |
 |---|---|---|
-| **Juega** | `juega/` | Juego «Arma el altar» *(pendiente de unir)* |
+| **Juega** | [`juega/`](juega/README.md) | Dos juegos: «Arma el altar» y el quiz ✅ *(unida al inicio)* |
 | **Aprende** | [`aprende/`](aprende/README.md) | Página sobre el Hanal Pixán ✅ *(unida al inicio)* |
 | **Entiende** | [`entiende/`](entiende/README.md) | Cámara del altar (MindAR) y, como respaldo, el altar digital ilustrado |
 

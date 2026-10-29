@@ -25,8 +25,7 @@
     var pi = getEl('pantalla-inicio'); if (pi) pi.hidden = true;
     var pr = getEl('pantalla-resultado'); if (pr) pr.hidden = true;
     var pq = getEl('pantalla-quiz'); if (pq) pq.hidden = false;
-    mostrarPregunta();
-    iniciarTimer();
+    mostrarPregunta();   // (mostrarPregunta arranca su propio temporizador)
   }
 
   var indice = 0, correctas = 0, totalSeg = 0, timer = null, responded = false, tiempoRest = 20;
@@ -114,12 +113,12 @@
       if (correctas >= 14) msg.textContent = 'Excellent!';
       else if (correctas >= 12) msg.textContent = 'Very good!';
       else if (correctas >= 10) msg.textContent = 'Good job!';
-      else msg.textContent = 'Keep learning about Hanal Pixánán.';
+      else msg.textContent = 'Keep learning about Hanal Pixán.';
     } else {
       if (correctas >= 14) msg.textContent = '¡Excelente!';
       else if (correctas >= 12) msg.textContent = '¡Muy bien!';
       else if (correctas >= 10) msg.textContent = '¡Bien hecho!';
-      else msg.textContent = 'Sigue aprendiendo sobre el Hanal Pixánán.';
+      else msg.textContent = 'Sigue aprendiendo sobre el Hanal Pixán.';
     }
     var input = document.getElementById('nombre-jugador');
     if (input){ input.value=''; input.placeholder = lang==='en'?'AAA':'AAA'; }
@@ -179,8 +178,8 @@
     var puntos = document.getElementById('res-puntos').textContent;
     var c = document.getElementById('res-correctas').textContent;
     var txt = lang==='en'
-      ? ('Hanal Pixánán Quiz - ' + c + '/15 correct, ' + puntos + ' points! https://github.com/almeida-crypto/JAYE')
-      : ('Quiz Hanal Pixánán - ' + c + '/15 correctas, ' + puntos + ' puntos! https://github.com/almeida-crypto/JAYE');
+      ? ('Hanal Pixán Quiz - ' + c + '/15 correct, ' + puntos + ' points! https://almeida-crypto.github.io/JAYE/juega/quiz.html')
+      : ('Quiz Hanal Pixán - ' + c + '/15 correctas, ' + puntos + ' puntos! https://almeida-crypto.github.io/JAYE/juega/quiz.html');
     var url = 'https://wa.me/?text=' + encodeURIComponent(txt);
     window.open(url, '_blank');
   }

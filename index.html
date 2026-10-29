@@ -35,16 +35,16 @@
         </div>
       </section>
 
-      <!-- Juega (pendiente: cuando esté lista, cambia este <div> por <a href="juega/"> y quita "apagada") -->
-      <div class="tile apagada" id="tile-juega" aria-disabled="true">
-        <div class="cabeza"><span class="num">01</span><span class="chip pronto" data-es="Próximamente" data-en="Coming soon"></span></div>
+      <!-- Juega: índice con los dos juegos (arma el altar y el quiz) -->
+      <a class="tile" href="juega/" id="link-juega">
+        <div class="cabeza"><span class="num">01</span><span class="chip"><i></i><span data-es="Listo" data-en="Ready"></span></span></div>
         <div class="parches" aria-hidden="true">
           <img src="entiende/img/iconos/comal.png" alt=""><img src="entiende/img/iconos/tortear.png" alt=""><img src="entiende/img/iconos/platano.png" alt="">
         </div>
         <h3 data-es="Juega" data-en="Play"></h3>
-        <p data-es="Arma el altar: pon cada elemento en su lugar." data-en="Build the altar: put each element in its place."></p>
-        <span class="ir suave" data-es="En camino…" data-en="On its way…"></span>
-      </div>
+        <p data-es="Arma el altar y pon a prueba lo que sabes con el quiz." data-en="Build the altar and test what you know with the quiz."></p>
+        <span class="ir"><span data-es="Jugar" data-en="Play"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
 
       <a class="tile" href="aprende/" id="link-aprende">
         <div class="cabeza"><span class="num">02</span><span class="chip"><i></i><span data-es="Listo" data-en="Ready"></span></span></div>
@@ -87,6 +87,7 @@
         try { localStorage.setItem(K, l); } catch (e) {}
         document.querySelectorAll('[data-es]').forEach(function (n) { n.textContent = n.getAttribute('data-' + l); });
         document.querySelectorAll('[data-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === l)); });
+        document.getElementById('link-juega').href = 'juega/' + (l === 'en' ? '?lang=en' : '');
         document.getElementById('link-entiende').href = 'entiende/' + (l === 'en' ? '?lang=en' : '');
         document.getElementById('link-aprende').href = 'aprende/' + (l === 'en' ? '?lang=en' : '');
       }

@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Altar de Hanal Pixán</title>
+<link rel="stylesheet" href="../assets/css/portada.css?v=1">
+<style>
+  :root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  html, body { height: 100%; margin: 0; background: #1b1423; color: #e9d8c4; font: 16px/1.45 system-ui, sans-serif; }
+  body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+  /* Ajustes al chrome de portada.css para convivir con el lienzo del juego */
+  body::before { display: none; }          /* sin estrellas detrás del canvas */
+  .franja-bordado { height: 30px; }
+  .barra { width: 100%; max-width: 640px; margin: 0 auto; padding: 8px 12px 0; }
+  /* image-rendering: pixelated => escalado "nearest neighbor", sin suavizado de bordes */
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; cursor: grab; background: #241a2e; }
+  #ui { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 640px; }
+  #info { color: #fff4e6; text-align: center; padding: 0 12px; min-height: 2.9em; }
+  #controles { display: flex; gap: 12px; }
+  /* botones grandes (≥48 px de alto) y de alto contraste para uso táctil */
+  #controles button { min-width: 132px; min-height: 48px; font: inherit; font-weight: 700; color: #fff; background: #7a4a8c; border: 2px solid #f2a23a; border-radius: 10px; padding: 0 18px; touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; }
+  #controles button:disabled { opacity: .45; }
+  #controles button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+  /* "Colocar" solo se muestra en pantallas táctiles; con ratón basta el clic */
+  @media (hover: hover) and (pointer: fine) { #btnColocar { display: none; } }
+</style>
+</head>
+<body>
+<div class="franja-bordado" aria-hidden="true"></div>
+<div class="barra">
+  <a class="volver-link" href="index.html" data-es="← Volver a juegos" data-en="← Back to games"></a>
+  <div class="selector-idioma" role="group" aria-label="Idioma / Language">
+    <button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>
+  </div>
+</div>
+<canvas id="juego"></canvas>
+<div id="ui">
+  <div id="info"></div>
+  <div id="controles">
+    <button id="btnRotar" type="button" aria-label="Girar el objeto 90 grados">↻ Girar</button>
+    <button id="btnColocar" type="button">Colocar</button>
+  </div>
+</div>
+<script>
+'use strict';
+
+/* ============================================================
+ * 0. IDIOMA — se lee igual que en el resto del sitio (?lang, localStorage 'jaye-idioma')
+ * ============================================================ */
+const LANG = (function () {
+  var q = new URLSearchParams(location.search).get('lang');
+  if (q === 'en' || q === 'es') return q;
+  try { var l = localStorage.getItem('jaye-idioma'); if (l === 'en' || l === 'es') return l; } catch (e) {}
+  return 'es';
+})();
+// Nombres de los objetos en inglés (en español van en el CATALOGO)
+const NOMBRES_EN = {
+  foto: 'Deceased photograph', rosario: 'Rosary', cruz: 'Green cross',
+  espejo: 'Personal item of the deceased', vela: 'Candle', cerveza: 'Personal item of the deceased',
+  cigarros: 'Personal item of the deceased', petalos: 'Petal path', ceniza: 'Lime cross',
+  copal: 'Incense burner (copal)', veladoras: 'Votive candles in a cross',
+  comida: 'Tamales', bebida: 'Atole', escabeche: 'Escabeche', dulce: 'Coconut sweet', dulce2: 'Coconut sweet',
+  mandarina: 'Mandarin', jicama: 'Jícama', sal: 'Salt', agua: 'Glass of pure water'
+};
+// Textos de interfaz por idioma
+const TEXTOS = {
+  es: { iniciar: 'Empezar a jugar', girar: '↻ Girar', colocar: 'Colocar', ariaGirar: 'Girar el objeto 90 grados' },
+  en: { iniciar: 'Start playing', girar: '↻ Rotate', colocar: 'Place', ariaGirar: 'Rotate the object 90 degrees' }
+};
+
+/* ============================================================
+ * 1. CONFIG — constantes globales (único lugar a tocar para ajustes)
+ * ============================================================ */
+const CFG = {
+  ANCHO: 352, ALTO: 224,     // resolución INTERNA (baja = pixel art real); el CSS la escala
+  TW: 32, TH: 16,            // tamaño en píxeles de una loseta isométrica (relación 2:1)
+  UZ: 16,                    // píxeles que equivale 1 unidad de altura (eje Z)
+  ORIGEN: { x: 176, y: 56 }, // punto de pantalla donde cae la esquina (0,0) del mundo
+  MAPA: 10                   // el suelo es una rejilla MAPA x MAPA
+};
+
+/* ============================================================
+ * 2. ISO — matemática isométrica (mundo <-> pantalla)
+ *    Mundo: x crece hacia abajo-derecha, y hacia abajo-izquierda, z hacia arriba.
+ * ============================================================ */
+const Iso = {
+  // Mundo (x,y,z) -> pantalla (sx,sy). Se redondea a entero para evitar píxeles "a medias".
+  aPantalla(x, y, z = 0) {
+    return {
+      sx: Math.round((x - y) * CFG.TW / 2 + CFG.ORIGEN.x),
+      sy: Math.round((x + y) * CFG.TH / 2 - z * CFG.UZ + CFG.ORIGEN.y)
+    };
+  },
+  // Inversa: pantalla -> mundo, asumiendo que el punto está sobre el plano horizontal "z".
+  // Despejando el sistema: x = dx/TW + dy/TH ; y = dy/TH - dx/TW
+  aMundo(sx, sy, z = 0) {
+    const dx = sx - CFG.ORIGEN.x;
+    const dy = sy - CFG.ORIGEN.y + z * CFG.UZ; // compensamos la altura del plano
+    return { x: dx / CFG.TW + dy / CFG.TH, y: dy / CFG.TH - dx / CFG.TW };
+  }
+};
+
+/* ============================================================
+ * 3. ENTIDAD — caja isométrica con huella (w,d) y altura (h) en unidades de mundo
+ *    Más adelante: aquí se sustituye el dibujo procedural por un sprite.
+ * ============================================================ */
+class Entidad {
+  constructor({ x, y, z = 0, w = 1, d = 1, h = 1, color, movible = false, margen = 0 }) {
+    // x,y,w,d = huella en CELDAS enteras; margen = encogimiento visual dentro de la huella
+    Object.assign(this, { x, y, z, w, d, h, color, movible, margen });
+  }
+  // Dibuja un prisma con 3 caras (techo, frontal-izq, frontal-der) con sombreado plano.
+  dibujar(ctx) {
+    // Si la entidad tiene una textura pre-renderizada (p. ej. el mantel del altar), se dibuja tal cual
+    if (this.sprite) { ctx.drawImage(this.sprite.img, this.sprite.ox, this.sprite.oy); return; }
+    // El margen encoge solo el DIBUJO; la lógica y el orden de profundidad usan la huella completa
+    const m = this.margen, { z, h } = this;
+    const x = this.x + m, y = this.y + m, w = this.w - 2 * m, d = this.d - 2 * m, zt = z + h; // zt = altura del techo
+    const P = (px, py, pz) => Iso.aPantalla(px, py, pz);
+    const cara = (pts, col) => {            // rellena un polígono con color sólido
+      ctx.fillStyle = col; ctx.beginPath();
+      pts.forEach((p, i) => i ? ctx.lineTo(p.sx, p.sy) : ctx.moveTo(p.sx, p.sy));
+      ctx.closePath(); ctx.fill();
+    };
+    // Si el objeto tiene sprite pixel art, se dibuja en lugar del prisma (el contorno de comprobación se conserva)
+    if (Sprites.tiene(this)) Sprites.dibujar(ctx, this);
+    else {
+      // Cara frontal izquierda (lado y+d): tono medio
+      cara([P(x, y + d, zt), P(x + w, y + d, zt), P(x + w, y + d, z), P(x, y + d, z)], sombra(this.color, .75));
+      // Cara frontal derecha (lado x+w): tono oscuro
+      cara([P(x + w, y, zt), P(x + w, y + d, zt), P(x + w, y + d, z), P(x + w, y, z)], sombra(this.color, .55));
+      // Techo: tono claro (color base)
+      cara([P(x, y, zt), P(x + w, y, zt), P(x + w, y + d, zt), P(x, y + d, zt)], this.color);
+    }
+    // Contorno de comprobación: rojo parpadeante si está mal ubicado; verde breve si acaba de acertar
+    const col = this.error ? (Math.floor(Juego.reloj * 4) % 2 ? '#ff2d2d' : '#8a1212') : (this.destello > 0 ? '#3ddc6a' : null);
+    if (col) {
+      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+      // Silueta hexagonal de la caja isométrica
+      [P(x, y, zt), P(x + w, y, zt), P(x + w, y, z), P(x + w, y + d, z), P(x, y + d, z), P(x, y + d, zt)]
+        .forEach((p, i) => i ? ctx.lineTo(p.sx, p.sy) : ctx.moveTo(p.sx, p.sy));
+      ctx.closePath(); ctx.stroke();
+    }
+  }
+}
+// Oscurece un color "#rrggbb" multiplicando sus canales por f (0..1)
+function sombra(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.round(v * f));
+  return `rgb(${c})`;
+}
+
+/* ============================================================
+ * 4. ORDEN DE PROFUNDIDAD — ordenamiento topológico para cajas isométricas.
+ *    Ordenar por (x+y) falla con objetos de distinto tamaño/altura (p. ej. un
+ *    objeto sobre un nivel del altar). Aquí comparamos pares de cajas:
+ *    "a está detrás de b" si a queda completamente antes que b en algún eje.
+ *    La cámara mira desde +x, +y, y +z (arriba).
+ * ============================================================ */
+const detras = (a, b) =>
+  a.x + a.w <= b.x + 1e-6 || a.y + a.d <= b.y + 1e-6 || a.z + a.h <= b.z + 1e-6;
+
+function ordenarProfundidad(lista) {
+  const res = [], visto = new Set();
+  const visitar = (e) => {
+    if (visto.has(e)) return;
+    visto.add(e);                              // marcar ANTES de recursar evita ciclos infinitos
+    for (const o of lista)                     // primero se dibuja todo lo que queda detrás de "e"
+      if (o !== e && detras(o, e) && !detras(e, o)) visitar(o);
+    res.push(e);
+  };
+  lista.forEach(visitar);
+  return res;                                   // orden final: del fondo al frente
+}
+
+/* ============================================================
+ * 5. ESCENA — contiene el mundo (suelo, altar, objetos) y su lógica
+ * ============================================================ */
+const Escena = {
+  entidades: [],
+  hover: null, agarrable: null,        // loseta bajo el cursor
+
+  iniciar() {
+    this.entidades = []; Recipientes.lista = []; Mano.item = null; // reinicio limpio para cada año
+    // Altar de 3 escalones (placeholder); fondo = más alto. Huellas sin solaparse.
+    this.entidades.push(
+      // El altar queda pegado a la pared del fondo (y = 0): un escalón más atrás que antes
+      new Entidad({ x: 0, y: 0, w: 8, d: 1, h: 1.5, color: '#7a4a8c' }),
+      new Entidad({ x: 0, y: 1, w: 8, d: 1, h: 1.0, color: '#9c5fae' }),
+      new Entidad({ x: 0, y: 2, w: 8, d: 1, h: 0.5, color: '#b97fc9' }),
+      // Paredes decorativas (fuera de la rejilla, y < 0 / x < 0): no ocupan ninguna celda
+      new Entidad({ x: -0.5, y: -0.5, w: 10.5, d: 0.5, h: 2.5, color: '#5a4270' }), // pared del fondo
+      new Entidad({ x: -0.5, y: 0, w: 0.5, d: 10, h: 2.5, color: '#4d3a62' })       // pared lateral
+    );
+    // Mantel blanco bordado sobre los 3 niveles del altar (son las 3 primeras entidades)
+    Mantel.aplicar(this.entidades.slice(0, 3));
+    Pared.aplicar(this.entidades.slice(3, 5));   // paredes de palma seca (paja)
+    // FASE 2: se crean los 4 recipientes cerrados (2 cajas, olla, cesto) con su contenido
+    Recipientes.crearTodos(this.entidades);
+  },
+
+  // Mouse picking: de arriba a abajo (inverso al dibujo) busca la entidad bajo el cursor.
+  // Se prueba el punto proyectado sobre el techo de la caja, convertido a mundo.
+  recoger(sx, sy) {
+    const orden = ordenarProfundidad(this.entidades).reverse();
+    for (const e of orden) {
+      if (!e.movible) continue;
+      if (Sprites.tiene(e)) { if (Sprites.golpe(e, sx, sy)) return { e }; continue; }   // con sprite: solo cuenta un píxel visible de su dibujo
+      const m = Iso.aMundo(sx, sy, e.z + e.h);        // plano del techo
+      if (m.x >= e.x && m.x <= e.x + e.w && m.y >= e.y && m.y <= e.y + e.d)
+        return { e, ox: m.x - e.x, oy: m.y - e.y };
+    }
+    return null;
+  },
+
+};
+
+/* ============================================================
+ * 5b. FASE 2 — CATÁLOGO, RECIPIENTES Y ÁREA DE ESPERA
+ * ============================================================ */
+
+// Catálogo de ítems agrupado por CATEGORÍA.
+// cant = cuántas copias de ese ítem se meten en el recipiente.
+// h = altura en unidades de mundo; la huella en celdas va en TAM_CELDAS. Colores y tamaños son marcadores de posición.
+const CATALOGO = {
+  // Cajas (2): todo lo que no es comida. Sus piezas se reparten al azar entre las dos cajas.
+  objeto: [
+    // Nivel 1 (escalón más alto)
+    { id: 'foto',      nombre: 'Fotografía de difunto', color: '#8fb3c9', h: .8,  cant: 2 },
+    { id: 'rosario',   nombre: 'Rosario',               color: '#6b4a3a', h: .2,  cant: 1 },
+    { id: 'cruz',      nombre: 'Cruz verde',            color: '#3fbf8f', h: 1.75, cant: 1 },   // 28 px de alto
+    // Nivel 2 (escalón de en medio)
+    { id: 'espejo',    nombre: 'Objeto personal del difunto',                color: '#aee1ee', h: .8,  cant: 1 },
+    { id: 'vela',      nombre: 'Vela o veladora',       color: '#f7f3e3', h: .9,  cant: 2 },
+    { id: 'cerveza',   nombre: 'Objeto personal del difunto',               color: '#e8a21c', h: .8,  cant: 1 },
+    // Nivel 2 (cigarros: antes en el escalón base, ahora en el de en medio)
+    { id: 'cigarros',  nombre: 'Objeto personal del difunto', color: '#a58b6e', h: .3, cant: 1 },
+    // Suelo
+    { id: 'petalos',   nombre: 'Camino de pétalos',    color: '#ffb627', h: .1,  cant: 2 },
+    { id: 'ceniza',    nombre: 'Cruz de cal',        color: '#ececec', h: .1,  cant: 1 },
+    { id: 'copal',     nombre: 'Incensario (copal)',      color: '#7a6a5a', h: .3,  cant: 2 },
+    { id: 'veladoras', nombre: 'Veladoras en cruz',     color: '#f4d58d', h: .5,  cant: 2 }
+  ],
+  // Olla: comida preparada (tamal, atole, escabeche y dulce)
+  comida: [
+    { id: 'comida',    nombre: 'Tamales',        color: '#b5651d', h: .4,  cant: 1 },   // Nivel 3
+    { id: 'bebida',    nombre: 'Atole',     color: '#5b3a29', h: .7,  cant: 1 },   // Nivel 3
+    { id: 'escabeche', nombre: 'Escabeche',             color: '#c9862c', h: .5,  cant: 1 },   // Nivel 3
+    { id: 'dulce',     nombre: 'Dulce de coco',     color: '#5c2e16', h: .3,  cant: 1 },   // Nivel 3
+  ],
+  // Cesto: frutas, sal, segundo dulce y vaso de agua
+  fruta: [
+    { id: 'mandarina', nombre: 'Mandarina',             color: '#f2a23a', h: .5,  cant: 1 },
+    { id: 'jicama',    nombre: 'Jícama',                color: '#d9cfae', h: .5,  cant: 1 },   // Nivel 3
+    { id: 'sal',       nombre: 'Sal',                   color: '#f2f2f2', h: .3,  cant: 1 },   // Nivel 2
+    { id: 'dulce2',    nombre: 'Dulce de coco',         color: '#8a4a1c', h: .3,  cant: 1 },   // Nivel 2
+    { id: 'agua',      nombre: 'Vaso de agua pura',     color: '#cfe8f5', h: .6,  cant: 1 }    // Suelo
+  ]
+};
+
+// Definición de los 3 tipos de recipiente: qué categorías aceptan, tamaño y colores.
+const TIPOS_RECIPIENTE = {
+  caja:  { categorias: ['objeto'],         w: 1.4, d: 1.4, h: .9,  color: '#a8783c', tapa: '#c4934f' },
+  olla:  { categorias: ['comida'],         w: 1.2, d: 1.2, h: 1.0, color: '#9c4a32', tapa: '#b95a40' },
+  cesto: { categorias: ['fruta'],  w: 1.3, d: 1.3, h: .9,  color: '#c9a45c', tapa: '#d8b872' }
+};
+
+// Baraja un arreglo en el lugar (Fisher-Yates): garantiza orden verdaderamente aleatorio.
+function barajar(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Construye la pila de un recipiente: SOLO ítems de sus categorías, ya barajados.
+// Así cada pop() devuelve un ítem aleatorio sin repetir ni volver a sortear.
+function crearPila(categorias) {
+  const pila = [];
+  for (const cat of categorias)
+    for (const it of CATALOGO[cat])
+      for (let n = 0; n < it.cant; n++) pila.push({ ...it, categoria: cat });
+  return barajar(pila);
+}
+
+// Convierte una definición del catálogo en una Entidad movible (lista para Drag & Drop).
+function crearItem(def) {
+  const [cw, cd] = TAM_CELDAS[def.id] || [1, 1];   // huella en celdas (por defecto 1x1)
+  const item = new Entidad({ x: 0, y: 0, z: 0, w: cw, d: cd, h: def.h, color: def.color, movible: true, margen: .12 });
+  // Metadatos para la validación del puzle (Fase 4); rot = giros de 90° aplicados (0..3)
+  return Object.assign(item, { id: def.id, nombre: LANG === 'en' && NOMBRES_EN[def.id] ? NOMBRES_EN[def.id] : def.nombre, categoria: def.categoria, rot: 0 });
+}
+
+// Recipiente = Entidad con estado (cerrado/abierto), pila de ítems y animaciones.
+class Recipiente extends Entidad {
+  constructor(tipo, x, y, pila) {
+    const def = TIPOS_RECIPIENTE[tipo];
+    super({ x, y, z: 0, w: 2, d: 2, h: def.h, color: def.color, margen: (2 - def.w) / 2 }); // huella fija 2x2 celdas
+    this.tipo = tipo; this.def = def;
+    this.pila = pila || crearPila(def.categorias); // contenido restante (el final del arreglo = siguiente en salir)
+    this.tVacio = 0; this.desv = 0; this.desvaneciendo = false; this.fuera = false; // control de la desaparición al vaciarse
+    this.abierto = false;                   // estado visual: false = con tapa, true = destapado
+    this.animTapa = 0;                      // 0..1: progreso de la tapa elevándose y desvaneciéndose
+    this.rebote = 0;                        // 1..0: pequeño salto del recipiente al sacar un objeto
+    // La tapa es una caja delgada que se dibuja encima del cuerpo
+    this.tapa = new Entidad({ x: x + this.margen - .06, y: y + this.margen - .06, z: def.h, w: def.w + .12, d: def.d + .12, h: .18, color: def.tapa });
+  }
+
+  // Bandera de estado: true cuando ya no quedan objetos dentro
+  get estaVacio() { return this.pila.length === 0; }
+
+  // Un clic: el primero destapa; cada clic saca UN ítem aleatorio (pop). Devuelve la Entidad o null.
+  extraer() {
+    if (this.estaVacio) return null;       // vacío: no hay nada que sacar
+    this.abierto = true;                   // cambia de estado visual (cerrado -> abierto)
+    this.rebote = 1;                       // dispara la animación de salto
+    return crearItem(this.pila.pop());     // pop sobre pila barajada = ítem al azar
+  }
+
+  // Caja delimitadora en pantalla (8 esquinas proyectadas) para detectar el clic.
+  // Es una aproximación rápida: incluye las caras laterales, algo que el plano del techo no cubre.
+  contiene(sx, sy) {
+    const xs = [], ys = [];
+    for (const dx of [0, this.w]) for (const dy of [0, this.d]) for (const z of [this.z, this.z + this.h]) {
+      const p = Iso.aPantalla(this.x + dx, this.y + dy, z); xs.push(p.sx); ys.push(p.sy);
+    }
+    return sx >= Math.min(...xs) && sx <= Math.max(...xs) && sy >= Math.min(...ys) && sy <= Math.max(...ys);
+  }
+
+  // Avanza las animaciones (dt en segundos)
+  actualizar(dt) {
+    if (this.abierto) this.animTapa = Math.min(1, this.animTapa + dt * 4);
+    this.rebote = Math.max(0, this.rebote - dt * 6);
+    // Al vaciarse: tras una breve pausa estalla en pétalos y se desvanece; luego se retira del escenario
+    if (this.estaVacio && this.abierto && !this.desvaneciendo && (this.tVacio += dt) > .7) {
+      this.desvaneciendo = true;
+      const c = Iso.aPantalla(this.x + this.w / 2, this.y + this.d / 2, this.h);
+      Efectos.petalos(c.sx, c.sy);
+    }
+    if (this.desvaneciendo) {
+      this.desv = Math.min(1, this.desv + dt * 1.5);
+      if (this.desv >= 1) this.fuera = true;   // listo para retirarse (lo hace Recipientes.actualizar)
+    }
+  }
+
+  // Dibujo: cuerpo + interior oscuro (si está abierto) + tapa + contador de objetos restantes
+  dibujar(ctx) {
+    ctx.save();
+    // Salto al extraer + hundimiento y desvanecimiento al desaparecer
+    ctx.translate(0, -Math.round(this.rebote * 3) + Math.round(this.desv * 8));
+    ctx.globalAlpha = 1 - this.desv;
+    if (this.tipo in Sprites.CONT) Sprites.dibujarCont(ctx, this); else super.dibujar(ctx);                               // cuerpo (prisma de la Fase 1)
+    const { x, y, w, d } = this, zt = this.z + this.h, ins = this.margen + .14;
+    const P = (px, py) => Iso.aPantalla(px, py, zt);
+    if (this.abierto && !(this.tipo in Sprites.CONT)) {                               // "agujero" interior: más oscuro mientras tenga objetos
+      ctx.fillStyle = this.estaVacio ? '#3a2e44' : '#150f1a';
+      ctx.beginPath();
+      [P(x + ins, y + ins), P(x + w - ins, y + ins), P(x + w - ins, y + d - ins), P(x + ins, y + d - ins)]
+        .forEach((p, i) => i ? ctx.lineTo(p.sx, p.sy) : ctx.moveTo(p.sx, p.sy));
+      ctx.closePath(); ctx.fill();
+    }
+    if (this.animTapa < 1) {                          // la tapa sube y se desvanece al abrir
+      this.tapa.z = this.h + this.animTapa * 1.2;
+      ctx.globalAlpha = 1 - this.animTapa;
+      if (this.tipo in Sprites.CONT) Sprites.dibujarTapaCont(ctx, this); else this.tapa.dibujar(ctx);
+      ctx.globalAlpha = 1;
+    }
+    if (!this.estaVacio) {                            // contador de objetos restantes sobre el recipiente
+      const c = Iso.aPantalla(x + w / 2, y + d / 2, zt + 1.3);
+      ctx.fillStyle = '#150f1a'; ctx.beginPath(); ctx.arc(c.sx, c.sy, 8, 0, 6.283); ctx.fill();   // insignia oscura para que el número se lea
+      ctx.strokeStyle = '#f2a23a'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(this.pila.length, c.sx, c.sy);
+    }
+    ctx.restore();
+  }
+}
+
+/* ============================================================
+ * FASE 3 — REJILLA (lógica por celdas) Y MANO (objeto sostenido)
+ * ============================================================ */
+
+// Huella en celdas (ancho x fondo) de los ítems que NO son 1x1
+const TAM_CELDAS = { petalos: [2, 1], ceniza: [2, 3] };   // camino de pétalos 2x1 y cruz de ceniza 2x3 (se pueden girar)
+
+// Rejilla: toda la colocación se resuelve en celdas enteras (i,j); no existen posiciones libres.
+const Rejilla = {
+  N: CFG.MAPA,
+
+  // Bloque de altar = entidad fija que no es recipiente. Es una SUPERFICIE elevada donde sí se puede colocar.
+  esAltar: e => !e.movible && !(e instanceof Recipiente),
+
+  // Altura de la superficie de una celda: techo del bloque de altar que la cubre, o 0 (suelo)
+  altura(i, j) {
+    let alt = 0;
+    for (const e of Escena.entidades)
+      if (this.esAltar(e) && i >= e.x && i < e.x + e.w && j >= e.y && j < e.y + e.d) alt = Math.max(alt, e.z + e.h);
+    return alt;
+  },
+
+  // Celda cuya SUPERFICIE queda bajo el cursor. Se proyecta el cursor al plano de cada celda
+  // (a la altura de SU superficie) y gana la más alta, que es la que se ve al frente.
+  // (Antes se iteraba desde el suelo y en los niveles altos del altar la proyección saltaba de nivel.)
+  celdaBajo(sx, sy) {
+    let mejor = null, zMax = -1;
+    for (let i = 0; i < this.N; i++)
+      for (let j = 0; j < this.N; j++) {
+        const z = this.altura(i, j), m = Iso.aMundo(sx, sy, z);
+        if (Math.floor(m.x) === i && Math.floor(m.y) === j && z > zMax) { mejor = { i, j }; zMax = z; }
+      }
+    if (mejor) return mejor;
+    const m = Iso.aMundo(sx, sy, 0);   // fuera del mapa: celda virtual sobre el suelo (siempre inválida)
+    return { i: Math.floor(m.x), j: Math.floor(m.y) };
+  },
+
+  // ¿La celda está ocupada por un recipiente u otro objeto? (se ignora el propio objeto en mano)
+  ocupada(i, j, ignorar) {
+    return Escena.entidades.some(e => e !== ignorar && !this.esAltar(e) &&
+      i >= e.x && i < e.x + e.w && j >= e.y && j < e.y + e.d);
+  },
+
+  // Reglas: 1) toda la huella dentro del mapa, 2) superficie plana (misma altura en todas las celdas),
+  // 3) ninguna celda ocupada => no hay encimado ni colocación sobre recipientes.
+  puedeColocar(it, i0, j0) {
+    if (i0 < 0 || j0 < 0 || i0 + it.w > this.N || j0 + it.d > this.N) return false;
+    const z0 = this.altura(i0, j0);
+    for (let i = i0; i < i0 + it.w; i++)
+      for (let j = j0; j < j0 + it.d; j++)
+        if (this.altura(i, j) !== z0 || this.ocupada(i, j, it)) return false;
+    return true;
+  }
+};
+
+// Mano: el único objeto que el jugador sostiene. Mientras haya uno, no se puede sacar otro.
+const Mano = {
+  item: null,
+  cursor: { sx: 0, sy: 0 },   // última posición del cursor (para recalcular al girar)
+  inicio: null,               // punto donde se pulsó, para detectar arrastrar y soltar
+
+  // Toma un objeto (recién extraído o ya colocado): queda pegado al cursor
+  tomar(item) {
+    this.item = item; item.enMano = true;
+    this.mover(this.cursor.sx, this.cursor.sy);
+  },
+
+  // Ajusta el objeto a la celda bajo el cursor y recalcula si la posición es válida
+  mover(sx, sy) {
+    this.cursor = { sx, sy };
+    const it = this.item; if (!it) return;
+    const { i, j } = Rejilla.celdaBajo(sx, sy);   // celda cuya superficie (suelo o altar) está bajo el cursor
+    // El cursor queda aproximadamente en el centro de la huella
+    it.x = i - ((it.w - 1) >> 1); it.y = j - ((it.d - 1) >> 1);
+    it.valido = Rejilla.puedeColocar(it, it.x, it.y);
+    it.z = Rejilla.altura(it.x, it.y) + .3;       // levita un poco mientras se sostiene
+  },
+
+  // Gira 90°: intercambia ancho y fondo de la huella (dir = +1 / -1)
+  rotar(dir) {
+    const it = this.item; if (!it) return;
+    [it.w, it.d] = [it.d, it.w];
+    it.rot = (it.rot + dir + 4) % 4;
+    this.mover(this.cursor.sx, this.cursor.sy);   // revalida con la nueva huella
+  },
+
+  // Intenta soltar el objeto; si no hay celdas libres suficientes, no lo permite
+  colocar() {
+    const it = this.item;
+    if (!it || !it.valido) return false;
+    it.z = Rejilla.altura(it.x, it.y);            // se asienta sobre la superficie
+    it.enMano = false; this.item = null;
+    Comprobacion.alColocar(it);                   // en la fase de corrección, re-evalúa este objeto
+    return true;
+  },
+
+  // Etiqueta con el nombre del objeto sostenido, sobre su dibujo (se mantiene dentro del lienzo)
+  dibujarEtiqueta(ctx) {
+    const it = this.item; if (!it) return;
+    const s = Sprites.tiene(it) ? Sprites.obtener(it) : null, p = Iso.aPantalla(it.x + it.w / 2, it.y + it.d / 2, it.z);
+    ctx.save();
+    ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = Math.ceil(ctx.measureText(it.nombre).width) + 10, h = 15;
+    const x = Math.round(Math.min(Math.max(p.sx, w / 2 + 2), CFG.ANCHO - w / 2 - 2));            // sin salirse por los lados
+    const y = Math.round(Math.max(p.sy - (s ? s.ay : 16) - 12, h / 2 + 2));                       // encima del sprite (y sin salirse por arriba)
+    ctx.fillStyle = 'rgba(21,15,26,.94)'; ctx.fillRect(x - w / 2, y - h / 2, w, h);
+    ctx.strokeStyle = '#f2a23a'; ctx.lineWidth = 1; ctx.strokeRect(x - w / 2 + .5, y - h / 2 + .5, w - 1, h - 1);
+    ctx.fillStyle = '#fff'; ctx.fillText(it.nombre, x, y + 1);
+    ctx.restore();
+  },
+
+  // Pinta las celdas de la huella: verde = válido, rojo = inválido (se llama tras dibujar entidades)
+  dibujarPreview() {
+    const it = this.item; if (!it) return;
+    const z = Rejilla.altura(it.x, it.y);
+    for (let i = it.x; i < it.x + it.w; i++)
+      for (let j = it.y; j < it.y + it.d; j++)
+        dibujarLoseta(i, j, it.valido ? '#3ddc6a77' : '#ff3b3b88', z);
+  }
+};
+
+// Módulo que gestiona todos los recipientes e interpreta los clics sobre ellos.
+const Recipientes = {
+  lista: [],
+
+  // Crea los 3 recipientes en el lado derecho del mapa y los registra en la escena
+  crearTodos(entidades) {
+    // Las 2 cajas se reparten al azar los objetos: cada pieza va a una sola caja
+    const objetos = crearPila(['objeto']), mitad = Math.ceil(objetos.length / 2);
+    const plan = [   // [tipo, x, y, pila]: 4 recipientes de 2x2 celdas en la columna derecha
+      ['caja', 8, 1, objetos.slice(0, mitad)], ['caja', 8, 3, objetos.slice(mitad)],
+      ['olla', 8, 5], ['cesto', 8, 7]
+    ];
+    for (const [tipo, x, y, pila] of plan) {
+      const r = new Recipiente(tipo, x, y, pila);
+      this.lista.push(r); entidades.push(r);
+    }
+  },
+
+  // Estado global: true cuando los 3 recipientes ya se vaciaron Y desaparecieron del escenario
+  get todosVacios() { return this.lista.every(r => r.fuera); },
+
+  // Clic en pantalla: busca el recipiente más cercano a cámara bajo el cursor y extrae un objeto.
+  clic(sx, sy, entidades) {
+    for (const r of ordenarProfundidad(this.lista).reverse()) { // de frente al fondo
+      if (r.estaVacio || !r.contiene(sx, sy)) continue; // un recipiente vacío ya no responde al clic
+      const item = r.extraer();
+      if (item) {                                                // el ítem queda sostenido por el cursor (Mano)
+        entidades.push(item); Mano.tomar(item);
+      }
+      return true;                                               // el clic fue consumido por un recipiente
+    }
+    return false;
+  },
+
+  // Animaciones por fotograma de los recipientes (tapa y rebote)
+  actualizar(dt, entidades) {
+    this.lista.forEach(r => r.actualizar(dt));
+    // Los recipientes ya desvanecidos se retiran del escenario (liberan sus celdas)
+    for (const r of this.lista) {
+      const k = r.fuera ? entidades.indexOf(r) : -1;
+      if (k >= 0) entidades.splice(k, 1);
+    }
+  }
+};
+
+/* ============================================================
+ * FASE 4 — VALIDACIÓN, COMPROBACIÓN, FOTO Y ESTADOS DEL JUEGO
+ * ============================================================ */
+
+// Reglas lógicas: niveles permitidos por ítem (id del catálogo).
+// Cada objeto tiene UN solo nivel asignado: el suelo o uno de los 3 niveles del altar.
+// Nombres de nivel según el altar (N1 = escalón más alto). El valor es la altura de la superficie / 0.5.
+const SUELO = 0, N3 = 1, N2 = 2, N1 = 3;
+const REGLAS = {
+  foto: N1, rosario: N1, cruz: N1,                     // Nivel 1
+  sal: N2, dulce2: N2, vela: [N2, N1], espejo: N2, cerveza: N2,                    // Nivel 2
+  comida: N3, bebida: N3, escabeche: N3, dulce: N3, cigarros: N2, mandarina: N3, jicama: N3,   // Nivel 3
+  petalos: SUELO, ceniza: SUELO, copal: SUELO, agua: SUELO, veladoras: SUELO // Suelo
+};
+// Filas del suelo (hasta la fila indicada, exclusiva) donde vale cada objeto; por defecto las 2 filas frente al altar
+const FILA_MAX = { petalos: 10, ceniza: 10 };   // el camino de pétalos y la cruz de ceniza pueden ir en todo el frente
+
+// Validación de un objeto individual
+const Validacion = {
+  // Nivel de superficie (0..3) donde descansa el objeto: cada nivel del altar sube 0.5 de altura
+  nivel: it => Math.round(Rejilla.altura(it.x, it.y) / 0.5),
+
+  esValido(it) {
+    const n = this.nivel(it), meta = REGLAS[it.id];
+    if (meta !== undefined && ![].concat(meta).includes(n)) return false;   // meta puede ser un nivel o una lista de niveles válidos (p. ej. la vela blanca: N2 o N1)   // el objeto está en un nivel que no le corresponde
+    // En el suelo solo vale frente al altar (no "tirado" en cualquier parte)
+    if (n === SUELO) return it.y >= 3 && it.y + it.d <= (FILA_MAX[it.id] || 5) && it.x >= 0 && it.x + it.w <= 8;
+    return true;
+  },
+
+  // Objetos ya colocados (se excluye el que está en la mano)
+  colocados: () => Escena.entidades.filter(e => e.movible && !e.enMano)
+};
+
+// Modo comprobación: revisa objeto por objeto y gestiona la fase de corrección
+const Comprobacion = {
+  cola: [], t: 0,
+
+  // Congela la colocación e inicia la revisión secuencial
+  iniciar() {
+    Juego.cambiar('comprobando');
+    this.cola = Validacion.colocados();   // se revisan TODOS los objetos colocados
+    this.t = 0;
+  },
+
+  actualizar(dt) {
+    for (const e of Escena.entidades) if (e.destello > 0) e.destello = Math.max(0, e.destello - dt); // apaga el verde
+    if (Juego.estado !== 'comprobando') return;
+    this.t -= dt; if (this.t > 0) return;                   // un objeto cada 0.15 s
+    const it = this.cola.shift();
+    if (it) { it.error = !Validacion.esValido(it); it.destello = it.error ? 0 : .5; this.t = .15; return; }
+    // Cola terminada: si hay errores se pasa a corregir; TODOS los objetos siguen siendo movibles (evita softlocks)
+    this.hayErrores() ? Juego.cambiar('corrigiendo') : Juego.resolver();
+  },
+
+  hayErrores: () => Validacion.colocados().some(e => e.error),
+
+  // Fase de corrección: al soltar un objeto se re-evalúa solo ese; si ya no quedan errores, se resuelve
+  alColocar(it) {
+    if (Juego.estado !== 'corrigiendo') return;
+    it.error = !Validacion.esValido(it);
+    if (!it.error) it.destello = .5;   // un objeto correcto que se reubicó bien destella en verde
+    if (!this.hayErrores()) Juego.resolver();
+  }
+};
+
+// Álbum de recuerdos: guarda las fotos (copias del lienzo) y dibuja polaroids
+const Album = {
+  fotos: [],
+
+  // Polaroid centrada en (cx,cy); todo (marco, pie, texto) escala con s
+  polaroid(ctx, f, cx, cy, s) {
+    const w = CFG.ANCHO * s, h = CFG.ALTO * s, m = 8 * s, pie = 30 * s;
+    ctx.fillStyle = '#f4ecdc';
+    ctx.fillRect(Math.round(cx - w / 2 - m), Math.round(cy - h / 2 - m), Math.round(w + 2 * m), Math.round(h + 2 * m + pie));
+    ctx.drawImage(f.img, Math.round(cx - w / 2), Math.round(cy - h / 2), Math.round(w), Math.round(h));
+  },
+
+  // Hasta 4 miniaturas de las últimas fotos en la pantalla de inicio
+  miniaturas(ctx) {
+    const ult = this.fotos.slice(-4);
+    ult.forEach((f, k) => this.polaroid(ctx, f, CFG.ANCHO / 2 + (k - (ult.length - 1) / 2) * 84, 180, .17));
+  }
+};
+
+// Mantel: textura procedural en pixel art para los niveles del altar.
+// Tela blanca lisa; el bordado calado aparece SOLO en una franja angosta junto a los bordes libres.
+// Los bordes pegados a la pared o a otro nivel (pliegues) no se bordan.
+const Mantel = {
+  K: 16,                      // píxeles de textura por unidad de mundo
+  ANCHO: 5,                   // ancho de la franja bordada (px)
+  TELA: [244, 240, 230],      // blanco hueso
+  HILO: [255, 253, 246],      // hilo blanco del bordado (algo más claro que la tela)
+  PUNTADA: [208, 200, 184],   // puntada de contorno (gris cálido)
+  HUECO: [96, 66, 52],        // calado: deja ver la madera de la mesa
+
+  // Color del bordado a distancia d del borde y posición t a lo largo de él (ambos en px); null = tela lisa
+  bordado(d, t) {
+    if (d >= this.ANCHO) return null;                  // fuera de la franja: tela lisa
+    if (Math.floor(d) === 0 || Math.floor(d) === this.ANCHO - 1) return this.PUNTADA; // líneas de puntada
+    const tm = ((t % 10) + 10) % 10 - 5, bm = d - 2.5;  // posición relativa al centro del motivo (período de 10 px)
+    const r2 = tm * tm + bm * bm;
+    if (r2 < 1.6) return this.HUECO;                    // ojal calado
+    if (r2 < 3.8) return this.PUNTADA;                  // contorno del ojal
+    return this.HILO;                                   // relleno de hilo blanco
+  },
+
+  // Color del píxel de pantalla (sx, sy) para el nivel e. Invierte la proyección sobre cada cara visible
+  // (superior, frontal-izquierda y derecha) y mide la distancia a sus bordes libres. null = fuera del prisma.
+  color(e, caja, sx, sy) {
+    const o = CFG.ORIGEN, hw = CFG.TW / 2, hh = CFG.TH / 2, K = this.K;
+    const zt = e.z + e.h, yf = e.y + e.d, xp = e.x + e.w, frente = yf >= caja.y1;  // techo, plano frontal (y) y plano derecho (x)
+    let sombra, plie = 0, cands;                            // cands = [[distancia al borde, coord. a lo largo], ...]
+    const m = Iso.aMundo(sx, sy, zt);
+    if (m.x >= e.x && m.x < xp && m.y >= e.y && m.y < yf) {            // cara superior: bordes libres = extremos y frente
+      sombra = 1; cands = [[m.x - caja.x0, m.y], [caja.x1 - m.x, m.y]];
+      if (frente) cands.push([yf - m.y, m.x]);                         // el frente solo se borda en el nivel más bajo
+    } else {
+      const xa = (sx - o.x) / hw + yf, za = ((xa + yf) * hh + o.y - sy) / CFG.UZ;
+      if (xa >= e.x && xa < xp && za >= e.z && za < zt) {              // cara frontal: extremos laterales y dobladillo inferior
+        sombra = .88; plie = xa; cands = [[xa - caja.x0, za], [caja.x1 - xa, za]];
+        if (frente) cands.push([za - e.z, xa]);                         // dobladillo solo en el frente libre
+      } else {
+        const yb = xp - (sx - o.x) / hw, zb = ((xp + yb) * hh + o.y - sy) / CFG.UZ;
+        if (!(yb >= e.y && yb < yf && zb >= e.z && zb < zt)) return null; // fuera del prisma: transparente
+        sombra = .74; plie = yb; cands = [[zb - e.z, yb]];
+        if (frente) cands.push([yf - yb, zb]);  // cara derecha: dobladillo inferior y borde frontal
+      }
+    }
+    const [d, t] = cands.reduce((a, b) => b[0] < a[0] ? b : a);       // borde libre más cercano
+    const c = this.bordado(d * K, t * K) || this.TELA;
+    let f = sombra;
+    if (c !== this.HUECO) {
+      if ((Math.floor(sx) * 13 + Math.floor(sy) * 7) % 9 === 0) f *= .96;        // trama sutil de la tela
+      if (sombra < 1 && Math.floor(plie * K / 6) % 4 === 0) f *= .95;            // pliegues verticales suaves
+    }
+    return c.map(v => Math.round(v * f));
+  },
+
+  // Genera los píxeles (RGBA) del nivel e dentro de su caja de pantalla. Función pura: no usa el DOM.
+  pixeles(e, caja) {
+    const zs = [e.z, e.z + e.h], P = [];
+    for (const x of [e.x, e.x + e.w]) for (const y of [e.y, e.y + e.d]) for (const z of zs) P.push(Iso.aPantalla(x, y, z));
+    const x0 = Math.min(...P.map(p => p.sx)), y0 = Math.min(...P.map(p => p.sy));
+    const W = Math.max(...P.map(p => p.sx)) - x0 + 1, H = Math.max(...P.map(p => p.sy)) - y0 + 1;
+    const data = new Uint8ClampedArray(W * H * 4);
+    for (let py = 0; py < H; py++) for (let px = 0; px < W; px++) {
+      const c = this.color(e, caja, x0 + px + .5, y0 + py + .5);   // centro del píxel
+      if (c) data.set([c[0], c[1], c[2], 255], (py * W + px) * 4);
+    }
+    return { W, H, x0, y0, data };
+  },
+
+  // Pre-renderiza la textura de cada nivel una sola vez y la asigna como sprite de la entidad
+  aplicar(niveles) {
+    // Extremos del altar completo: definen cuáles bordes son libres
+    const caja = { x0: Math.min(...niveles.map(e => e.x)), x1: Math.max(...niveles.map(e => e.x + e.w)),
+                   y1: Math.max(...niveles.map(e => e.y + e.d)) };
+    for (const e of niveles) {
+      const t = this.pixeles(e, caja), c = document.createElement('canvas');
+      c.width = t.W; c.height = t.H;
+      c.getContext('2d').putImageData(new ImageData(t.data, t.W, t.H), 0, 0);
+      e.sprite = { img: c, ox: t.x0, oy: t.y0 };   // (ox, oy) = esquina superior izquierda en pantalla
+    }
+  }
+};
+
+/* ============================================================
+ * SPRITES DE OBJETOS — pixel art procedural, pre-renderizado y en caché.
+ * Los ids sin sprite siguen dibujándose como prismas de color (marcador de posición).
+ * ============================================================ */
+const Sprites = {
+  cache: {},
+  VELAS: { vela: 1, veladoras: 1 },   // ids que usan el sprite de vela cilíndrica
+
+  tiene(it) { return it.id in this.VELAS || it.id in this.GEN; },
+
+  // Vela cilíndrica isométrica (RGBA). Mismo sombreado que el resto del juego: tapa clara, luz a la izquierda,
+  // lado derecho oscuro. Incluye cera derretida, mecha y una sombra suave sobre la superficie. Función pura.
+  pixelesVela(alto, hex) {
+    const R = 6, RY = 3, W = 2 * (R + 3), cx = W / 2;   // radio, semialto de la elipse (2:1) y ancho del lienzo
+    const yt = RY + 3, yb = yt + alto, H = yb + RY + 3; // centro de la tapa y centro de la base
+    const base = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+    const data = new Uint8ClampedArray(W * H * 4);
+    const put = (px, py, c, a = 255) => data.set([c[0], c[1], c[2], a], (py * W + px) * 4);
+    const tono = f => base.map(v => Math.min(255, Math.round(v * f)));
+    for (let py = 0; py < H; py++) for (let px = 0; px < W; px++) {
+      const dx = px + .5 - cx, dy = py + .5;
+      const enTapa = (dx / R) ** 2 + ((dy - yt) / RY) ** 2 <= 1;
+      const enCuerpo = Math.abs(dx) <= R && dy >= yt && dy <= yb + RY * Math.sqrt(Math.max(0, 1 - (dx / R) ** 2));
+      if (enTapa) {   // tapa elíptica; la cera derretida alrededor de la mecha es un poco más oscura
+        const cera = (dx / (R * .55)) ** 2 + ((dy - yt) / (RY * .55)) ** 2 <= 1;
+        put(px, py, tono(cera ? .9 : 1));
+      } else if (enCuerpo) {   // 3 bandas: brillo a la izquierda, tono medio y lado oscuro a la derecha
+        put(px, py, tono(dx < -3.5 ? 1 : dx < 1 ? .88 : .7));
+      } else if ((dx / (R + 2.5)) ** 2 + ((dy - yb) / (RY + 1.5)) ** 2 <= 1) {
+        put(px, py, [60, 40, 70], 70);   // sombra suave bajo la base
+      }
+    }
+    put(cx - 1, yt - 2, [59, 47, 42]); put(cx - 1, yt - 1, [59, 47, 42]);   // mecha
+    return { W, H, data, ax: cx, ay: yb, alto };   // (ax, ay) = centro de la base: se alinea con el centro de la celda
+  },
+
+  // Generador (método) por id para los objetos que no son velas. Cada uno devuelve un lienzo {W,H,data,ax,ay,alto}.
+  GEN: {
+    agua: 'pixelesAgua', bebida: 'pixelesAtole', mandarina: 'pixelesMandarina', jicama: 'pixelesJicama',
+    sal: 'pixelesSal', ceniza: 'pixelesCeniza', petalos: 'pixelesPetalos',
+    escabeche: 'pixelesEscabeche', dulce: 'pixelesDulce', dulce2: 'pixelesDulce',
+    cigarros: 'pixelesCigarros', espejo: 'pixelesEspejo', rosario: 'pixelesRosario', cerveza: 'pixelesCerveza', comida: 'pixelesTamal', copal: 'pixelesCopal', foto: 'pixelesFoto', cruz: 'pixelesCruz'
+  },
+
+  // ---- Utilidades de dibujo por píxeles (funciones puras) ----
+  rgb: hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)),
+  sh: (c, f) => c.map(v => Math.min(255, Math.round(v * f))),          // oscurece (f<1) o aclara (f>1) un color
+  el: (dx, dy, rx, ry) => (dx / rx) ** 2 + (dy / ry) ** 2 <= 1,        // ¿(dx,dy) cae dentro de la elipse?
+  ruido: (x, y) => ((x * 73856093) ^ (y * 19349663)) >>> 0,            // "azar" determinista para salpicados
+
+  // Lienzo RGBA con put(x, y, color, alfa)
+  lienzo(W, H) {
+    const data = new Uint8ClampedArray(W * H * 4);
+    const put = (x, y, c, a = 255) => { if (x >= 0 && y >= 0 && x < W && y < H) data.set([c[0], c[1], c[2], a], (y * W + x) * 4); };
+    return { W, H, data, put };
+  },
+
+  aCanvas(L) {
+    const c = document.createElement('canvas'); c.width = L.W; c.height = L.H;
+    c.getContext('2d').putImageData(new ImageData(L.data, L.W, L.H), 0, 0);
+    return c;
+  },
+
+  // Cilindro isométrico (elipse 2:1): tapa en yt, base en yt+alto, centrado en cx.
+  // o = { c: cuerpo, t: tapa, r: borde de la tapa (opcional), rb: radio de la base (cónico), a: alfa, p: salpicado, sombra }
+  cilindro(L, cx, yt, R, alto, o) {
+    const RY = R / 2, rb = o.rb || R, yb = yt + alto, a = o.a || 255;
+    for (let py = 0; py < L.H; py++) for (let px = 0; px < L.W; px++) {
+      const dx = px + .5 - cx, dy = py + .5, t = Math.min(1, Math.max(0, (dy - yt) / alto)), r = R + (rb - R) * t;
+      if (this.el(dx, dy - yt, R, RY)) {   // tapa: anillo de borde y superficie interior
+        L.put(px, py, o.r && !this.el(dx, dy - yt, R - 1.5, RY - .75) ? o.r : o.t);
+      } else if (Math.abs(dx) <= r && dy >= yt && dy <= yb + (rb / 2) * Math.sqrt(Math.max(0, 1 - (dx / rb) ** 2))) {
+        // cuerpo: 3 bandas (brillo izquierdo, medio, lado derecho oscuro) y salpicado opcional
+        const peca = o.p && this.ruido(px, py) % 19 === 0;
+        L.put(px, py, peca ? o.p : this.sh(o.c, (dx < -R * .55 ? 1.12 : dx < R * .2 ? .9 : .7) * (o.f ? o.f(px, py) : 1)), a);
+      } else if (o.sombra !== false && this.el(dx, dy - yb, rb + 2.5, rb / 2 + 1.5)) {
+        L.put(px, py, [60, 40, 70], 70);   // sombra suave sobre la superficie
+      }
+    }
+  },
+
+  // Vaso de agua: vidrio cónico semitransparente, borde brillante, reflejo y base gruesa
+  pixelesAgua(it) {
+    const R = 5, alto = Math.round(it.h * 16), cx = 8, yt = 6, L = this.lienzo(16, yt + alto + 8);
+    this.cilindro(L, cx, yt, R, alto, { c: [170, 212, 242], t: [135, 188, 232], r: [235, 246, 253], rb: 4, a: 235 });
+    for (let y = yt + 2; y < yt + alto - 1; y++) L.put(cx - 3, y, [240, 248, 255], 230);   // reflejo vertical
+    for (let x = cx - 3; x < cx + 3; x++) L.put(x, yt + alto, [225, 240, 250], 240);        // base gruesa
+    return Object.assign(L, { ax: cx, ay: yt + alto, alto });
+  },
+
+  // Atole en jarro de barro: cuerpo terracota con franja decorada, asa, atole cremoso, canela y vaina de vainilla
+  pixelesAtole(it) {
+    const R = 6, alto = Math.round(it.h * 16), cx = 11, yt = 7, yb = yt + alto, L = this.lienzo(22, yb + 9);
+    const barro = this.rgb('#b8602a');
+    this.cilindro(L, cx, yt, R, alto, { c: barro, t: [241, 230, 207], r: this.sh(barro, 1.2) });
+    for (let x = cx - 5; x <= cx + 4; x += 3) L.put(x, yt + 5, [240, 210, 138]);               // puntos dorados
+    L.put(cx - 1, yt + 7, [47, 93, 58]); L.put(cx, yt + 7, [47, 93, 58]);                       // hoja verde
+    for (const [x, y] of [[-2, 0], [1, -1], [2, 1]]) L.put(cx + x, yt + y, [168, 104, 58]);   // canela
+    for (let i = 0; i <= 6; i++) L.put(cx - 1 + i, yt - Math.round(i * .66), [47, 34, 27]);    // vaina de vainilla
+    const asa = this.sh(barro, .6);                                                             // asa a la derecha
+    for (let x = cx + R - 1; x <= cx + R + 2; x++) { L.put(x, yt + 3, asa); L.put(x, yt + 9, asa); }
+    for (let y = yt + 3; y <= yt + 9; y++) L.put(cx + R + 2, y, asa);
+    return Object.assign(L, { ax: cx, ay: yb, alto });
+  },
+
+  // Mandarina: esfera naranja con luz arriba-izquierda, poros en la cáscara y tallito verde
+  pixelesMandarina(it) {
+    const cx = 8, yb = 13, yc = yb - 4, L = this.lienzo(16, 17), base = this.rgb(it.color);
+    for (let py = 0; py < 17; py++) for (let px = 0; px < 16; px++) {
+      const dx = px + .5 - cx, dy = py + .5 - yc;
+      if (this.el(dx, dy, 5, 4.6)) {
+        const v = (-dx - dy) / 6;
+        L.put(px, py, this.sh(base, this.ruido(px, py) % 11 === 0 ? .85 : v > .35 ? 1.15 : v > -.15 ? .98 : .75));
+      } else if (this.el(dx, py + .5 - yb, 7, 3.5)) L.put(px, py, [60, 40, 70], 70);
+    }
+    L.put(cx - 1, yc - 4, [90, 122, 44]); L.put(cx, yc - 4, [90, 122, 44]); L.put(cx - 1, yc - 5, [120, 150, 60]);
+    return Object.assign(L, { ax: cx, ay: yb, alto: 9 });
+  },
+
+  // Jícama entera: bulbo café de piel rugosa, tallito arriba y una cuña blanca cortada (como en la referencia)
+  pixelesJicama(it) {
+    const cx = 9, yb = 15, yc = yb - 5, L = this.lienzo(18, 20);
+    for (let py = 0; py < 20; py++) for (let px = 0; px < 18; px++) {
+      const dx = px + .5 - cx, dy = py + .5 - yc;
+      if (this.el(dx, dy, 6.5, 5.4)) {
+        if (dx >= 1 + dy * .5 && dy >= -1.5) { L.put(px, py, dy > 2 ? [222, 218, 204] : [244, 241, 230]); continue; }   // cuña: pulpa blanca
+        const v = (-dx - dy) / 7, c = this.rgb(v > .3 ? '#d4b078' : v > -.2 ? '#c29a5f' : '#9c7742');                 // piel: luz, medio y sombra
+        L.put(px, py, this.ruido(px, py) % 9 === 0 ? this.sh(c, .8) : c);                                                // poros de la piel
+      } else if (this.el(dx, py + .5 - yb, 8, 3.6)) L.put(px, py, [60, 40, 70], 70);
+    }
+    L.put(cx - 2, yc - 6, [138, 106, 58]); L.put(cx - 2, yc - 7, [138, 106, 58]); L.put(cx - 1, yc - 7, [168, 132, 78]);   // tallito
+    return Object.assign(L, { ax: cx, ay: yb, alto: 10 });
+  },
+
+  // Sal: tazón de madera con un montículo de sal y una cucharita de madera
+  pixelesSal(it) {
+    const cx = 11, yt = 11, alto = 6, L = this.lienzo(22, 26), madera = this.rgb('#b9824a');
+    this.cilindro(L, cx, yt, 6, alto, { c: madera, t: this.sh(madera, .8), r: this.sh(madera, 1.15), rb: 4 });
+    for (const [x, y] of [[-3, 3], [1, 4], [3, 2]]) L.put(cx + x, yt + y, this.sh(madera, .7));   // vetas de la madera
+    for (let py = 0; py < 26; py++) for (let px = 0; px < 22; px++) {   // montículo: elipse de la boca + cúpula encima
+      const dx = px + .5 - cx, dy = py + .5 - (yt - 1.5);
+      if (!(this.el(dx, py + .5 - yt, 5.2, 2.6) || this.el(dx, dy, 4.6, 3.4))) continue;
+      const v = (-dx - dy) / 6, r = this.ruido(px, py);
+      L.put(px, py, r % 5 === 0 ? [255, 255, 255] : v > .2 ? [250, 251, 252] : v > -.2 ? [228, 233, 238] : [200, 208, 218]);
+    }
+    for (let i = 0; i < 9; i++) { L.put(cx + 2 + i, yt - 3 - Math.round(i * .8), [215, 168, 106]); L.put(cx + 2 + i, yt - 2 - Math.round(i * .8), [185, 140, 84]); }   // cuchara
+    return Object.assign(L, { ax: cx, ay: yt + alto, alto });
+  },
+
+  // Lienzo para un objeto PLANO sobre la superficie: cubre el rombo de su huella (w x d celdas).
+  // f(u, v, px, py) recibe la posición local en celdas y devuelve [r,g,b(,a)] o null.
+  plano(it, f) {
+    const W = (it.w + it.d) * 16, H = (it.w + it.d) * 8 + 2, L = this.lienzo(W, H);
+    for (let py = 0; py < H; py++) for (let px = 0; px < W; px++) {
+      const dx = px + .5 - W / 2, dy = py + .5 - H / 2;
+      const u = dx / 32 + dy / 16 + it.w / 2, v = dy / 16 - dx / 32 + it.d / 2;   // inversa de la proyección isométrica
+      if (u < 0 || v < 0 || u >= it.w || v >= it.d) continue;
+      const c = f(u, v, px, py); if (c) L.put(px, py, c, c[3] ?? 255);
+    }
+    return Object.assign(L, { ax: W / 2, ay: H / 2, alto: 0 });
+  },
+
+  // Cruz de cal (id 'ceniza', antes de ceniza gris) sobre el suelo: el palo largo sigue el lado mayor de la huella (2x3 o 3x2), bordes irregulares y motas
+  pixelesCeniza(it) {
+    const largo = it.d >= it.w, S = Math.min(it.w, it.d), Lg = Math.max(it.w, it.d);
+    return this.plano(it, (u, v, px, py) => {
+      const a = largo ? v : u, b = (largo ? u : v) - S / 2;                 // a: a lo largo de la cruz; b: distancia al eje
+      const r = this.ruido(px, py), j = (r % 7) / 7 * .12;                   // cada píxel varía un poco el borde
+      const palo = Math.abs(b) <= .24 + j && a > .12 && a < Lg - .12;
+      const brazo = Math.abs(a - Lg * .36) <= .2 + j && Math.abs(b) <= S / 2 - .12 + j;
+      if (palo || brazo) return r % 5 === 0 ? [226, 223, 214] : r % 3 === 0 ? [255, 254, 250] : [243, 240, 232];
+      return r % 61 === 0 ? [226, 223, 214, 170] : null;                      // motas sueltas alrededor
+    });
+  },
+
+  // Camino de pétalos de cempasúchil: pétalos naranja repartidos (de forma determinista) por la huella
+  pixelesPetalos(it) {
+    const L = this.plano(it, () => null), cols = [[255, 154, 26], [255, 190, 50], [240, 120, 20]];
+    for (let k = 0; k < 7 * it.w * it.d; k++) {
+      const u = .2 + (this.ruido(k, 1) % 1000) / 1000 * (it.w - .4), v = .2 + (this.ruido(k, 2) % 1000) / 1000 * (it.d - .4);
+      const sx = Math.round(L.W / 2 + (u - it.w / 2 - (v - it.d / 2)) * 16), sy = Math.round(L.H / 2 + ((u - it.w / 2) + (v - it.d / 2)) * 8);
+      const c = cols[k % 3], forma = k % 2 ? [[0, 0], [1, 0], [2, 0], [1, 1]] : [[0, 0], [1, 0], [1, 1], [2, 1]];
+      forma.forEach(([dx, dy], i) => L.put(sx + dx, sy + dy, i === 2 ? this.sh(c, 1.25) : c));   // un píxel más claro = punta
+    }
+    return L;
+  },
+
+  // Prisma rectangular pequeño (u0..u1 x v0..v1 en celdas, base elevada z0 px, altura hpx px) sobre el centro (cx, cy)
+  // de la celda. f(cara, px, py) devuelve el color de cada cara: 'l' izquierda, 'r' derecha, 't' techo.
+  prisma(L, cx, cy, u0, v0, u1, v1, z0, hpx, f) {
+    const P = (u, v, z) => [cx + (u - v) * 16, cy + (u + v - 1) * 8 - z], zt = z0 + hpx;
+    const dentro = (q, x, y) => {   // punto dentro de un cuadrilátero convexo (mismo signo en los 4 productos cruz)
+      let s = 0;
+      for (let i = 0; i < 4; i++) {
+        const a = q[i], b = q[(i + 1) % 4], c = (b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]);
+        if (c !== 0) { if (s && Math.sign(c) !== s) return false; s = Math.sign(c); }
+      }
+      return true;
+    };
+    const caras = [['l', [P(u0, v1, zt), P(u1, v1, zt), P(u1, v1, z0), P(u0, v1, z0)]],
+                   ['r', [P(u1, v0, zt), P(u1, v1, zt), P(u1, v1, z0), P(u1, v0, z0)]],
+                   ['t', [P(u0, v0, zt), P(u1, v0, zt), P(u1, v1, zt), P(u0, v1, zt)]]];
+    for (let py = 0; py < L.H; py++) for (let px = 0; px < L.W; px++)
+      for (const [k, q] of caras) if (dentro(q, px + .5, py + .5)) { L.put(px, py, f(k, px, py)); break; }
+  },
+
+  // Escabeche yucateco: tazón de cerámica crema con caldo ámbar, pieza de pollo, cebolla morada encurtida, chile xcatic y naranja agria
+  pixelesEscabeche(it) {
+    const cx = 11, yt = 8, alto = 7, L = this.lienzo(22, yt + alto + 8);
+    this.cilindro(L, cx, yt, 7, alto, { c: [226, 214, 196], t: [212, 148, 52], r: [240, 232, 218], rb: 5 });
+    for (let x = cx - 4; x <= cx + 4; x += 2) L.put(x, yt + alto - 3, [60, 90, 150]);                       // franja azul decorativa
+    L.put(cx - 3, yt - 1, [246, 238, 222]); L.put(cx - 2, yt - 1, [234, 222, 200]); L.put(cx - 3, yt, [222, 206, 180]);   // pieza de pollo
+    L.put(cx - 1, yt, [172, 104, 168]); L.put(cx, yt - 1, [158, 88, 154]); L.put(cx + 1, yt, [172, 104, 168]);            // cebolla morada encurtida
+    L.put(cx + 2, yt - 1, [244, 196, 60]); L.put(cx + 3, yt, [232, 176, 48]);                            // chile xcatic
+    L.put(cx + 2, yt + 2, [250, 170, 60]); L.put(cx + 3, yt + 2, [240, 150, 40]);                         // rodaja de naranja agria
+    return Object.assign(L, { ax: cx, ay: yt + alto, alto });
+  },
+
+  // Fotografía de difunto: marco de madera con flores de cempasúchil, encaje y un retrato sepia ABSTRACTO (silueta sin rasgos, nada reconocible)
+  pixelesFoto(it) {
+    const L = this.lienzo(20, 26), naranja = [[244, 130, 30], [255, 168, 56], [214, 92, 20]];
+    for (let py = 0; py < 26; py++) for (let px = 0; px < 20; px++) {
+      if (!(px >= 1 && px <= 18 && py <= 21)) { if (this.el(px + .5 - 10, py + .5 - 22.5, 9, 2.6)) L.put(px, py, [60, 40, 70], 70); continue; }
+      const x = px - 1, borde = Math.min(x, 17 - x, py, 21 - py);
+      if (borde < 3) L.put(px, py, x % 3 === 1 && py % 3 === 1 ? [255, 200, 84] : naranja[this.ruido(px, py) % 3]);   // pétalos
+      else if (borde === 3) L.put(px, py, [104, 66, 46]);                                                             // marco de madera
+      else if (borde === 4) L.put(px, py, (px + py) % 2 ? [240, 232, 214] : [214, 204, 180]);                         // encaje
+      else {   // retrato: fondo sepia con viñeta y silueta de cabeza y hombros sin rasgos
+        const dx = px + .5 - 10, dy = py + .5, fig = this.el(dx, dy - 9, 2.6, 3.1) || this.el(dx, dy - 18, 5.2, 4.4);
+        L.put(px, py, fig ? this.sh([120, 100, 80], dx < -.5 ? 1.12 : .95) : this.sh([186, 168, 140], 1.05 - .25 * Math.hypot(dx / 4.5, (dy - 10.5) / 6.5)));
+      }
+    }
+    return Object.assign(L, { ax: 10, ay: 22, alto: 20 });
+  },
+
+  // Cruz verde de madera pintada: base escalonada, poste y travesaño; la silueta mide 28 px de alto (de la base al extremo del poste)
+  pixelesCruz(it) {
+    const cx = 12, cy = 32, L = this.lienzo(24, 40);
+    for (let py = 0; py < 40; py++) for (let px = 0; px < 24; px++) if (this.el(px + .5 - cx, py + .5 - cy, 12, 5.5)) L.put(px, py, [60, 40, 70], 70);
+    const verde = (cara, px, py) => {
+      const c = cara === 'l' ? [64, 184, 140] : cara === 'r' ? [38, 140, 104] : [104, 218, 174];
+      return this.ruido(px, py) % 9 === 0 ? this.sh(c, .9) : c;   // pintura con ligeras imperfecciones
+    };
+    this.prisma(L, cx, cy, .2, .2, .8, .8, 0, 3, verde);         // base ancha
+    this.prisma(L, cx, cy, .38, .38, .62, .62, 3, 2, verde);     // escalón
+    this.prisma(L, cx, cy, .43, .43, .57, .57, 5, 17, verde);    // poste
+    this.prisma(L, cx, cy, .12, .43, .88, .57, 15, 4, verde);    // travesaño
+    return Object.assign(L, { ax: cx, ay: cy, alto: 22 });
+  },
+
+  // Cajetilla de cigarros abierta: caja blanca con marco negro y 3 cigarros que asoman por la boca
+  pixelesCigarros(it) {
+    const cx = 14, cy = 14, hpx = 4, L = this.lienzo(28, 24);
+    for (let py = 0; py < 24; py++) for (let px = 0; px < 28; px++) if (this.el(px + .5 - cx, py + .5 - cy, 11, 4.5)) L.put(px, py, [60, 40, 70], 70);
+    this.prisma(L, cx, cy, .15, .3, .85, .7, 0, hpx, (cara, px, py) => {
+      if (cara === 'l') return [226, 226, 232];
+      if (cara === 'r') return [190, 190, 202];
+      const dx = px + .5 - cx, dy = py + .5 - (cy - hpx), u = dx / 32 + dy / 16 + .5, v = dy / 16 - dx / 32 + .5;
+      const q = Math.min(u - .3, .7 - u, v - .38, .62 - v);   // marco negro de la etiqueta
+      return q >= 0 && q < .06 ? [30, 30, 36] : [248, 248, 252];
+    });
+    for (const v of [.42, .5, .58]) for (let t = 0; t < 6; t++) {   // cigarros: punta naranja (filtro) y papel blanco
+      const x = Math.round(cx + (.32 - v) * 16 - t * 1.6), y = Math.round(cy + (.32 + v - 1) * 8 - hpx - 1 - t * .8);
+      L.put(x, y, t < 2 ? [226, 132, 42] : [252, 248, 238]); L.put(x, y + 1, t < 2 ? [186, 98, 30] : [214, 210, 196]);
+    }
+    return Object.assign(L, { ax: cx, ay: cy, alto: hpx + 2 });
+  },
+
+  // Espejo ovalado con marco de mimbre dorado, luna con brillo diagonal y soporte
+  pixelesEspejo(it) {
+    const cx = 9, L = this.lienzo(18, 25), oro = this.rgb('#c9a054');
+    for (let py = 0; py < 25; py++) for (let px = 0; px < 18; px++) {
+      const dx = px + .5 - cx, dy = py + .5 - 10;
+      if (this.el(dx, dy, 7.5, 9.5)) {
+        if (!this.el(dx, dy, 5.8, 7.8)) { const v = (-dx - dy) / 10; L.put(px, py, this.sh(oro, (v > .3 ? 1.2 : v > -.2 ? 1 : .72) * (py % 2 ? .95 : 1))); }
+        else L.put(px, py, Math.abs(dx + dy * .5 + 2) < 1 ? [244, 248, 252] : this.sh([196, 207, 216], 1.08 - Math.abs(dx) / 14));
+      } else if (px >= cx - 3 && px < cx + 3 && py >= 20 && py <= 21) L.put(px, py, this.sh(oro, .7));
+      else if (this.el(dx, py + .5 - 22, 7, 2.4)) L.put(px, py, [60, 40, 70], 70);
+    }
+    return Object.assign(L, { ax: cx, ay: 21, alto: 20 });
+  },
+
+  // Rosario de cuentas de madera en círculo sobre la superficie, con crucifijo oscuro y Cristo plateado
+  pixelesRosario(it) {
+    const cx = 12, cy = 9, L = this.lienzo(24, 22);
+    for (let py = 0; py < 22; py++) for (let px = 0; px < 24; px++) if (this.el(px + .5 - cx, py + .5 - cy - 1, 11, 6.5)) L.put(px, py, [60, 40, 70], 60);
+    for (let k = 0; k < 16; k++) {
+      if (k === 4) continue;   // aquí cuelga la cruz
+      const a = k / 16 * Math.PI * 2, x = Math.round(cx + 9 * Math.cos(a)), y = Math.round(cy + 4.5 * Math.sin(a));
+      L.put(x - 1, y - 1, [216, 178, 116]); L.put(x, y - 1, [238, 208, 150]); L.put(x - 1, y, [196, 150, 92]); L.put(x, y, [160, 116, 66]);
+    }
+    for (let y = cy + 5; y <= cy + 12; y++) { L.put(cx - 1, y, [74, 44, 32]); L.put(cx, y, [58, 34, 26]); }   // cruz
+    for (let x = cx - 3; x <= cx + 2; x++) { L.put(x, cy + 7, [74, 44, 32]); L.put(x, cy + 8, [58, 34, 26]); }
+    for (let y = cy + 6; y <= cy + 9; y++) L.put(cx - 1, y, [214, 214, 226]);   // Cristo plateado
+    L.put(cx - 2, cy + 7, [214, 214, 226]); L.put(cx, cy + 7, [214, 214, 226]);
+    return Object.assign(L, { ax: cx, ay: cy + 1, alto: 2 });
+  },
+
+  // Cerveza: vaso tipo pinta ligeramente cónico, líquido ámbar, corona de espuma y brillo
+  pixelesCerveza(it) {
+    const R = 5, alto = Math.round(it.h * 16), cx = 8, yt = 6, L = this.lienzo(16, yt + alto + 8);
+    this.cilindro(L, cx, yt, R, alto, { c: [226, 148, 28], t: [250, 242, 214], r: [255, 250, 232], rb: 4 });
+    for (let py = yt + 1; py <= yt + 4; py++) for (let px = cx - R; px < cx + R; px++) {   // espuma
+      const dx = px + .5 - cx; L.put(px, py, this.sh([250, 240, 212], dx < -2.5 ? 1.04 : dx < 1 ? .92 : .76));
+    }
+    for (let y = yt + 6; y < yt + alto - 1; y++) L.put(cx - 3, y, [255, 214, 110]);   // brillo
+    for (let x = cx - 3; x < cx + 3; x++) L.put(x, yt + alto - 1, [196, 186, 160]);   // base de vidrio
+    return Object.assign(L, { ax: cx, ay: yt + alto, alto });
+  },
+
+  // Tamales en hoja de maíz sobre plato de barro con borde calado (2 abajo y 1 encima)
+  pixelesTamal(it) {
+    const cx = 13, yt = 12, L = this.lienzo(26, 23);
+    this.cilindro(L, cx, yt, 11, 1, { c: [150, 66, 28], t: [196, 98, 44], r: [214, 124, 64] });
+    for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2; L.put(Math.round(cx + 9 * Math.cos(a)), Math.round(yt + 4.5 * Math.sin(a)), [244, 226, 196]); }   // borde calado
+    const hoja = (cara, px, py) => cara === 'l' ? [214, 168, 98] : cara === 'r' ? [166, 122, 66] : (px + py * 2) % 4 === 0 ? [196, 148, 78] : [232, 192, 118];
+    this.prisma(L, cx, yt, .25, .12, .75, .42, 1, 4, hoja);
+    this.prisma(L, cx, yt, .25, .58, .75, .88, 1, 4, hoja);
+    this.prisma(L, cx, yt, .32, .34, .68, .66, 5, 3, hoja);
+    return Object.assign(L, { ax: cx, ay: yt + 1, alto: 8 });
+  },
+
+  // Copal: brasero de barro con tres patas y grecas, carbón con brasas y trocitos de resina dorada (el humo se anima al dibujar)
+  pixelesCopal(it) {
+    const cx = 11, yt = 9, alto = 5, yb = yt + alto, L = this.lienzo(22, 25), barro = this.rgb('#b0703f');
+    this.cilindro(L, cx, yt, 8, alto, { c: barro, t: [34, 28, 32], r: this.sh(barro, 1.15), rb: 6 });
+    for (let x = cx - 5; x <= cx + 4; x += 3) L.put(x, yt + 3, [240, 204, 150]);   // grecas
+    for (let py = 0; py < 25; py++) for (let px = 0; px < 22; px++) if (this.el(px + .5 - cx, py + .5 - yt, 3.6, 1.8)) L.put(px, py, [74, 66, 70]);   // carbón
+    L.put(cx - 3, yt + 1, [210, 64, 40]); L.put(cx + 2, yt + 1, [210, 64, 40]);
+    for (const [x, y] of [[-1, -1], [0, -1], [0, 0], [1, 0]]) L.put(cx + x, yt + y, [240, 200, 92]);   // resina
+    for (const x of [-5, 4]) for (let y = yb + 3; y <= yb + 5; y++) { L.put(cx + x, y, this.sh(barro, .75)); L.put(cx + x + 1, y, this.sh(barro, .6)); }   // patas
+    return Object.assign(L, { ax: cx, ay: yb, alto });
+  },
+
+  // Dulce tradicional: plato blanco con una laja de dulce café brillante (como en la referencia)
+  pixelesDulce(it) {
+    const cx = 11, yt = 9, L = this.lienzo(22, 19);
+    this.cilindro(L, cx, yt, 8, 1, { c: [200, 200, 208], t: [236, 236, 242], r: [214, 214, 222] });   // plato
+    const base = this.rgb(it.color);   // color del caramelo: cada dulce puede tener su propio tono
+    this.prisma(L, cx, yt, .16, .26, .84, .74, 0, 3, (cara, px, py) => {
+      if (cara === 'l') return this.sh(base, .82);
+      if (cara === 'r') return this.sh(base, .63);
+      const r = this.ruido(px, py) % 6;
+      return r === 0 ? this.sh(base, 1.8) : r < 3 ? this.sh(base, 1.2) : base;   // caramelo con brillos
+    });
+    return Object.assign(L, { ax: cx, ay: yt + 1, alto: 4 });
+  },
+
+  // Cesto de paja trenzada (2x2 celdas): cilindro con trama de vueltas, boca con aro y tapa plana con cordón
+  crearCesto(vacio) {
+    const R = 12, alto = 14, cx = 16, yt = 10, yb = yt + alto, paja = this.rgb('#e8d3a6');
+    const trama = (px, py) => (py % 3 === 0 ? .85 : 1) * ((px + (Math.floor(py / 3) % 2) * 2) % 4 === 0 ? .93 : 1);   // vueltas y puntadas
+    const B = this.lienzo(32, yb + 11);
+    this.cilindro(B, cx, yt, R, alto, { c: paja, t: vacio ? [138, 112, 78] : [58, 42, 26], r: this.sh(paja, 1.1), f: trama });
+    const T = this.lienzo(30, 22), tx = 15, ty = 10;
+    this.cilindro(T, tx, ty, 13, 2, { c: this.sh(paja, .9), t: this.sh(paja, 1.05), r: this.sh(paja, .8), sombra: false, f: trama });
+    for (const [x, y] of [[4, -3], [5, -4], [6, -4], [7, -3], [7, -2]]) T.put(tx + x, ty + y, [196, 170, 120]);   // cordón de la tapa
+    return { cuerpo: this.aCanvas(B), tapa: this.aCanvas(T), ax: cx, ay: yb, tx, ty, alto, dz: 2 };
+  },
+
+  // Caja de cartón (2x2 celdas): prisma color cartón con la boca abierta (interior oscuro) y una tapa con cinta de embalaje
+  crearCaja(vacio) {
+    const hpx = 14, cx = 26, cy = 28, a = -.2, b = 1.2;   // la caja ocupa de -0.2 a 1.2 celdas por lado (1.4 de lado)
+    const lado = { l: [214, 183, 127], r: [185, 150, 96] }, B = this.lienzo(52, 48), T = this.lienzo(52, 28);
+    for (let py = 0; py < 48; py++) for (let px = 0; px < 52; px++)   // sombra suave en el suelo
+      if (this.el(px + .5 - cx, py + .5 - cy, 24, 11)) B.put(px, py, [60, 40, 70], 70);
+    this.prisma(B, cx, cy, a, a, b, b, 0, hpx, (cara, px, py) => {
+      if (cara !== 't') return lado[cara];
+      // (u, v) del píxel sobre la cara superior: dibuja el borde de cartón alrededor del hueco oscuro
+      const dx = px + .5 - cx, dy = py + .5 - (cy - hpx), u = dx / 32 + dy / 16 + .5, v = dy / 16 - dx / 32 + .5;
+      const borde = u < a + .12 || u > b - .12 || v < a + .12 || v > b - .12;
+      return borde ? [228, 203, 155] : vacio ? [120, 94, 62] : [42, 28, 16];
+    });
+    this.prisma(T, cx, 14, a, a, b, b, 0, 2, (cara, px, py) => {   // tapa: solapas cerradas con cinta a lo largo
+      if (cara !== 't') return lado[cara];
+      const dx = px + .5 - cx, dy = py + .5 - 12, v = dy / 16 - dx / 32 + .5;
+      return Math.abs(v - .5) < .025 ? [150, 122, 80] : Math.abs(v - .5) < .1 ? [240, 226, 190] : [228, 203, 155];
+    });
+    return { cuerpo: this.aCanvas(B), tapa: this.aCanvas(T), ax: cx, ay: cy, tx: cx, ty: 14, alto: hpx, dz: 0 };
+  },
+
+  // Olla de peltre turquesa (recipiente de 2x2 celdas): cuerpo con asas azules y tapa con perilla.
+  // La tapa es un sprite aparte para poder animarla (sube y se desvanece al abrir). vacio = interior más claro.
+  crearOlla(vacio) {
+    const R = 13, alto = 16, cx = 19, yt = 11, yb = yt + alto, azul = [31, 58, 122], tq = this.rgb('#3b9aa3');
+    const B = this.lienzo(38, yb + 11);
+    this.cilindro(B, cx, yt, R, alto, { c: tq, t: vacio ? [58, 46, 68] : [21, 15, 26], r: azul, p: [235, 245, 245] });
+    for (const lado of [-1, 1]) {   // asas a ambos lados
+      const x0 = lado < 0 ? cx - R - 3 : cx + R;
+      for (let x = 0; x < 3; x++) for (let y = 0; y < 6; y++) B.put(x0 + x, yt + 3 + y, azul);
+      B.put(x0 + 1, yt + 5, tq); B.put(x0 + 1, yt + 6, tq);   // hueco del asa
+    }
+    const T = this.lienzo(32, 24), tx = 16, ty = 13;          // (tx, ty) = centro de la cara superior de la tapa
+    this.cilindro(T, tx, ty, 14, 2, { c: this.sh(tq, .8), t: this.sh(tq, 1.1), r: azul, sombra: false, p: [235, 245, 245] });
+    for (let x = tx - 1; x <= tx + 1; x++) { T.put(x, ty - 4, azul); T.put(x, ty - 3, this.sh(tq, 1.1)); T.put(x, ty - 2, this.sh(tq, 1.1)); }   // perilla
+    return { cuerpo: this.aCanvas(B), tapa: this.aCanvas(T), ax: cx, ay: yb, tx, ty, alto, dz: 2 };
+  },
+
+  // Contenedores con sprite (cuerpo + tapa animada): tipo -> método que los crea
+  CONT: { olla: 'crearOlla', cesto: 'crearCesto', caja: 'crearCaja' },
+
+  obtenerCont(tipo, vacio) {
+    const k = tipo + (vacio ? 1 : 0);
+    return this.cache[k] || (this.cache[k] = this[this.CONT[tipo]](vacio));
+  },
+
+  // Cuerpo del contenedor (con el interior oscuro; más claro si ya está vacío), centrado en su huella
+  dibujarCont(ctx, r) {
+    const s = this.obtenerCont(r.tipo, r.abierto && r.estaVacio), p = Iso.aPantalla(r.x + r.w / 2, r.y + r.d / 2, r.z);
+    ctx.drawImage(s.cuerpo, p.sx - s.ax, p.sy - s.ay);
+  },
+
+  // Tapa: se asienta sobre el borde y sube hasta 18 px mientras se abre (la opacidad la maneja Recipiente)
+  dibujarTapaCont(ctx, r) {
+    const s = this.obtenerCont(r.tipo, false), p = Iso.aPantalla(r.x + r.w / 2, r.y + r.d / 2, r.z);
+    ctx.drawImage(s.tapa, p.sx - s.tx, p.sy - s.alto - s.dz - Math.round(r.animTapa * 18) - s.ty);
+  },
+
+  // Crea el sprite una sola vez por id
+  obtener(it) {
+    const k = `${it.id}|${it.w}x${it.d}|${it.rot % 2}`;   // los sprites planos o de papel dependen de la orientación
+    if (!this.cache[k]) {
+      const s = this.GEN[it.id] ? this[this.GEN[it.id]](it) : this.pixelesVela(Math.round(it.h * 16), it.color), c = document.createElement('canvas');
+      c.width = s.W; c.height = s.H;
+      c.getContext('2d').putImageData(new ImageData(s.data, s.W, s.H), 0, 0);
+      this.cache[k] = { img: c, ax: s.ax, ay: s.ay, alto: s.alto, W: s.W, H: s.H, data: s.data };   // data (RGBA) sirve para saber qué píxeles son visibles
+    }
+    return this.cache[k];
+  },
+
+  // ¿El punto de pantalla (sx, sy) cae sobre un píxel visible del dibujo del objeto? (alfa > 100 descarta la sombra)
+  // Tolerancia de 1 px (invisible a la escala del juego); los pétalos, que son píxeles sueltos, usan 5 px.
+  golpe(it, sx, sy) {
+    const s = this.obtener(it), p = Iso.aPantalla(it.x + it.w / 2, it.y + it.d / 2, it.z);
+    const lx = Math.floor(sx - (p.sx - s.ax)), ly = Math.floor(sy - (p.sy - s.ay)), R = it.id === 'petalos' ? 5 : 1;
+    if (it.id === 'rosario' && this.el(lx + .5 - 12, ly + .5 - 9, 10.5, 5.5)) return true;   // rosario: el hueco del aro también se agarra (solo la hitbox; el dibujo no cambia)
+    for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+      const x = lx + dx, y = ly + dy;
+      if (x >= 0 && y >= 0 && x < s.W && y < s.H && s.data[(y * s.W + x) * 4 + 3] > 100) return true;
+    }
+    return false;
+  },
+
+  // Contorno brillante (2 px de grosor) alrededor de los píxeles visibles del sprite; se calcula una vez y queda en caché
+  contorno(s) {
+    if (s.cont) return s.cont;
+    const W = s.W + 4, H = s.H + 4, L = this.lienzo(W, H);
+    const op = (x, y) => x >= 0 && y >= 0 && x < s.W && y < s.H && s.data[(y * s.W + x) * 4 + 3] > 100;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const sx = x - 2, sy = y - 2; if (op(sx, sy)) continue;
+      let d = 3;   // distancia (Chebyshev) al píxel visible más cercano
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (op(sx + dx, sy + dy)) d = Math.min(d, Math.max(Math.abs(dx), Math.abs(dy)));
+      if (d === 1) L.put(x, y, [255, 240, 130]); else if (d === 2) L.put(x, y, [255, 200, 60], 140);
+    }
+    return s.cont = this.aCanvas(L);
+  },
+
+  // Dibuja el objeto centrado en su huella y a su altura actual (también cuando levita en la mano)
+  dibujar(ctx, it) {
+    const s = this.obtener(it), p = Iso.aPantalla(it.x + it.w / 2, it.y + it.d / 2, it.z);
+    if (it === Escena.agarrable && !it.enMano) {   // objeto bajo el cursor: contorno brillante que late un poco
+      ctx.globalAlpha = .8 + .2 * Math.sin(Juego.reloj * 6);
+      ctx.drawImage(this.contorno(s), p.sx - s.ax - 2, p.sy - s.ay - 2);
+      ctx.globalAlpha = 1;
+    }
+    ctx.drawImage(s.img, p.sx - s.ax, p.sy - s.ay);
+    if (it.id === 'copal') {   // humo del copal: hilo ondulante que sube y se desvanece
+      ctx.fillStyle = '#e6e1ec';
+      for (let k = 0; k < 12; k++) {
+        ctx.globalAlpha = .55 * (1 - k / 12);
+        ctx.fillRect(p.sx + Math.round(Math.sin(Juego.reloj * 2.2 + k * .7) * (1 + k * .3)) - 1, p.sy - s.alto - 2 - k * 2, 2, 1);
+      }
+      ctx.globalAlpha = 1; return;
+    }
+    if (!(it.id in this.VELAS)) return;   // solo las velas tienen llama
+    // Llama animada: 2 cuadros que parpadean, desfasados según la posición para que no latan todas a la vez
+    const f = Math.floor(Juego.reloj * 6 + it.x * 3 + it.y) % 2, b = p.sy - s.alto - 2;   // b = punta de la mecha
+    ctx.fillStyle = '#ff8a1a'; ctx.fillRect(p.sx - 1, b - 3, 2, 3);        // cuerpo de la llama
+    ctx.fillRect(p.sx - f, b - 5, 1, 2);                                    // punta que oscila de lado
+    ctx.fillStyle = '#ffe27a'; ctx.fillRect(p.sx - 1 + f, b - 2, 1, 2);    // núcleo claro
+  }
+};
+
+// Paredes de palma seca: hebras verticales de paja en tonos dorados, con huecos oscuros entre ellas.
+// Se pre-renderizan una vez por pared (invierten la proyección en cada cara visible, igual que el mantel).
+const Pared = {
+  OSCURO: .58,   // luminosidad global de la paja (1 = original; antes .85)
+  PAL: [[226, 200, 142], [206, 172, 108], [238, 216, 164], [180, 146, 86], [196, 164, 104]],
+  // Color de la hebra en el píxel de pantalla (sx, sy): cada columna se parte en segmentos de ~9 px con tono propio
+  hebra(sx, sy) {
+    const x = Math.floor(sx + sy * .06), seg = Math.floor((sy + Sprites.ruido(x, 3) % 13) / 9), r = Sprites.ruido(x + 500, seg + 500);
+    if (r % 13 === 0) return [112, 88, 56];                       // hueco oscuro
+    const p = this.PAL[r % 5], g = .3 * p[0] + .59 * p[1] + .11 * p[2];
+    return p.map(v => g + (v - g) * .75);                         // algo desaturado para no distraer
+  },
+  color(e, sx, sy) {
+    const o = CFG.ORIGEN, hw = CFG.TW / 2, hh = CFG.TH / 2, zt = e.z + e.h, yf = e.y + e.d, xp = e.x + e.w;
+    let f;
+    const m = Iso.aMundo(sx, sy, zt);
+    if (m.x >= e.x && m.x < xp && m.y >= e.y && m.y < yf) f = 1;          // cara superior
+    else {
+      const xa = (sx - o.x) / hw + yf, za = ((xa + yf) * hh + o.y - sy) / CFG.UZ;
+      if (xa >= e.x && xa < xp && za >= e.z && za < zt) f = .88;          // cara frontal-izquierda
+      else {
+        const yb = xp - (sx - o.x) / hw, zb = ((xp + yb) * hh + o.y - sy) / CFG.UZ;
+        if (!(yb >= e.y && yb < yf && zb >= e.z && zb < zt)) return null; // fuera del prisma
+        f = .72;                                                           // cara derecha (la más oscura)
+      }
+    }
+    return this.hebra(sx, sy).map(v => Math.round(v * f * this.OSCURO));
+  },
+  aplicar(lista) {
+    for (const e of lista) {
+      const P = [];
+      for (const x of [e.x, e.x + e.w]) for (const y of [e.y, e.y + e.d]) for (const z of [e.z, e.z + e.h]) P.push(Iso.aPantalla(x, y, z));
+      const x0 = Math.min(...P.map(p => p.sx)), y0 = Math.min(...P.map(p => p.sy));
+      const W = Math.max(...P.map(p => p.sx)) - x0 + 1, H = Math.max(...P.map(p => p.sy)) - y0 + 1, d = new Uint8ClampedArray(W * H * 4);
+      for (let py = 0; py < H; py++) for (let px = 0; px < W; px++) {
+        const c = this.color(e, x0 + px + .5, y0 + py + .5);
+        if (c) d.set([c[0], c[1], c[2], 255], (py * W + px) * 4);
+      }
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      cv.getContext('2d').putImageData(new ImageData(d, W, H), 0, 0);
+      e.sprite = { img: cv, ox: x0, oy: y0 };
+    }
+  }
+};
+
+// Efectos del escenario: pétalos de cempasúchil que estallan cuando un recipiente se vacía
+const Efectos = {
+  lista: [],
+
+  // Estallido de pétalos en el punto de pantalla (sx, sy)
+  petalos(sx, sy) {
+    const cols = ['#ff9a00', '#ffc23a', '#f2f2f2'];
+    for (let k = 0; k < 28; k++) {
+      const a = Math.random() * Math.PI * 2, v = 15 + Math.random() * 40;
+      this.lista.push({ x: sx, y: sy, vx: Math.cos(a) * v, vy: Math.sin(a) * v * .6 - 25, t: 0, vida: .8 + Math.random() * .6, c: cols[k % 3] });
+    }
+  },
+
+  actualizar(dt) {
+    for (const p of this.lista) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 40 * dt; } // gravedad suave
+    this.lista = this.lista.filter(p => p.t < p.vida);                                              // descarta los que expiraron
+  },
+
+  // Cada pétalo es un cuadrito de 2x2 px que se desvanece con su vida
+  dibujar(ctx) {
+    for (const p of this.lista) { ctx.globalAlpha = 1 - p.t / p.vida; ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 2); }
+    ctx.globalAlpha = 1;
+  }
+};
+
+const TACTIL = matchMedia('(pointer: coarse)').matches;   // pantalla táctil: se coloca con el botón, no con el toque
+
+// Estado global del juego: inicio -> colocando -> comprobando -> (corrigiendo) -> foto -> inicio
+const Juego = {
+  estado: 'inicio', reloj: 0,
+  tFoto: 0, capturar: false,           // temporizador de la secuencia de foto y orden de captura
+  info: document.getElementById('info'),
+  BTN: { x: 86, y: 92, w: 180, h: 40 }, // botón "Empezar a jugar" (coordenadas del lienzo)
+  mensajes: {
+    es: {
+      inicio: '',
+      colocando: TACTIL ? 'Toca un recipiente para sacar un objeto · Toca una celda para mover la vista previa · Pulsa Colocar para soltarlo · Girar para rotar' : 'Clic en un recipiente para sacar un objeto · Clic para colocarlo · R, rueda o botón Girar: girar 90°',
+      comprobando: 'Comprobando el altar…',
+      corrigiendo: 'Mueve los objetos en rojo a un lugar correcto (puedes reordenar cualquiera)',
+      foto: '¡Altar completo!'
+    },
+    en: {
+      inicio: '',
+      colocando: TACTIL ? 'Tap a container to take out an object · Tap a cell to move the preview · Press Place to drop it · Rotate to turn' : 'Click a container to take out an object · Click to place it · R, wheel or Rotate button: turn 90°',
+      comprobando: 'Checking the altar…',
+      corrigiendo: 'Move the red objects to a correct spot (you can rearrange any of them)',
+      foto: 'Altar complete!'
+    }
+  },
+
+  // Solo se interactúa con la escena al colocar o corregir (comprobando y foto quedan congelados)
+  interactivo() { return this.estado === 'colocando' || this.estado === 'corrigiendo'; },
+
+  cambiar(e) { this.estado = e; this.info.textContent = this.mensajes[LANG][e]; },
+
+  // Clic en la pantalla de título: ¿sobre el botón?
+  clicInicio(sx, sy) {
+    const b = this.BTN;
+    if (sx >= b.x && sx <= b.x + b.w && sy >= b.y && sy <= b.y + b.h) this.empezar();
+  },
+
+  // Nuevo altar: reinicia la escena (recipientes con contenido nuevo al azar)
+  empezar() { Escena.iniciar(); this.cambiar('colocando'); },
+
+  // Resolución: se pide la captura (se toma en el siguiente render) y arranca la secuencia de foto
+  resolver() {
+    Escena.entidades.forEach(e => e.destello = 0); // la foto sale sin contornos
+    this.cambiar('foto'); this.tFoto = 0; this.capturar = true;
+  },
+
+  actualizar(dt) {
+    this.reloj += dt;
+    Comprobacion.actualizar(dt);
+    Efectos.actualizar(dt);
+    // Comprobación AUTOMÁTICA: cuando los 3 recipientes ya se vaciaron y retiraron y no hay nada en la mano
+    if (this.estado === 'colocando' && Recipientes.todosVacios && !Mano.item) Comprobacion.iniciar();
+    if (this.estado === 'foto' && (this.tFoto += dt) > 4) this.cambiar('inicio'); // tras mostrar la foto, vuelve al título
+  },
+
+  // Se llama al final de renderizar: captura la foto y pinta las capas superpuestas
+  dibujar(ctx) {
+    Efectos.dibujar(ctx);   // pétalos del escenario (encima de las entidades)
+    if (this.capturar) {   // copia del lienzo ya dibujado (altar completo, sin interfaz)
+      this.capturar = false;
+      const c = document.createElement('canvas'); c.width = CFG.ANCHO; c.height = CFG.ALTO;
+      c.getContext('2d').drawImage(canvas, 0, 0);
+      Album.fotos.push({ img: c });
+    }
+    if (this.estado === 'inicio') this.dibujarInicio(ctx);
+    if (this.estado === 'foto') {
+      const t = this.tFoto, f = Album.fotos[Album.fotos.length - 1];
+      ctx.fillStyle = 'rgba(22,14,30,.7)'; ctx.fillRect(0, 0, CFG.ANCHO, CFG.ALTO);
+      if (t > .5) Album.polaroid(ctx, f, CFG.ANCHO / 2, CFG.ALTO / 2, .35 + .2 * Math.min(1, (t - .5) / .4)); // la polaroid crece
+      if (t < .6) { ctx.fillStyle = `rgba(255,255,255,${1 - t / .6})`; ctx.fillRect(0, 0, CFG.ANCHO, CFG.ALTO); } // flash
+    }
+  },
+
+  dibujarInicio(ctx) {
+    ctx.fillStyle = 'rgba(22,14,30,.82)'; ctx.fillRect(0, 0, CFG.ANCHO, CFG.ALTO);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#f2a23a'; ctx.font = 'bold 26px monospace'; ctx.fillText('Altar de Hanal Pixán', CFG.ANCHO / 2, 62);
+    const b = this.BTN;   // botón de inicio
+    ctx.fillStyle = '#7a4a8c'; ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.strokeStyle = '#f2a23a'; ctx.lineWidth = 1; ctx.strokeRect(b.x + .5, b.y + .5, b.w - 1, b.h - 1);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 15px monospace'; ctx.fillText(TEXTOS[LANG].iniciar, CFG.ANCHO / 2, b.y + 26);
+    Album.miniaturas(ctx);
+  }
+};
+
+/* ============================================================
+ * 6. RENDER — Canvas con pixel art nítido
+ * ============================================================ */
+const canvas = document.getElementById('juego');
+canvas.width = CFG.ANCHO; canvas.height = CFG.ALTO;
+const ctx = canvas.getContext('2d', { alpha: false });
+ctx.imageSmoothingEnabled = false;   // desactiva el suavizado al dibujar/escalar
+
+// Escala el canvas por un factor ENTERO (si cabe) para píxeles perfectamente cuadrados
+function ajustarEscala() {
+  // (270/235: deja espacio para la franja de bordado + barra superior además de info y controles)
+  const s = Math.min(innerWidth / CFG.ANCHO, (innerHeight - (innerWidth < 700 ? 270 : 235)) / CFG.ALTO);
+  const f = s >= 1 ? Math.floor(s) : s;
+  canvas.style.width = CFG.ANCHO * f + 'px';
+  canvas.style.height = CFG.ALTO * f + 'px';
+}
+addEventListener('resize', ajustarEscala);
+
+// Dibuja una loseta (rombo) del suelo en la celda (i,j)
+function dibujarLoseta(i, j, color, z = 0) { // z permite pintar sobre la superficie del altar
+  const a = Iso.aPantalla(i, j, z), b = Iso.aPantalla(i + 1, j, z),
+        c = Iso.aPantalla(i + 1, j + 1, z), d = Iso.aPantalla(i, j + 1, z);
+  ctx.fillStyle = color; ctx.beginPath();
+  ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.lineTo(c.sx, c.sy); ctx.lineTo(d.sx, d.sy);
+  ctx.closePath(); ctx.fill();
+}
+
+// Suelo de adoquín/laja: hileras de piezas rectangulares con juntas oscuras. Se pre-renderiza UNA vez para todo el mapa.
+const Piso = {
+  img: null, SAT: .55,   // SAT: 1 = colores originales, 0 = gris
+  PAL: [[226, 206, 172], [208, 176, 132], [216, 160, 124], [176, 170, 158], [232, 214, 184], [196, 150, 108]],   // crema, arena, salmón, gris, hueso, terracota
+  crear() {
+    const W = CFG.ANCHO, H = CFG.ALTO, d = new Uint8ClampedArray(W * H * 4);
+    for (let py = 0; py < H; py++) for (let px = 0; px < W; px++) {
+      const m = Iso.aMundo(px + .5, py + .5, 0);                       // píxel -> mundo (plano del suelo)
+      if (m.x < 0 || m.y < 0 || m.x >= CFG.MAPA || m.y >= CFG.MAPA) continue;
+      const fila = Math.floor(m.y * 3), fv = m.y * 3 - fila;           // 3 hileras por celda
+      const t = m.x / .55 + (Sprites.ruido(fila, 7) % 100) / 100, k = Math.floor(t), fu = t - k;   // cada hilera desfasada (aparejo trabado)
+      let c;
+      if (fv < .2 || fu < .08) c = [104, 88, 76];                       // junta
+      else {
+        const r = Sprites.ruido(k + 1000, fila + 1000), f = (.9 + (r >> 3) % 5 * .04) * (Sprites.ruido(px, py) % 7 === 0 ? .88 : 1) * .84;   // tono por pieza + motas; .84 = más oscuro para que resalten los objetos
+        const p = this.PAL[r % 6], g = .3 * p[0] + .59 * p[1] + .11 * p[2];   // g = luminosidad; SAT (0..1) mezcla cada color con su gris
+        c = p.map(v => Math.round((g + (v - g) * this.SAT) * f));
+      }
+      d.set([c[0], c[1], c[2], 255], (py * W + px) * 4);
+    }
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    cv.getContext('2d').putImageData(new ImageData(d, W, H), 0, 0);
+    this.img = cv;
+  }
+};
+
+function renderizar() {
+  ctx.fillStyle = '#241a2e'; ctx.fillRect(0, 0, CFG.ANCHO, CFG.ALTO); // fondo
+  // Suelo de adoquín (siempre al fondo, no entra en el depth sorting)
+  if (!Piso.img) Piso.crear();
+  ctx.drawImage(Piso.img, 0, 0);
+  // Resalta la loseta bajo el cursor (resultado del mouse picking inverso)
+  if (Escena.hover) dibujarLoseta(Escena.hover.i, Escena.hover.j, '#f2a93b66');
+  // Entidades ordenadas del fondo al frente
+  for (const e of ordenarProfundidad(Escena.entidades)) e.dibujar(ctx);
+  Mano.dibujarPreview(); // celdas que ocuparía el objeto sostenido (verde/rojo)
+  Mano.dibujarEtiqueta(ctx); // nombre del objeto sostenido
+  Juego.dibujar(ctx);    // captura de foto + capas: pantalla de inicio, flash y polaroid
+}
+
+/* ============================================================
+ * 7. ENTRADA — Pointer Events (ratón y táctil con el mismo código)
+ * ============================================================ */
+// Convierte coordenadas de la ventana a coordenadas del canvas interno
+function posCanvas(ev) {
+  const r = canvas.getBoundingClientRect();
+  return { sx: (ev.clientX - r.left) * CFG.ANCHO / r.width, sy: (ev.clientY - r.top) * CFG.ALTO / r.height };
+}
+canvas.addEventListener('pointerdown', ev => {
+  const { sx, sy } = posCanvas(ev);
+  Mano.cursor = { sx, sy };
+  if (Juego.estado === 'inicio') { Juego.clicInicio(sx, sy); return; } // pantalla de título
+  if (!Juego.interactivo()) return;                                    // congelado en comprobación y foto
+  // Con un objeto en la mano: el clic intenta colocarlo (y NO se puede sacar otro hasta lograrlo)
+  if (Mano.item) { Mano.mover(sx, sy); if (ev.pointerType !== 'touch') Mano.colocar(); return; }   // táctil: el toque solo mueve la vista previa; se confirma con el botón
+  // Mano vacía: 1) ¿objeto ya colocado? se vuelve a recoger. 2) si no, ¿recipiente? extrae uno.
+  const r = Escena.recoger(sx, sy);
+  if (r) Mano.tomar(r.e); else Recipientes.clic(sx, sy, Escena.entidades);
+  Mano.inicio = { sx, sy };   // permite también arrastrar y soltar (ver pointerup)
+});
+canvas.addEventListener('pointermove', ev => {
+  const { sx, sy } = posCanvas(ev);
+  const m = Iso.aMundo(sx, sy, 0);                       // cursor -> plano del suelo
+  const i = Math.floor(m.x), j = Math.floor(m.y);
+  Escena.hover = (i >= 0 && j >= 0 && i < CFG.MAPA && j < CFG.MAPA) ? { i, j } : null;
+  Mano.mover(sx, sy);   // el objeto sostenido sigue al cursor, ajustado a la rejilla
+  Escena.agarrable = (Juego.interactivo() && !Mano.item) ? (Escena.recoger(sx, sy) || {}).e || null : null;   // objeto que se agarraría con un clic
+});
+// Arrastrar y soltar: si se pulsó y se movió más de 8 px, soltar el botón intenta colocar el objeto
+canvas.addEventListener('pointerup', ev => {
+  const { sx, sy } = posCanvas(ev), o = Mano.inicio; Mano.inicio = null;
+  if (Mano.item && o && Math.hypot(sx - o.sx, sy - o.sy) > 8 && ev.pointerType !== 'touch') Mano.colocar();
+});
+// Rotación de 90°: rueda del ratón o tecla R
+canvas.addEventListener('wheel', ev => { ev.preventDefault(); Mano.rotar(ev.deltaY > 0 ? 1 : -1); }, { passive: false });
+addEventListener('keydown', ev => { if (ev.key === 'r' || ev.key === 'R') Mano.rotar(1); });
+
+/* ============================================================
+ * 8. BUCLE PRINCIPAL — requestAnimationFrame con delta time
+ *    (dt se usará en fases futuras: animaciones, partículas, transiciones)
+ * ============================================================ */
+// Botones bajo el lienzo: girar (siempre visible) y colocar (solo táctil)
+const btnRotar = document.getElementById('btnRotar'), btnColocar = document.getElementById('btnColocar');
+// Etiquetas de los botones según el idioma
+btnRotar.textContent = TEXTOS[LANG].girar;
+btnRotar.setAttribute('aria-label', TEXTOS[LANG].ariaGirar);
+btnColocar.textContent = TEXTOS[LANG].colocar;
+btnRotar.addEventListener('click', () => Mano.rotar(1));
+canvas.addEventListener('pointerleave', () => { Escena.agarrable = null; });
+btnColocar.addEventListener('click', () => Mano.colocar());
+
+let tPrev = 0;
+function bucle(t) {
+  const dt = Math.min((t - tPrev) / 1000, 0.1); // segundos; tope para evitar saltos al cambiar de pestaña
+  tPrev = t;
+  Recipientes.actualizar(dt, Escena.entidades); // animaciones de tapas, rebotes y caída de objetos
+  Juego.actualizar(dt); // máquina de estados: comprobación, botón, foto y avance de año
+  renderizar();
+  const ok = Juego.interactivo(), it = Mano.item;   // los botones solo sirven con un objeto en la mano
+  btnRotar.disabled = !(ok && it);
+  btnColocar.disabled = !(ok && it && it.valido);
+  requestAnimationFrame(bucle);
+}
+
+Escena.iniciar();
+ajustarEscala();
+requestAnimationFrame(bucle);
+</script>
+<script>
+// Selector de idioma: mismo patrón del sitio, con recarga para que el juego repinte todo
+(function () {
+  var K = 'jaye-idioma', K2 = 'jaye-lang', b = document.querySelectorAll('.selector-idioma button');
+  function poner(l) {
+    document.documentElement.lang = l;
+    document.querySelectorAll('[data-es]').forEach(function (el) { el.textContent = l === 'en' ? el.dataset.en : el.dataset.es; });
+    b.forEach(function (btn) {
+      var on = btn.dataset.lang === l;
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('aria-label', btn.dataset.lang === 'en' ? 'English' : 'Español');
+    });
+    var a = document.querySelector('a[href^="index.html"]');
+    if (a) a.href = 'index.html' + (l === 'en' ? '?lang=en' : '');
+  }
+  var q = new URLSearchParams(location.search).get('lang');
+  var l = (q === 'en' || q === 'es') ? q : (localStorage.getItem(K) || localStorage.getItem(K2) || 'es');
+  poner(l);
+  b.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var nl = this.dataset.lang;
+      localStorage.setItem(K, nl);
+      var u = new URL(location.href);
+      u.searchParams.set('lang', nl);   // recarga con el idioma elegido
+      location.href = u.toString();
+    });
+  });
+})();
+</script>
+</body>
+</html>

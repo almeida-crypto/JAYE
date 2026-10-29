@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#140c1f">
+  <meta name="description" content="Juega: arma el altar de Hanal Pixán o pon a prueba lo que sabes con el quiz. Grupo DSM 4D (UTM).">
+  <title>Juega · Hanal Pixán</title>
+  <link rel="preload" href="../assets/fonts/yeseva-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/portada.css">
+</head>
+<body>
+  <div class="franja-bordado" aria-hidden="true"></div>
+
+  <div class="envoltura">
+    <div class="barra">
+      <a class="volver-link" href="../index.html" data-es="← Volver al inicio" data-en="← Back to home"></a>
+      <div class="selector-idioma" role="group" aria-label="Idioma / Language">
+        <button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <main class="bento dos">
+      <!-- Héroe -->
+      <section class="tile heroe ancha" aria-labelledby="titulo">
+        <span class="vela-glow" aria-hidden="true"></span>
+        <img class="adorno" src="../entiende/img/iconos/flores.png" alt="" aria-hidden="true">
+        <p class="eyebrow" data-es="Juega" data-en="Play"></p>
+        <h1 id="titulo" data-es="Juega en Hanal Pixán" data-en="Play Hanal Pixán"></h1>
+        <p class="sub" data-es="Arma el altar y pon a prueba lo que sabes" data-en="Build the altar and test what you know"></p>
+        <p class="lema" data-es="Dos juegos para conocer el altar: arma el altar paso a paso o responde 15 preguntas al azar con el quiz." data-en="Two games to get to know the altar: build it step by step or answer 15 random questions in the quiz."></p>
+        <div class="datos">
+          <span class="chip" data-es="2 juegos" data-en="2 games"></span>
+          <span class="chip">Español · Maaya t'aan · English</span>
+        </div>
+      </section>
+
+      <!-- Juego 1: acomodar el altar -->
+      <a class="tile" href="altar.html" id="link-altar">
+        <div class="cabeza"><span class="num">01</span><span class="chip"><i></i><span data-es="Listo" data-en="Ready"></span></span></div>
+        <div class="parches" aria-hidden="true">
+          <img src="../entiende/img/iconos/pib.png" alt=""><img src="../entiende/img/iconos/flores.png" alt=""><img src="../entiende/img/iconos/velas.png" alt="">
+        </div>
+        <h3 data-es="Arma el altar" data-en="Build the altar"></h3>
+        <p data-es="Saca los objetos de las cajas y colócalos donde van: suelo y tres escalones." data-en="Take the objects out of the boxes and place them where they belong: floor and three steps."></p>
+        <span class="ir"><span data-es="Jugar" data-en="Play"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+
+      <!-- Juego 2: quiz -->
+      <a class="tile" href="quiz.html" id="link-quiz">
+        <div class="cabeza"><span class="num">02</span><span class="chip"><i></i><span data-es="Listo" data-en="Ready"></span></span></div>
+        <div class="parches" aria-hidden="true">
+          <img src="../entiende/img/iconos/rosario.png" alt=""><img src="../entiende/img/iconos/cruz-verde.png" alt=""><img src="../entiende/img/iconos/china.png" alt="">
+        </div>
+        <h3 data-es="Quiz" data-en="Quiz"></h3>
+        <p data-es="15 preguntas al azar de 60, con 20 segundos cada una y ranking local." data-en="15 random questions out of 60, 20 seconds each, with a local ranking."></p>
+        <span class="ir"><span data-es="Jugar" data-en="Play"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </main>
+
+    <footer class="pie">
+      <span class="logo"><img src="../assets/img/utm.png" alt="Universidad Tecnológica Metropolitana" width="480" height="172"></span>
+      <span data-es="Hecho por el Grupo DSM 4D" data-en="Made by the DSM 4D group"></span>
+    </footer>
+  </div>
+
+  <script src="../assets/js/portada.js"></script>
+  <script>
+    (function () {
+      var K = 'jaye-idioma';
+      var q = new URLSearchParams(location.search).get('lang');
+      var lang = q === 'en' || q === 'es' ? q : null;
+      if (!lang) { try { lang = localStorage.getItem(K); } catch (e) {} }
+      if (lang !== 'en') lang = 'es';
+      function poner(l) {
+        lang = l;
+        document.documentElement.lang = l;
+        try { localStorage.setItem(K, l); } catch (e) {}
+        document.querySelectorAll('[data-es]').forEach(function (n) { n.textContent = n.getAttribute('data-' + l); });
+        document.querySelectorAll('[data-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === l)); });
+        var suf = l === 'en' ? '?lang=en' : '';
+        document.getElementById('link-altar').href = 'altar.html' + suf;
+        document.getElementById('link-quiz').href = 'quiz.html' + suf;
+        document.querySelector('.volver-link').href = '../index.html' + suf;
+      }
+      document.querySelectorAll('[data-lang]').forEach(function (b) {
+        b.addEventListener('click', function () { poner(b.dataset.lang); });
+      });
+      poner(lang);
+    })();
+  </script>
+</body>
+</html>
