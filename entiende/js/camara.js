@@ -13,7 +13,7 @@
   'use strict';
 
   var CONFIG = {
-    targets: 'targets/altar.mind',  // generado con herramientas/compilar.html (todas las tarjetas, en orden)
+    targets: 'targets/altar.mind?v=2',  // ?v= sube cada vez que se recompila (el celular guarda la versión anterior). Generado con herramientas/compilar.html (todas las tarjetas, en orden)
     maxTrack: 2,                    // cuántas tarjetas se siguen a la vez (más = más lento)
     ocultarTras: 500,               // ms que la etiqueta sigue visible tras perder la tarjeta
     pistaTras: 15000                // ms sin detectar nada antes de mostrar consejos

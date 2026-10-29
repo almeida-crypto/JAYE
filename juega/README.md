@@ -5,20 +5,22 @@ Dos juegos estáticos (sin frameworks, sin servidor). El índice es `index.html`
 | Juego | Archivo | Qué hace |
 |---|---|---|
 | **Arma el altar** | [`altar.html`](altar.html) | Juego isométrico de pixel art: sacas objetos de 4 recipientes y los acomodas en el altar (suelo y 3 escalones). Al vaciarlos, el juego comprueba el altar, te deja corregir y al final hace una foto que se guarda en un álbum. |
-| **Quiz** | [`quiz.html`](quiz.html) | 15 preguntas al azar de 60, 20 segundos cada una, puntuación = correctas × 100 + bono de tiempo, ranking local (Top 10 en `localStorage`) y compartir por WhatsApp. |
+| **Quiz** | [`quiz.html`](quiz.html) | 15 preguntas al azar de 60, 20 segundos cada una; al responder se ve si acertaste y un dato curioso. Puntuación = correctas × 100 + bono de tiempo, ranking local (Top 10 en `localStorage`) y compartir por WhatsApp. |
 
 ## Cómo funciona cada uno
 
 ### Arma el altar (`altar.html`)
 
 - Un solo archivo autocontenido: todo el JS va en línea y los sprites se dibujan por código (no hay imágenes externas). Funciona con doble clic, sin servidor.
+- Los tres escalones van cubiertos con **hojas de plátano** (textura `Mantel` con `HOJA: true`; con `false` vuelve el mantel blanco bordado).
+- En el celular: parado, el tablero ocupa todo el ancho y aparece el consejo de girarlo; acostado, el tablero usa todo el alto y los botones pasan a una columna a la derecha.
 - Rejilla isométrica 10×10 con altura; los objetos se ajustan a celdas, se giran 90° (rueda, tecla `R` o botón) y solo se sueltan donde hay lugar libre.
 - `REGLAS` define en qué nivel va cada objeto (N1 = escalón más alto, N3 = escalón más bajo, SUELO = enfrente del altar).
 - En pantallas táctiles aparece el botón **Colocar** (en escritorio se usa el clic directo).
 
 ### Quiz (`quiz.html`)
 
-- `js/preguntas.js` es el banco de preguntas: un objeto `PREGUNTAS` con 60 entradas `{ id, tema, es: {p, opciones, correcta}, en: {p, opciones, correcta} }`.
+- `js/preguntas.js` es el banco de preguntas: un objeto `PREGUNTAS` con 60 entradas `{ id, tema, es: {p, opciones, correcta, dato}, en: {p, opciones, correcta, dato} }`. `dato` es la explicación corta que aparece al responder. Las preguntas salen de `data/elementos.json` y de los textos de Aprende (revisados por practicantes); los distractores son de la misma familia que la respuesta (otras palabras mayas, otras fechas, otros platillos) para que no se adivine por descarte.
 - `js/quiz.js` baraja las opciones en cada pregunta (la respuesta correcta no siempre está en la misma posición) y baraja el banco al iniciar.
 - El ranking se guarda en `localStorage` con la clave `jaye-quiz-ranking` (solo en el navegador de quien juega).
 

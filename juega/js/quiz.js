@@ -92,14 +92,37 @@
       // bonus por tiempo: + max(0, tiempoRest) * 2
       totalSeg += tiempoRest * 2;
     }
-    setTimeout(function(){
-      indice++;
-      if (indice < 15){
-        mostrarPregunta();
-      } else {
-        mostrarResultado();
-      }
-    }, 900);
+    // Retroalimentación: ¿acertaste? + el dato que explica la respuesta + botón para seguir
+    var retro = getEl('retro');
+    if (retro){
+      var ok = sel === correcta;
+      var titulo = ok ? (lang==='en' ? 'Correct!' : '¡Correcto!')
+                      : (sel === -1 ? (lang==='en' ? 'Time is up' : 'Se acabó el tiempo') : (lang==='en' ? 'Not quite' : 'Casi'));
+      retro.className = 'retro ' + (ok ? 'bien' : 'mal');
+      retro.innerHTML = '';
+      var h = document.createElement('strong'); h.textContent = titulo; retro.appendChild(h);
+      if (data.dato){ var d = document.createElement('p'); d.textContent = data.dato; retro.appendChild(d); }
+      var sig = document.createElement('button');
+      sig.type = 'button'; sig.className = 'btn-principal';
+      sig.textContent = (indice + 1 < 15) ? (lang==='en' ? 'Next →' : 'Siguiente →') : (lang==='en' ? 'See result' : 'Ver resultado');
+      sig.onclick = siguiente;
+      retro.appendChild(sig);
+      retro.hidden = false;
+      try { sig.focus({ preventScroll: true }); } catch(e){}
+      try { retro.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(e){}
+    } else {
+      setTimeout(siguiente, 900);
+    }
+  }
+
+  function siguiente(){
+    var retro = getEl('retro'); if (retro) retro.hidden = true;
+    indice++;
+    if (indice < 15){
+      mostrarPregunta();
+    } else {
+      mostrarResultado();
+    }
   }
 
   function mostrarResultado(){

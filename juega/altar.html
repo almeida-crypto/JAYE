@@ -4,26 +4,56 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Altar de Hanal Pixán</title>
+<link rel="preload" href="../assets/fonts/yeseva-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/css/portada.css?v=1">
 <style>
-  :root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
-  html, body { height: 100%; margin: 0; background: #1b1423; color: #e9d8c4; font: 16px/1.45 system-ui, sans-serif; }
-  body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+  :root { box-sizing: border-box; }
+  html, body { min-height: 100%; margin: 0; background: #1b1423; color: #e9d8c4; font: 16px/1.45 system-ui, sans-serif; }
+  body { display: flex; flex-direction: column; align-items: center; gap: 10px;
+         padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
   /* Ajustes al chrome de portada.css para convivir con el lienzo del juego */
   body::before { display: none; }          /* sin estrellas detrás del canvas */
-  .franja-bordado { height: 30px; }
-  .barra { width: 100%; max-width: 640px; margin: 0 auto; padding: 8px 12px 0; }
+  .franja-bordado { height: 30px; flex: none; }
+  .barra { width: 100%; max-width: 760px; margin: 0 auto; padding: 6px 12px 0; }
+  .cabeza-juego { width: 100%; max-width: 760px; padding: 0 14px; }
+  .cabeza-juego h1 { margin: 0; font-family: var(--titulo); font-weight: 400; font-size: clamp(1.6rem, 6vw, 2.2rem); line-height: 1.05; color: var(--crema); }
+  .cabeza-juego details { margin-top: 6px; color: var(--texto-suave); font-size: .92rem; }
+  .cabeza-juego summary { cursor: pointer; color: var(--naranja); font-weight: 700; min-height: 32px; display: inline-flex; align-items: center; }
+  .cabeza-juego ol { margin: 6px 0 0; padding-left: 1.2em; }
+  .cabeza-juego li { margin-bottom: 3px; }
+  /* Marco del tablero */
+  .tablero { padding: 6px; border-radius: 18px; background: linear-gradient(160deg, #3a2a4a, #241a2e);
+             border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 18px 40px rgba(0, 0, 0, .45); line-height: 0; }
   /* image-rendering: pixelated => escalado "nearest neighbor", sin suavizado de bordes */
-  canvas { image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; cursor: grab; background: #241a2e; }
-  #ui { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 640px; }
-  #info { color: #fff4e6; text-align: center; padding: 0 12px; min-height: 2.9em; }
-  #controles { display: flex; gap: 12px; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; cursor: grab; background: #241a2e; border-radius: 12px; display: block; }
+  #ui { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 760px; padding: 0 12px; }
+  #info { color: #fff4e6; text-align: center; padding: 10px 14px; min-height: 2.9em; width: 100%;
+          background: #241931; border: 1px solid rgba(255, 255, 255, .1); border-radius: 14px; font-size: .95rem; }
+  #info:empty { display: none; }
+  #controles { display: flex; gap: 12px; width: 100%; justify-content: center; }
   /* botones grandes (≥48 px de alto) y de alto contraste para uso táctil */
-  #controles button { min-width: 132px; min-height: 48px; font: inherit; font-weight: 700; color: #fff; background: #7a4a8c; border: 2px solid #f2a23a; border-radius: 10px; padding: 0 18px; touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; }
-  #controles button:disabled { opacity: .45; }
+  #controles button { flex: 1 1 0; max-width: 220px; min-height: 52px; font: inherit; font-weight: 800; color: #2a1606; background: var(--naranja); border: 0; border-radius: 999px; padding: 0 18px; touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; box-shadow: 0 6px 16px rgba(0, 0, 0, .3); }
+  #controles #btnRotar { background: #2f2340; color: var(--texto); border: 1.5px solid rgba(255, 255, 255, .18); }
+  #controles button:disabled { opacity: .4; box-shadow: none; }
   #controles button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   /* "Colocar" solo se muestra en pantallas táctiles; con ratón basta el clic */
   @media (hover: hover) and (pointer: fine) { #btnColocar { display: none; } }
+  .gira { display: none; margin: 0; color: var(--texto-suave); font-size: .85rem; text-align: center; }
+  @media (orientation: portrait) and (max-width: 700px) { .gira { display: block; } }
+  @media (max-width: 480px) { .tablero { padding: 0; border: 0; border-radius: 12px; } }
+  /* Celular acostado: todo el alto para el tablero; barra y botones en una columna a la derecha */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .franja-bordado, .cabeza-juego, .gira { display: none; }
+    body { display: grid; grid-template-columns: auto 200px; grid-template-rows: auto 1fr; align-items: center;
+           justify-content: center; gap: 6px 12px; padding: 6px 10px; min-height: 100vh; box-sizing: border-box; }
+    .tablero { grid-column: 1; grid-row: 1 / span 2; padding: 3px; }
+    .barra { grid-column: 2; grid-row: 1; width: 200px; padding: 0; flex-wrap: wrap; gap: 6px; }
+    .barra .volver-link { min-height: 36px; font-size: .9rem; }
+    #ui { grid-column: 2; grid-row: 2; width: 200px; padding: 0; align-self: start; }
+    #controles { flex-direction: column; }
+    #controles button { max-width: none; min-height: 48px; }
+    #info { font-size: .8rem; padding: 8px 10px; }
+  }
 </style>
 </head>
 <body>
@@ -34,13 +64,26 @@
     <button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>
   </div>
 </div>
-<canvas id="juego"></canvas>
+<header class="cabeza-juego">
+  <h1 data-es="Arma el altar" data-en="Build the altar"></h1>
+  <details>
+    <summary data-es="¿Cómo se juega?" data-en="How to play?"></summary>
+    <ol>
+      <li data-es="Toca una caja para sacar un objeto." data-en="Tap a box to take out an object."></li>
+      <li data-es="Muévelo hasta su lugar: el suelo o uno de los tres escalones. Las celdas verdes dicen que cabe." data-en="Move it to its place: the floor or one of the three steps. Green cells mean it fits."></li>
+      <li data-es="En el celular confirma con «Colocar»; en la computadora, con un clic. «Girar» lo voltea 90°." data-en="On a phone confirm with «Place»; on a computer, just click. «Rotate» turns it 90°."></li>
+      <li data-es="Cuando vacíes las cajas, el juego revisa tu altar y le toma una foto." data-en="When the boxes are empty, the game checks your altar and takes a photo of it."></li>
+    </ol>
+  </details>
+</header>
+<div class="tablero"><canvas id="juego"></canvas></div>
 <div id="ui">
   <div id="info"></div>
   <div id="controles">
     <button id="btnRotar" type="button" aria-label="Girar el objeto 90 grados">↻ Girar</button>
     <button id="btnColocar" type="button">Colocar</button>
   </div>
+  <p class="gira" data-es="Consejo: gira tu celular para ver el altar más grande." data-en="Tip: turn your phone sideways to see the altar bigger."></p>
 </div>
 <script>
 'use strict';
@@ -193,7 +236,7 @@ const Escena = {
       new Entidad({ x: -0.5, y: -0.5, w: 10.5, d: 0.5, h: 2.5, color: '#5a4270' }), // pared del fondo
       new Entidad({ x: -0.5, y: 0, w: 0.5, d: 10, h: 2.5, color: '#4d3a62' })       // pared lateral
     );
-    // Mantel blanco bordado sobre los 3 niveles del altar (son las 3 primeras entidades)
+    // Hojas de plátano que cubren los 3 niveles del altar, como en Yucatán (son las 3 primeras entidades)
     Mantel.aplicar(this.entidades.slice(0, 3));
     Pared.aplicar(this.entidades.slice(3, 5));   // paredes de palma seca (paja)
     // FASE 2: se crean los 4 recipientes cerrados (2 cajas, olla, cesto) con su contenido
@@ -629,10 +672,24 @@ const Album = {
   }
 };
 
-// Mantel: textura procedural en pixel art para los niveles del altar.
-// Tela blanca lisa; el bordado calado aparece SOLO en una franja angosta junto a los bordes libres.
-// Los bordes pegados a la pared o a otro nivel (pliegues) no se bordan.
+// Cubierta de los niveles del altar: textura procedural en pixel art.
+// En Yucatán la mesa del altar se cubre con hojas de plátano: tiras verdes con nervadura central clara,
+// venas paralelas y alguna rasgadura. (Antes era un mantel blanco bordado; se conserva el nombre «Mantel»
+// del objeto para no tocar el resto del juego.)
 const Mantel = {
+  HOJA: true,                 // false = vuelve al mantel blanco bordado
+  VERDES: [[46, 112, 52], [60, 132, 60], [38, 98, 46]],
+  NERVIO: [178, 214, 132], VENA: [92, 156, 78], RASGO: [24, 66, 32],
+  ANCHO_HOJA: 14,             // px de textura por tira de hoja
+  // Color de hoja en (u, v): u = a lo ancho de las tiras, v = a lo largo (px de textura)
+  hoja(u, v) {
+    const tira = Math.floor(u / this.ANCHO_HOJA), du = u - tira * this.ANCHO_HOJA, c = this.ANCHO_HOJA / 2;
+    if (Math.abs(du - c) < .9) return this.NERVIO;                         // nervadura central
+    if (du < .8) return this.RASGO;                                         // orilla donde se enciman
+    if (((Math.floor(v) + Math.floor(Math.abs(du - c))) % 4) === 0) return this.VENA;   // venas paralelas
+    if (Sprites.ruido(tira, Math.floor(v / 3)) % 23 === 0 && Math.abs(du - c) > 2) return this.RASGO;   // rasgaduras
+    return this.VERDES[((tira % 3) + 3) % 3];
+  },
   K: 16,                      // píxeles de textura por unidad de mundo
   ANCHO: 5,                   // ancho de la franja bordada (px)
   TELA: [244, 240, 230],      // blanco hueso
@@ -656,22 +713,26 @@ const Mantel = {
   color(e, caja, sx, sy) {
     const o = CFG.ORIGEN, hw = CFG.TW / 2, hh = CFG.TH / 2, K = this.K;
     const zt = e.z + e.h, yf = e.y + e.d, xp = e.x + e.w, frente = yf >= caja.y1;  // techo, plano frontal (y) y plano derecho (x)
-    let sombra, plie = 0, cands;                            // cands = [[distancia al borde, coord. a lo largo], ...]
+    let sombra, plie = 0, cands, uv;                            // cands = [[distancia al borde, coord. a lo largo], ...]
     const m = Iso.aMundo(sx, sy, zt);
     if (m.x >= e.x && m.x < xp && m.y >= e.y && m.y < yf) {            // cara superior: bordes libres = extremos y frente
-      sombra = 1; cands = [[m.x - caja.x0, m.y], [caja.x1 - m.x, m.y]];
+      sombra = 1; uv = [m.x, m.y]; cands = [[m.x - caja.x0, m.y], [caja.x1 - m.x, m.y]];
       if (frente) cands.push([yf - m.y, m.x]);                         // el frente solo se borda en el nivel más bajo
     } else {
       const xa = (sx - o.x) / hw + yf, za = ((xa + yf) * hh + o.y - sy) / CFG.UZ;
       if (xa >= e.x && xa < xp && za >= e.z && za < zt) {              // cara frontal: extremos laterales y dobladillo inferior
-        sombra = .88; plie = xa; cands = [[xa - caja.x0, za], [caja.x1 - xa, za]];
+        sombra = .88; plie = xa; uv = [xa, -za]; cands = [[xa - caja.x0, za], [caja.x1 - xa, za]];
         if (frente) cands.push([za - e.z, xa]);                         // dobladillo solo en el frente libre
       } else {
         const yb = xp - (sx - o.x) / hw, zb = ((xp + yb) * hh + o.y - sy) / CFG.UZ;
         if (!(yb >= e.y && yb < yf && zb >= e.z && zb < zt)) return null; // fuera del prisma: transparente
-        sombra = .74; plie = yb; cands = [[zb - e.z, yb]];
+        sombra = .74; plie = yb; uv = [yb, -zb]; cands = [[zb - e.z, yb]];
         if (frente) cands.push([yf - yb, zb]);  // cara derecha: dobladillo inferior y borde frontal
       }
+    }
+    if (this.HOJA) {
+      const c = this.hoja(uv[0] * K, uv[1] * K), f = sombra * (((Math.floor(sx) * 13 + Math.floor(sy) * 7) % 11 === 0) ? .93 : 1);
+      return c.map(v => Math.round(v * f));
     }
     const [d, t] = cands.reduce((a, b) => b[0] < a[0] ? b : a);       // borde libre más cercano
     const c = this.bordado(d * K, t * K) || this.TELA;
@@ -1358,13 +1419,20 @@ ctx.imageSmoothingEnabled = false;   // desactiva el suavizado al dibujar/escala
 
 // Escala el canvas por un factor ENTERO (si cabe) para píxeles perfectamente cuadrados
 function ajustarEscala() {
-  // (270/235: deja espacio para la franja de bordado + barra superior además de info y controles)
-  const s = Math.min(innerWidth / CFG.ANCHO, (innerHeight - (innerWidth < 700 ? 270 : 235)) / CFG.ALTO);
-  const f = s >= 1 ? Math.floor(s) : s;
-  canvas.style.width = CFG.ANCHO * f + 'px';
-  canvas.style.height = CFG.ALTO * f + 'px';
+  // Mide lo que ocupan la franja, la barra, el título y los botones (cambia entre celular parado y acostado)
+  const acostado = matchMedia('(orientation: landscape) and (max-height: 520px)').matches;
+  const alto = id => { const n = document.querySelector(id); return n && getComputedStyle(n).display !== 'none' && getComputedStyle(n).position !== 'fixed' ? n.offsetHeight + 10 : 0; };
+  const libreAlto = acostado ? innerHeight - 22 : innerHeight - alto('.franja-bordado') - alto('.barra') - alto('.cabeza-juego') - alto('#ui') - 34;
+  const libreAncho = acostado ? innerWidth - 240 : Math.min(innerWidth, 1100) - (innerWidth <= 480 ? 16 : 28);
+  const s = Math.min(libreAncho / CFG.ANCHO, Math.max(libreAlto, 180) / CFG.ALTO);
+  // En pantallas grandes, factor entero (píxeles perfectamente cuadrados); en el celular, lo que quepa
+  const f = s >= 2 ? Math.floor(s) : s;
+  canvas.style.width = Math.floor(CFG.ANCHO * f) + 'px';
+  canvas.style.height = Math.floor(CFG.ALTO * f) + 'px';
 }
 addEventListener('resize', ajustarEscala);
+addEventListener('orientationchange', () => setTimeout(ajustarEscala, 250));
+document.querySelector('.cabeza-juego details').addEventListener('toggle', ajustarEscala);
 
 // Dibuja una loseta (rombo) del suelo en la celda (i,j)
 function dibujarLoseta(i, j, color, z = 0) { // z permite pintar sobre la superficie del altar
@@ -1481,6 +1549,7 @@ function bucle(t) {
 
 Escena.iniciar();
 ajustarEscala();
+addEventListener('load', ajustarEscala);   // otra vez cuando ya están los textos y la letra
 requestAnimationFrame(bucle);
 </script>
 <script>

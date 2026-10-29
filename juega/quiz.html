@@ -7,7 +7,7 @@
   <title>Quiz · Hanal Pixán</title>
   <link rel="preload" href="../assets/fonts/yeseva-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../assets/css/portada.css">
-  <link rel="stylesheet" href="css/quiz.css?v=1">
+  <link rel="stylesheet" href="css/quiz.css?v=2">
 </head>
 <body>
   <div class="franja-bordado" aria-hidden="true"></div>
@@ -29,7 +29,7 @@
       <!-- Pantalla inicio -->
       <section class="tile" id="pantalla-inicio">
         <h2 data-es="¿Listo para jugar?" data-en="Ready to play?"></h2>
-        <p data-es="Se elegirán 15 preguntas al azar de 60, sin repetir en el mismo quiz." data-en="15 questions will be randomly chosen from 60, no repeats in the same quiz."></p>
+        <p data-es="Se elegirán 15 preguntas al azar de 60, sin repetir en el mismo quiz. Después de cada respuesta verás un dato curioso." data-en="15 questions will be randomly chosen from 60, no repeats in the same quiz. After each answer you will see a fun fact."></p>
         <button class="btn-principal" id="btn-comenzar" data-es="Comenzar" data-en="Start"></button>
         <div class="ranking-previo">
           <h3 data-es="Ranking (Top 10)" data-en="Ranking (Top 10)"></h3>
@@ -45,6 +45,7 @@
         </div>
         <h2 id="pregunta-texto"></h2>
         <div class="opciones" id="opciones"></div>
+        <div class="retro" id="retro" hidden aria-live="polite"></div>
       </section>
 
       <!-- Pantalla resultado -->
@@ -69,8 +70,8 @@
     </main>
   </div>
 
-  <script src="js/preguntas.js?v=1"></script>
-  <script src="js/quiz.js?v=1"></script>
+  <script src="js/preguntas.js?v=2"></script>
+  <script src="js/quiz.js?v=2"></script>
   <script>
     (function () {
       var K = 'jaye-idioma';

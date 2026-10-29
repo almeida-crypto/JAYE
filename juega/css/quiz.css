@@ -75,3 +75,17 @@ main { margin-top: 14px; display: grid; gap: 14px; }
 .ranking ol { margin: 0; padding-left: 1.6em; color: var(--texto-suave); }
 .ranking ol li, #ranking-lista-inicio li, #ranking-lista-final li { padding: 3px 0; }
 #ranking-lista-inicio strong, #ranking-lista-final strong { color: var(--naranja); }
+
+/* Retroalimentación después de responder: ¿acertaste? + dato + Siguiente */
+.retro {
+  display: grid; gap: 8px; padding: 14px 16px; border-radius: 14px;
+  background: #2a1f37; border: 1px solid var(--borde);
+}
+.retro strong { font-family: var(--titulo); font-weight: 400; font-size: 1.25rem; }
+.retro p { color: var(--texto); }
+.retro.bien { border-color: var(--verde); background: rgba(46, 139, 61, .18); }
+.retro.bien strong { color: #9ee6ad; }
+.retro.mal { border-color: var(--rojo); background: rgba(200, 16, 46, .14); }
+.retro.mal strong { color: #ffb3bf; }
+.retro .btn-principal { justify-self: start; margin-top: 4px; }
+@media (max-width: 480px) { .retro .btn-principal { justify-self: stretch; } }

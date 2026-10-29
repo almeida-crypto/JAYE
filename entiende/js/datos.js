@@ -26,7 +26,7 @@
 
   var TEXTOS = {
     es: {
-      volver: '← Volver', inicio: '← Volver al inicio', cerrar: 'Entendido',
+      volver: '← Volver', inicio: '← Volver al inicio', cerrar: 'Entendido', cerrarFicha: 'Cerrar',
       enMaya: 'En maya', enIngles: 'En inglés', enEspanol: 'En español',
       queEs: '¿Qué es?', porQue: '¿Por qué está en el altar yucateco?', historia: 'Un poco de historia',
       fuentes: 'Fuentes', enRevision: 'Texto investigado; falta la revisión final de alguien que practica la tradición.',
@@ -62,7 +62,7 @@
       errCamara: 'No pudimos abrir la cámara. Revisa que hayas dado permiso (ícono junto a la dirección) o usa el altar digital.'
     },
     en: {
-      volver: '← Back', inicio: '← Back to home', cerrar: 'Got it',
+      volver: '← Back', inicio: '← Back to home', cerrar: 'Got it', cerrarFicha: 'Close',
       enMaya: 'In Maya', enIngles: 'In English', enEspanol: 'In Spanish',
       queEs: 'What is it?', porQue: 'Why is it on a Yucatecan altar?', historia: 'A bit of history',
       fuentes: 'Sources', enRevision: 'Researched text; final review by a practitioner of the tradition is pending.',
@@ -191,12 +191,64 @@
     document.addEventListener('idioma:cambio', function () {
       if (actual && ficha.classList.contains('abierta')) pintarFicha(actual);
     });
+    arrastrarParaCerrar();
+  }
+
+  // Deslizar la ficha hacia abajo para cerrarla (como las hojas de las apps):
+  // desde la barrita de arriba siempre, y desde cualquier parte si el texto ya está hasta arriba.
+  function arrastrarParaCerrar() {
+    var y0 = null, dy = 0, arrastrando = false, desdeBarra = false;
+    function empezar(y, enBarra) {
+      y0 = y; dy = 0; arrastrando = false; desdeBarra = enBarra;
+    }
+    function mover(y, e) {
+      if (y0 === null) return;
+      dy = y - y0;
+      if (!arrastrando) {
+        if (dy > 6 && (desdeBarra || ficha.scrollTop <= 0)) {
+          arrastrando = true;
+          ficha.classList.add('arrastrando');
+        } else if (Math.abs(dy) > 6) { y0 = null; return; } // es un desplazamiento normal del texto
+      }
+      if (arrastrando) {
+        if (e && e.cancelable) e.preventDefault();
+        ficha.style.transform = 'translateY(' + Math.max(0, dy) + 'px)';
+        fondo.style.opacity = String(Math.max(0.15, 1 - dy / 400));
+      }
+    }
+    function soltar() {
+      if (y0 === null) return;
+      y0 = null;
+      ficha.classList.remove('arrastrando');
+      ficha.style.transform = '';
+      fondo.style.opacity = '';
+      if (arrastrando && dy > Math.min(120, ficha.offsetHeight * 0.25)) cerrarFicha();
+      arrastrando = false;
+    }
+    // táctil (celular)
+    ficha.addEventListener('touchstart', function (e) {
+      empezar(e.touches[0].clientY, !!e.target.closest('.agarre-zona'));
+    }, { passive: true });
+    ficha.addEventListener('touchmove', function (e) { mover(e.touches[0].clientY, e); }, { passive: false });
+    ficha.addEventListener('touchend', soltar);
+    ficha.addEventListener('touchcancel', soltar);
+    // ratón (computadora): solo desde la barrita
+    ficha.addEventListener('mousedown', function (e) {
+      if (!e.target.closest('.agarre-zona') || e.target.closest('button.cerrar-x')) return;
+      e.preventDefault();
+      empezar(e.clientY, true);
+      function mm(ev) { mover(ev.clientY, ev); }
+      function mu() { document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); soltar(); }
+      document.addEventListener('mousemove', mm);
+      document.addEventListener('mouseup', mu);
+    });
   }
 
   function pintarFicha(el) {
     var otro = idioma === 'es' ? 'en' : 'es';
     var m = el.maya || {};
-    var html = '<div class="agarre"></div>';
+    var html = '<div class="agarre-zona"><span class="agarre" aria-hidden="true"></span>' +
+      '<button type="button" class="cerrar-x" data-accion="cerrar" aria-label="' + tx('cerrarFicha') + '">✕</button></div>';
     var pos = listaActual ? listaActual.indexOf(el) : -1;
     if (pos >= 0) {
       html += '<nav class="ficha-nav"><button class="boton secundario" data-accion="anterior"' + (pos === 0 ? ' disabled' : '') + '>' + tx('anterior') + '</button>' +
@@ -243,7 +295,7 @@
     if (el.verificado === false) html += '<p class="borrador">' + tx('enRevision') + '</p>';
 
     ficha.innerHTML = html;
-    ficha.querySelector('[data-accion="cerrar"]').addEventListener('click', cerrarFicha);
+    ficha.querySelectorAll('[data-accion="cerrar"]').forEach(function (b) { b.addEventListener('click', cerrarFicha); });
     [['anterior', -1], ['siguiente', 1]].forEach(function (par) {
       var b = ficha.querySelector('[data-accion="' + par[0] + '"]');
       if (b) b.addEventListener('click', function () { mostrarFicha(listaActual[pos + par[1]], { lista: listaActual }); });
@@ -267,6 +319,7 @@
     pintarFicha(el);
     fondo.classList.add('abierta');
     ficha.classList.add('abierta');
+    document.documentElement.classList.add('con-ficha');
     ficha.scrollTop = 0;
     var b = ficha.querySelector('[data-accion="cerrar"]');
     if (b) b.focus({ preventScroll: true });
@@ -276,6 +329,7 @@
   function cerrarFicha() {
     if (!ficha) return;
     fondo.classList.remove('abierta');
+    document.documentElement.classList.remove('con-ficha');
     ficha.classList.remove('abierta');
     if (audioActual) { audioActual.pause(); audioActual = null; }
     document.dispatchEvent(new CustomEvent('ficha:cerrada'));

@@ -202,6 +202,14 @@
     "posta-mascotas": {
       "titulo": "Posta – Hanal Pixán: ¿quándo se pone el altar para las mascotas en Yucatán?",
       "url": "https://www.posta.com.mx/yucatan/hanal-pixan-cuando-se-pone-el-altar-para-las-mascotas-en-yucatan-y-que-elementos-debe-llevar/vl2111197"
+    },
+    "yuctravel-joroches": {
+      "titulo": "Secretaría de Fomento Turístico de Yucatán – Joroches: bolitas de masa en caldo de frijol colado",
+      "url": "https://yucatan.travel/en/flavor/198-joroches-masa-balls-in-strained-bean-broth/"
+    },
+    "poresto-masa": {
+      "titulo": "Por Esto! – Tres platillos yucatecos con masa fáciles de preparar en casa (2023)",
+      "url": "https://www.poresto.com/yucatan/2023/5/27/tres-platillos-yucatecos-con-masa-faciles-de-preparar-en-casa.html"
     }
   },
   "elementos": [
@@ -239,12 +247,12 @@
         "uady-voces"
       ],
       "camara": {
-        "zona": "base",
-        "targetIndex": 0
+        "zona": "base"
       },
       "foto": null,
       "imagen": "aprende/img/fotos/mantel.jpg",
-      "verificado": true
+      "verificado": true,
+      "enAltar": false
     },
     {
       "id": "hojas-platano",
@@ -533,7 +541,8 @@
         "yuc-gob"
       ],
       "camara": {
-        "zona": "luz"
+        "zona": "luz",
+        "targetIndex": 26
       },
       "foto": null,
       "imagen": "aprende/img/fotos/velas-colores.jpg",
@@ -1004,6 +1013,46 @@
       "foto": null,
       "imagen": "aprende/img/fotos/pan.webp",
       "verificado": true
+    },
+    {
+      "id": "joroches",
+      "n": 44,
+      "categoria": "comida",
+      "nombre": {
+        "es": "Joroches",
+        "en": "Joroches (masa dumplings in bean broth)"
+      },
+      "maya": {
+        "nombre": "Horoch'",
+        "tipo": "tradicional",
+        "nota": {
+          "es": "Horoch' es la forma maya de la que viene «joroch»; se traduce como tortillita o bolita de masa.",
+          "en": "Horoch' is the Maya form behind \"joroch\"; it means a little tortilla or ball of dough."
+        }
+      },
+      "queEs": {
+        "es": "Bolitas de masa de maíz amasadas con manteca, sal y a veces hierbas, que se cuecen dentro del caldo de frijol. En algunas casas se rellenan de carne o chicharrón y se sirven con chiltomate.",
+        "en": "Little balls of corn dough kneaded with lard, salt and sometimes herbs, cooked inside the bean broth. Some families fill them with meat or pork cracklings and serve them with tomato-chile sauce."
+      },
+      "porQue": {
+        "es": "Es comida de casa, sencilla y de la milpa: maíz y frijol. En el Hanal Pixán se ofrece lo que la familia y sus difuntos comían y les gustaba, y por eso nuestro altar lleva joroches.",
+        "en": "It is simple home food from the milpa: corn and beans. During Hanal Pixán families offer what they and their departed ate and enjoyed, which is why our altar includes joroches."
+      },
+      "historia": {
+        "es": "El maíz y el frijol se cultivan juntos en la milpa maya desde hace miles de años. La manteca llegó después, con los cerdos que trajeron los españoles. Es un platillo nacido de la economía de las familias yucatecas: rinde mucho con ingredientes baratos.",
+        "en": "Corn and beans have been grown together in the Maya milpa for thousands of years. Lard came later, with the pigs brought by the Spanish. It is a dish born from the economy of Yucatecan families: it goes a long way with inexpensive ingredients."
+      },
+      "fuentes": [
+        "yuctravel-joroches",
+        "poresto-masa",
+        "uady-pixan"
+      ],
+      "camara": {
+        "zona": "comida",
+        "targetIndex": 0
+      },
+      "foto": null,
+      "verificado": false
     },
     {
       "id": "china",

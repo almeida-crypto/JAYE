@@ -12,7 +12,7 @@ parte del altar. Todas se compilan juntas, en orden, en targets/altar.mind con h
 """
 import json
 import math
-import os
+import os, sys
 import random
 import zlib
 
@@ -353,6 +353,27 @@ def ic_alpargatas(d):
         d.rectangle([x0 + 3, 34, x0 + 13, 38], fill=C["cafe"])
 
 
+def ic_joroches(d):
+    # plato hondo con caldo de frijol y bolitas de masa con su hoyito
+    d.chord([2, 8, 38, 38], 0, 180, fill=C["crema"])
+    d.line([(4, 30), (36, 30)], fill=C["cafeclaro"])
+    d.ellipse([2, 16, 38, 28], fill=C["negro"])
+    d.ellipse([5, 18, 35, 26], fill=C["cafe"])
+    for (x, y) in [(10, 20), (19, 19), (28, 20), (14, 24), (24, 24)]:
+        d.ellipse([x - 3, y - 2, x + 3, y + 2], fill=C["amarillo"], outline=C["cafeclaro"])
+        d.point((x, y), fill=C["cafe"])
+    for x in (12, 20, 28):  # vapor
+        d.line([(x, 13), (x + 1, 10), (x, 7), (x + 1, 4)], fill=C["gris"])
+
+
+def ic_velas_colores(d):
+    for (x, h, c) in [(9, 24, "rosa"), (19, 32, "celeste"), (29, 22, "amarillo")]:
+        d.rectangle([x - 3, 38 - h, x + 3, 38], fill=C[c])
+        d.line([(x - 3, 38 - h + 3), (x - 3, 38)], fill=C["blanco"])
+        d.polygon([(x, 38 - h - 8), (x - 3, 38 - h - 2), (x + 3, 38 - h - 2)], fill=C["naranja"])
+        d.point((x, 38 - h - 3), fill=C["amarillo"]); d.point((x, 38 - h - 4), fill=C["blanco"])
+
+
 ICONOS = {
     "mantel": ic_mantel, "hojas-platano": ic_hojas, "cruz-verde": ic_cruz, "rosario": ic_rosario,
     "fotografia": ic_foto, "objetos": ic_objetos, "velas": ic_velas, "incienso": ic_incienso,
@@ -364,6 +385,7 @@ ICONOS = {
     "chocolate": ic_chocolate, "atole-nuevo": ic_atole, "cigarros": ic_cigarros, "lek": ic_lek,
     "platos-barro": ic_platos, "tortear": ic_tortear, "comal": ic_comal, "filipina": ic_filipina,
     "pantalon": ic_pantalon, "alpargatas": ic_alpargatas,
+    "joroches": ic_joroches, "velas-colores": ic_velas_colores,
 }
 
 
@@ -488,8 +510,15 @@ def tarjeta(el, idx_zona, total_zona):
 
 
 def main():
+    """Sin argumentos: dibuja todas las tarjetas. Con ids (p. ej. `joroches velas-colores`): solo esas,
+    para no tocar las que ya están impresas."""
+    solo = set(sys.argv[1:])
     datos = json.load(open(os.path.join(RAIZ, "data", "elementos.json"), encoding="utf-8"))
     for el in datos["elementos"]:
+        if not isinstance(el.get("camara", {}).get("targetIndex"), int):
+            continue  # sin tarjeta (por ejemplo, el mantel: no va en nuestro altar)
+        if solo and el["id"] not in solo:
+            continue
         print("ok", tarjeta(el, 0, 0))
 
 
