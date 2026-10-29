@@ -61,7 +61,7 @@ En el celular: `https://almeida-crypto.github.io/JAYE/entiende/` (GitHub Pages).
 
 ## Altar digital
 
-`foto.html` dibuja un altar yucateco (franja bordada, arco de bejuco con xpujuk, mesa de cuatro niveles cubierta con hojas de plátano, piso de petate y camino de cal) y coloca los 38 íconos bordados en su lugar. Todo se dibuja en el navegador (SVG), así que pesa poco.
+`foto.html` dibuja un altar yucateco (franja bordada, casita de madera con techo de guano, mesa de cuatro niveles cubierta con hojas de plátano, piso de petate y camino de cal) y coloca los 38 íconos bordados en su lugar. Todo se dibuja en el navegador (SVG), así que pesa poco.
 
 - Tocar un elemento abre su ficha. La ficha tiene **Anterior / Siguiente** para recorrer el altar.
 - **Recorrer el altar** abre el primer elemento y deja avanzar en orden. Si hay una categoría elegida, recorre solo esa.

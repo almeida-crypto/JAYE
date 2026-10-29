@@ -90,7 +90,7 @@
     nodo('rect', { x: 0, y: PISO, width: ANCHO, height: 40, fill: '#000', opacity: '.25' }, fondo);
     caminoCal(fondo);
 
-    arco(fondo);
+    casita(fondo);
     franjaBordada(fondo);
 
     // Niveles de la mesa (de atrás hacia adelante)
@@ -116,7 +116,6 @@
 
     escena.innerHTML = '';
     escena.appendChild(svg);
-    flores(); // necesitan que el arco ya esté en la página (getPointAtLength)
   }
 
   function estrellas(g) {
@@ -141,31 +140,41 @@
   }
 
   // Arco de bejuco y ramas, como el que enmarca los altares en Yucatán
-  var trazoArco = 'M52 1300 L52 520 A348 348 0 0 1 748 520 L748 1300';
-  function arco(g) {
-    nodo('path', { d: trazoArco, stroke: '#5a3a1e', 'stroke-width': 26, fill: 'none', 'stroke-linecap': 'round' }, g);
-    nodo('path', { d: trazoArco, stroke: '#7b4a1e', 'stroke-width': 12, fill: 'none', 'stroke-dasharray': '26 14' }, g);
-    nodo('path', { id: 'arco-guia', d: trazoArco, stroke: '#2e8b3d', 'stroke-width': 8, fill: 'none', 'stroke-dasharray': '6 30', 'stroke-linecap': 'round' }, g);
-    nodo('g', { id: 'arco-flores', 'aria-hidden': 'true' }, g); // aquí van las flores (detrás de la mesa)
-  }
-  function flores() {
-    var guia = escena.querySelector('#arco-guia');
-    if (!guia || !guia.getTotalLength) return;
-    var L = guia.getTotalLength(), r = azar(5), capa = escena.querySelector('#arco-flores');
-    for (var d = 30; d < L - 20; d += 46) {
-      var p = guia.getPointAtLength(d), lado = (Math.round(d / 46) % 2) ? 1 : -1;
-      // hojas
-      nodo('ellipse', { cx: p.x + lado * 16, cy: p.y + 6, rx: 14, ry: 6, fill: '#2e8b3d', transform: 'rotate(' + (lado * 35) + ' ' + (p.x + lado * 16) + ' ' + (p.y + 6) + ')' }, capa);
-      // xpujuk (amarillo/naranja) y alguna flor rosa o morada
-      var tono = r();
-      var c1 = tono < 0.45 ? '#f08a1c' : tono < 0.8 ? '#ffc72c' : tono < 0.92 ? '#e2457a' : '#b48ad6';
-      var rr = 11 + r() * 5;
-      for (var k = 0; k < 8; k++) {
-        var a = k * Math.PI / 4;
-        nodo('circle', { cx: p.x + Math.cos(a) * rr * 0.6, cy: p.y + Math.sin(a) * rr * 0.6, r: rr * 0.45, fill: c1 }, capa);
+  // Casita de madera con techo de guano (palma) que resguarda el altar, como las casas mayas.
+  // (En lugar del arco con flores, que no es costumbre yucateca.)
+  var TECHO = { pico: 112, alero: 368, izq: -20, der: ANCHO + 20 };
+  function casita(g) {
+    var r = azar(17), T = TECHO;
+    // horcones (postes) y viga de madera
+    [[44, 1], [ANCHO - 70, -1]].forEach(function (p) {
+      var x = p[0];
+      nodo('rect', { x: x, y: T.alero - 20, width: 26, height: PISO - T.alero + 20, fill: '#6b4523' }, g);
+      nodo('rect', { x: x + 4, y: T.alero - 20, width: 6, height: PISO - T.alero + 20, fill: '#8a5a2e' }, g);
+      for (var y = T.alero + 30; y < PISO; y += 70 + r() * 40) {   // vetas y nudos
+        nodo('path', { d: 'M' + (x + 14) + ' ' + y + ' q 5 12 0 24', stroke: '#4a2f17', 'stroke-width': 2, fill: 'none' }, g);
       }
-      nodo('circle', { cx: p.x, cy: p.y, r: rr * 0.35, fill: tono < 0.8 ? '#c8102e' : '#ffc72c' }, capa);
+    });
+    nodo('rect', { x: 30, y: T.alero - 6, width: ANCHO - 60, height: 22, rx: 4, fill: '#5a3a1e' }, g);
+    nodo('rect', { x: 30, y: T.alero - 6, width: ANCHO - 60, height: 6, fill: '#7b4a1e' }, g);
+    // techo de guano: triángulo de base y capas de palma de abajo hacia arriba
+    var defs = g.ownerSVGElement ? g.ownerSVGElement.querySelector('defs') : null;
+    var tri = 'M' + T.izq + ' ' + T.alero + ' L' + CX + ' ' + T.pico + ' L' + T.der + ' ' + T.alero + ' Z';
+    if (defs) nodo('path', { d: tri }, nodo('clipPath', { id: 'techo-clip' }, defs));
+    nodo('path', { d: tri, fill: '#6e5226' }, g);
+    var capa = nodo('g', { 'clip-path': 'url(#techo-clip)' }, g);
+    var tonos = ['#c9a45c', '#b8914a', '#d8b46a', '#a7823e', '#e0c27e'];
+    for (var y = T.alero + 6; y > T.pico - 10; y -= 24) {
+      for (var x = T.izq; x < T.der; x += 4.5) {
+        var largo = 34 + r() * 14, inc = (x - CX) / (CX * 6);
+        nodo('path', { d: 'M' + x.toFixed(1) + ' ' + (y - largo).toFixed(1) + ' L' + (x + inc * largo + (r() - .5) * 3).toFixed(1) + ' ' + (y + r() * 5).toFixed(1),
+          stroke: tonos[(r() * tonos.length) | 0], 'stroke-width': 2.4, 'stroke-linecap': 'round' }, capa);
+      }
+      nodo('path', { d: 'M' + T.izq + ' ' + (y + 3) + ' H' + T.der, stroke: '#5c4320', 'stroke-width': 2, opacity: '.35' }, capa);
     }
+    // caballete (remate del techo) y sombra del alero
+    nodo('path', { d: 'M' + (CX - 46) + ' ' + (T.pico + 26) + ' L' + CX + ' ' + (T.pico - 6) + ' L' + (CX + 46) + ' ' + (T.pico + 26),
+      stroke: '#5a3a1e', 'stroke-width': 12, fill: 'none', 'stroke-linejoin': 'round' }, g);
+    nodo('rect', { x: 60, y: T.alero + 16, width: ANCHO - 120, height: 18, fill: '#000', opacity: '.22' }, g);
   }
 
   function caminoCal(g) {
