@@ -156,24 +156,32 @@
     });
     nodo('rect', { x: 30, y: T.alero - 6, width: ANCHO - 60, height: 22, rx: 4, fill: '#5a3a1e' }, g);
     nodo('rect', { x: 30, y: T.alero - 6, width: ANCHO - 60, height: 6, fill: '#7b4a1e' }, g);
-    // techo de guano: triángulo de base y capas de palma de abajo hacia arriba
-    var defs = g.ownerSVGElement ? g.ownerSVGElement.querySelector('defs') : null;
-    var tri = 'M' + T.izq + ' ' + T.alero + ' L' + CX + ' ' + T.pico + ' L' + T.der + ' ' + T.alero + ' Z';
-    if (defs) nodo('path', { d: tri }, nodo('clipPath', { id: 'techo-clip' }, defs));
-    nodo('path', { d: tri, fill: '#6e5226' }, g);
-    var capa = nodo('g', { 'clip-path': 'url(#techo-clip)' }, g);
-    var tonos = ['#c9a45c', '#b8914a', '#d8b46a', '#a7823e', '#e0c27e'];
-    for (var y = T.alero + 6; y > T.pico - 10; y -= 24) {
-      for (var x = T.izq; x < T.der; x += 4.5) {
-        var largo = 34 + r() * 14, inc = (x - CX) / (CX * 6);
-        nodo('path', { d: 'M' + x.toFixed(1) + ' ' + (y - largo).toFixed(1) + ' L' + (x + inc * largo + (r() - .5) * 3).toFixed(1) + ' ' + (y + r() * 5).toFixed(1),
-          stroke: tonos[(r() * tonos.length) | 0], 'stroke-width': 2.4, 'stroke-linecap': 'round' }, capa);
+    // techo de huano verde: un montón redondeado de pencas de palma frescas, como el de nuestro altar.
+    // Cada penca es un abanico de hojuelas; se dibujan de abajo hacia arriba para que las de arriba
+    // tapen el arranque de las de abajo, y las de la orilla cuelgan por fuera.
+    nodo('path', { d: 'M-20 ' + (T.alero + 10) + ' C -20 230 170 ' + (T.pico + 4) + ' ' + CX + ' ' + T.pico +
+      ' C ' + (ANCHO - 170) + ' ' + (T.pico + 4) + ' ' + (ANCHO + 20) + ' 230 ' + (ANCHO + 20) + ' ' + (T.alero + 10) + ' Z', fill: '#1d4722' }, g);
+    var verdes = ['#2e6a33', '#3c8240', '#4a9746', '#58a94f', '#2a5c2e', '#67b55a'];
+    var pencas = nodo('g', {}, g);
+    for (var fila = 7; fila >= 0; fila--) {
+      var y = T.pico + 18 + fila * 34;
+      var medio = Math.min(ANCHO / 2 + 30, (ANCHO / 2 + 20) * Math.sqrt(Math.max(0, (y - T.pico + 12) / (T.alero - T.pico))));
+      for (var x = CX - medio; x <= CX + medio; x += 34 + r() * 14) {
+        var rel = (x - CX) / (ANCHO / 2), centro = Math.PI / 2 - rel * 0.9;      // las de los lados apuntan hacia afuera
+        var largo = (fila >= 6 ? 74 : 52) + r() * 22, n = 11, abre = 1.9;
+        for (var k = 0; k < n; k++) {
+          var a = centro - abre / 2 + abre * k / (n - 1) + (r() - .5) * .12;
+          var L = largo * (0.75 + 0.25 * Math.sin(Math.PI * k / (n - 1)));
+          var tx = x + Math.cos(a) * L, ty = y + Math.sin(a) * L + L * 0.18;     // la punta cae un poco
+          var qx = x + Math.cos(a) * L * 0.55, qy = y + Math.sin(a) * L * 0.5;
+          var col = verdes[(r() * verdes.length) | 0];
+          if (r() < 0.06) col = '#a9c46a';                                       // alguna hojuela más seca
+          nodo('path', { d: 'M' + x.toFixed(1) + ' ' + y.toFixed(1) + ' Q' + qx.toFixed(1) + ' ' + qy.toFixed(1) + ' ' + tx.toFixed(1) + ' ' + ty.toFixed(1),
+            stroke: col, 'stroke-width': 3.6, fill: 'none', 'stroke-linecap': 'round' }, pencas);
+        }
+        nodo('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 3, fill: '#24552a' }, pencas);   // donde nace la penca
       }
-      nodo('path', { d: 'M' + T.izq + ' ' + (y + 3) + ' H' + T.der, stroke: '#5c4320', 'stroke-width': 2, opacity: '.35' }, capa);
     }
-    // caballete (remate del techo) y sombra del alero
-    nodo('path', { d: 'M' + (CX - 46) + ' ' + (T.pico + 26) + ' L' + CX + ' ' + (T.pico - 6) + ' L' + (CX + 46) + ' ' + (T.pico + 26),
-      stroke: '#5a3a1e', 'stroke-width': 12, fill: 'none', 'stroke-linejoin': 'round' }, g);
     nodo('rect', { x: 60, y: T.alero + 16, width: ANCHO - 120, height: 18, fill: '#000', opacity: '.22' }, g);
   }
 

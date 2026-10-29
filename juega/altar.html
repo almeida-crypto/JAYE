@@ -238,7 +238,7 @@ const Escena = {
     );
     // Hojas de plátano que cubren los 3 niveles del altar, como en Yucatán (son las 3 primeras entidades)
     Mantel.aplicar(this.entidades.slice(0, 3));
-    Pared.aplicar(this.entidades.slice(3, 5));   // paredes de palma seca (paja)
+    Pared.aplicar(this.entidades.slice(3, 5));   // paredes de albarrada (piedra seca)
     // FASE 2: se crean los 4 recipientes cerrados (2 cajas, olla, cesto) con su contenido
     Recipientes.crearTodos(this.entidades);
   },
@@ -1255,17 +1255,35 @@ const Sprites = {
   }
 };
 
-// Paredes de palma seca: hebras verticales de paja en tonos dorados, con huecos oscuros entre ellas.
+// Paredes: albarrada, el muro de piedra seca (sin mezcla) que rodea los solares en Yucatán.
+// Piedras de caliza irregulares, acomodadas en hiladas, con huecos oscuros y algo de musgo.
 // Se pre-renderizan una vez por pared (invierten la proyección en cada cara visible, igual que el mantel).
 const Pared = {
-  OSCURO: .58,   // luminosidad global de la paja (1 = original; antes .85)
-  PAL: [[226, 200, 142], [206, 172, 108], [238, 216, 164], [180, 146, 86], [196, 164, 104]],
-  // Color de la hebra en el píxel de pantalla (sx, sy): cada columna se parte en segmentos de ~9 px con tono propio
+  OSCURO: .62,   // luminosidad global (las paredes no deben robar atención a los objetos)
+  PAL: [[214, 206, 188], [196, 188, 168], [226, 218, 198], [182, 172, 152], [204, 194, 172], [170, 162, 146]],
+  MUSGO: [96, 122, 74], HUECO: [44, 36, 32],
+  // Color de la piedra en el píxel de pantalla (sx, sy): hiladas de ~6 px, piedras de 7 a 12 px de ancho
+  _filas: null,
+  // Hiladas de alto variable (4 a 7 px): tabla de inicio de cada hilada
+  filas() {
+    if (!this._filas) { this._filas = []; for (let y = -40, f = 0; y < CFG.ALTO + 40; f++) { const h = 4 + Sprites.ruido(f, 5) % 4; this._filas.push([y, h]); y += h; } }
+    return this._filas;
+  },
   hebra(sx, sy) {
-    const x = Math.floor(sx + sy * .06), seg = Math.floor((sy + Sprites.ruido(x, 3) % 13) / 9), r = Sprites.ruido(x + 500, seg + 500);
-    if (r % 13 === 0) return [112, 88, 56];                       // hueco oscuro
-    const p = this.PAL[r % 5], g = .3 * p[0] + .59 * p[1] + .11 * p[2];
-    return p.map(v => g + (v - g) * .75);                         // algo desaturado para no distraer
+    const F = this.filas();
+    let fila = 0; while (fila < F.length - 1 && F[fila + 1][0] <= sy) fila++;
+    const [y0, alto] = F[fila], fy = sy - y0;
+    // piedras de ancho variable (5 a 13 px) dentro de cada hilada
+    let x = -60 - Sprites.ruido(fila, 11) % 9, col = 0, ancho = 0;
+    while (true) { ancho = 5 + Sprites.ruido(col + 50, fila) % 9; if (x + ancho > sx) break; x += ancho; col++; }
+    const fx = sx - x, r = Sprites.ruido(col + 300, fila + 300);
+    // esquinas redondeadas: las piedras no son ladrillos
+    const esquina = (fx < 1.5 || fx > ancho - 1.5) && (fy < 1.5 || fy > alto - 1.5);
+    if (fy < 1 || fx < 1 || esquina) return this.HUECO;               // hueco entre piedras
+    if (r % 13 === 0 && fy > alto / 2) return this.MUSGO;              // musgo
+    const p = this.PAL[r % this.PAL.length];
+    const luz = fy < 2 ? 1.1 : fy > alto - 2 ? .82 : (Sprites.ruido(Math.floor(sx), Math.floor(sy)) % 7 === 0 ? .92 : 1);
+    return p.map(v => Math.min(255, v * luz));
   },
   color(e, sx, sy) {
     const o = CFG.ORIGEN, hw = CFG.TW / 2, hh = CFG.TH / 2, zt = e.z + e.h, yf = e.y + e.d, xp = e.x + e.w;
@@ -1443,23 +1461,34 @@ function dibujarLoseta(i, j, color, z = 0) { // z permite pintar sobre la superf
   ctx.closePath(); ctx.fill();
 }
 
-// Suelo de adoquín/laja: hileras de piezas rectangulares con juntas oscuras. Se pre-renderiza UNA vez para todo el mapa.
+// Suelo de laja: lajas planas de piedra caliza, irregulares (celdas de Voronoi en coordenadas de mundo),
+// con juntas de tierra roja. Se pre-renderiza UNA vez para todo el mapa.
 const Piso = {
-  img: null, SAT: .55,   // SAT: 1 = colores originales, 0 = gris
-  PAL: [[226, 206, 172], [208, 176, 132], [216, 160, 124], [176, 170, 158], [232, 214, 184], [196, 150, 108]],   // crema, arena, salmón, gris, hueso, terracota
+  img: null, ESC: 1.35,   // ESC: lajas por unidad de mundo (más = lajas más chicas)
+  PAL: [[214, 202, 178], [200, 186, 160], [222, 212, 190], [190, 176, 150], [206, 192, 166], [184, 172, 150]],
+  JUNTA: [128, 84, 58],   // tierra roja de Yucatán entre laja y laja
+  semilla(i, j) {          // punto al azar (fijo) dentro de la celda (i, j)
+    const r = Sprites.ruido(i + 777, j + 333);
+    return [i + .15 + (r % 70) / 100, j + .15 + ((r >> 8) % 70) / 100, r];
+  },
   crear() {
     const W = CFG.ANCHO, H = CFG.ALTO, d = new Uint8ClampedArray(W * H * 4);
     for (let py = 0; py < H; py++) for (let px = 0; px < W; px++) {
       const m = Iso.aMundo(px + .5, py + .5, 0);                       // píxel -> mundo (plano del suelo)
       if (m.x < 0 || m.y < 0 || m.x >= CFG.MAPA || m.y >= CFG.MAPA) continue;
-      const fila = Math.floor(m.y * 3), fv = m.y * 3 - fila;           // 3 hileras por celda
-      const t = m.x / .55 + (Sprites.ruido(fila, 7) % 100) / 100, k = Math.floor(t), fu = t - k;   // cada hilera desfasada (aparejo trabado)
+      const u = m.x * this.ESC, v = m.y * this.ESC, ci = Math.floor(u), cj = Math.floor(v);
+      let d1 = 9, d2 = 9, rr = 0;
+      for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) {
+        const [sx, sy, r] = this.semilla(ci + a, cj + b), dd = Math.hypot(u - sx, v - sy);
+        if (dd < d1) { d2 = d1; d1 = dd; rr = r; } else if (dd < d2) d2 = dd;
+      }
       let c;
-      if (fv < .2 || fu < .08) c = [104, 88, 76];                       // junta
+      if (d2 - d1 < .07) c = this.JUNTA;                                 // junta de tierra
       else {
-        const r = Sprites.ruido(k + 1000, fila + 1000), f = (.9 + (r >> 3) % 5 * .04) * (Sprites.ruido(px, py) % 7 === 0 ? .88 : 1) * .84;   // tono por pieza + motas; .84 = más oscuro para que resalten los objetos
-        const p = this.PAL[r % 6], g = .3 * p[0] + .59 * p[1] + .11 * p[2];   // g = luminosidad; SAT (0..1) mezcla cada color con su gris
-        c = p.map(v => Math.round((g + (v - g) * this.SAT) * f));
+        const p = this.PAL[rr % this.PAL.length];
+        let f = .82 * (Sprites.ruido(px, py) % 9 === 0 ? .9 : 1);       // motas de la piedra
+        if (d2 - d1 < .14) f *= .9;                                      // orilla de la laja, un poco más oscura
+        c = p.map(v => Math.round(v * f));
       }
       d.set([c[0], c[1], c[2], 255], (py * W + px) * 4);
     }
@@ -1469,11 +1498,114 @@ const Piso = {
   }
 };
 
+// Escenario alrededor del altar: cielo de noche con luna y palmas de huano detrás de las albarradas,
+// tierra roja, un pozo de piedra (ch'e'en) y el fogón de tres piedras (k'óoben) con el comal y las tortillas.
+// Todo queda FUERA de la rejilla del juego: no ocupa celdas ni estorba al colocar objetos.
+const Escenario = {
+  fondo: null, frente: null,
+  lienzo() { const c = document.createElement('canvas'); c.width = CFG.ANCHO; c.height = CFG.ALTO; return c; },
+  crear() {
+    const W = CFG.ANCHO, H = CFG.ALTO;
+    // ---- fondo: cielo y tierra ----
+    const f = this.lienzo(), fc = f.getContext('2d'), img = fc.createImageData(W, H), d = img.data;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const m = Iso.aMundo(x + .5, y + .5, 0), k = (y * W + x) * 4;
+      let c;
+      if (m.x >= 0 && m.y >= 0) {                                        // delante de las albarradas: tierra
+        const r = Sprites.ruido(x, y);
+        c = r % 23 === 0 ? [124, 104, 86] : r % 5 === 0 ? [86, 54, 38] : [98, 62, 44];
+        if (r % 61 === 0) c = [70, 104, 58];                             // hierbita
+      } else {                                                           // detrás: cielo de noche
+        const t = y / 110;
+        c = [18 + 24 * t, 14 + 14 * t, 40 + 26 * t].map(Math.round);
+        if (Sprites.ruido(x + 9, y + 3) % 211 === 0) c = [236, 228, 204];   // estrellas
+      }
+      d.set([c[0], c[1], c[2], 255], k);
+    }
+    fc.putImageData(img, 0, 0);
+    const P = (ctx, x, y, col) => { ctx.fillStyle = col; ctx.fillRect(Math.round(x), Math.round(y), 1, 1); };
+    // luna
+    for (let y = -8; y <= 8; y++) for (let x = -8; x <= 8; x++) if (x * x + y * y <= 64) {
+      P(fc, 26 + x, 18 + y, (x + 3) * (x + 3) + (y - 2) * (y - 2) < 6 || (x - 3) * (x - 3) + (y + 3) * (y + 3) < 3 ? '#dcd2b4' : '#f4ecd0');
+    }
+    // palmas de huano detrás de las paredes (el tronco queda escondido por la albarrada)
+    const palma = (bx, by, alto, largo, sem) => {
+      for (let y = 0; y < alto; y++) { P(fc, bx + Math.round(Math.sin(y / 9) * 1.5), by - y, '#4a3322'); P(fc, bx + 1 + Math.round(Math.sin(y / 9) * 1.5), by - y, '#5e4229'); }
+      const cx = bx + Math.round(Math.sin(alto / 9) * 1.5), cy = by - alto, verdes = ['#2f6b34', '#3f8740', '#28592c', '#4c9a48'];
+      for (let h = 0; h < 11; h++) {
+        const a = Math.PI * (1.05 + h * .09), L = largo * (.75 + (Sprites.ruido(h, sem) % 30) / 100);
+        for (let t = 0; t <= 1; t += .02) {
+          const x = cx + Math.cos(a) * L * t * 1.3, y = cy + Math.sin(a) * L * t + L * .9 * t * t;
+          P(fc, x, y, verdes[h % 4]); P(fc, x, y + 1, verdes[(h + 1) % 4]);
+          if (t > .2 && Math.round(t * 50) % 3 === 0) { P(fc, x, y + 2, verdes[(h + 2) % 4]); P(fc, x, y + 3, verdes[(h + 3) % 4]); }   // hojuelas
+        }
+      }
+      P(fc, cx, cy, '#6e4a2a');
+    };
+    palma(58, 92, 46, 22, 1); palma(108, 64, 44, 20, 2); palma(250, 64, 46, 22, 3); palma(300, 92, 40, 20, 4); palma(176, 34, 22, 15, 5);
+    this.fondo = f;
+
+    // ---- frente: pozo y fogón, por delante del piso ----
+    const fr = this.lienzo(), g = fr.getContext('2d');
+    const elipse = (cx, cy, rx, ry, col) => { for (let y = -ry; y <= ry; y++) for (let x = -rx; x <= rx; x++) if ((x * x) / (rx * rx) + (y * y) / (ry * ry) <= 1) P(g, cx + x, cy + y, col); };
+    const piedra = (x, y, a, b) => {   // color de piedra caliza por bloques
+      const fila = Math.floor(y / 4), col = Math.floor((x + fila * 3) / 6), r = Sprites.ruido(col + 40, fila + 90);
+      if (y % 4 === 0 || (x + fila * 3) % 6 === 0) return '#3a2f2a';
+      return ['#cfc6b2', '#bdb39c', '#d9d0bc', '#b0a68e'][r % 4];
+    };
+    // Pozo de piedra (ch'e'en) con su marco de madera, la cuerda y la cubeta
+    { const cx = 40, top = 178, rx = 17, ry = 6, alto = 18;
+      elipse(cx, top + alto + 4, 23, 8, 'rgba(40,24,18,.55)');                         // sombra en la tierra
+      for (let x = -rx; x <= rx; x++) {
+        const yb = Math.round(ry * Math.sqrt(1 - (x * x) / (rx * rx)));
+        for (let y = top; y <= top + alto + yb; y++) {
+          const base = piedra(cx + x, y), sombra = x < -rx * .5 ? .8 : x > rx * .5 ? .9 : 1;
+          g.fillStyle = base; g.globalAlpha = 1; g.fillRect(cx + x, y, 1, 1);
+          if (sombra < 1) { g.fillStyle = 'rgba(0,0,0,' + (1 - sombra) + ')'; g.fillRect(cx + x, y, 1, 1); }
+        }
+      }
+      elipse(cx, top, rx, ry, '#ddd5c2'); elipse(cx, top, rx - 4, ry - 2, '#1b2a33');   // brocal y agua
+      P(g, cx - 3, top - 1, '#6f93a6'); P(g, cx + 2, top, '#6f93a6');
+      for (const px of [cx - rx - 2, cx + rx + 1]) for (let y = top - 28; y < top + 4; y++) { P(g, px, y, '#5e3d22'); P(g, px + 1, y, '#7a5230'); }
+      for (let x = cx - rx - 3; x <= cx + rx + 3; x++) { P(g, x, top - 29, '#5e3d22'); P(g, x, top - 28, '#7a5230'); }
+      for (let y = top - 27; y < top - 10; y++) P(g, cx, y, '#c9b48a');                       // soga
+      for (let y = top - 10; y < top - 5; y++) for (let x = cx - 3; x <= cx + 3; x++) P(g, x, y, x === cx - 3 ? '#4f6b74' : '#7d9aa3');   // cubeta
+      for (let x = cx - 3; x <= cx + 3; x++) P(g, x, top - 11, '#3b4f56');
+    }
+    // Fogón de tres piedras (k'óoben) con el comal, las tortillas y el lek
+    { const cx = 296, cy = 188;
+      elipse(cx, cy + 6, 27, 9, 'rgba(70,62,58,.9)');                                    // ceniza
+      for (let k = 0; k < 26; k++) { const r = Sprites.ruido(k, 7); P(g, cx - 10 + r % 20, cy + 2 + (r >> 5) % 7, ['#ff7a1a', '#ffb02e', '#d9361a'][k % 3]); }   // brasas
+      for (let y = -12; y <= 12; y++) for (let x = -26; x <= 26; x++) {                    // resplandor del fuego
+        const q = (x * x) / 676 + (y * y) / 144; if (q < 1) { g.fillStyle = 'rgba(255,170,60,' + (.22 * (1 - q)).toFixed(3) + ')'; g.fillRect(cx + x, cy + y - 2, 1, 1); }
+      }
+      for (const [sx, sy] of [[cx - 15, cy + 1], [cx + 15, cy + 1], [cx, cy + 8]]) {       // las tres piedras
+        elipse(sx, sy, 5, 4, '#9c9384'); elipse(sx - 1, sy - 1, 3, 2, '#c4bba9');
+      }
+      elipse(cx, cy - 4, 18, 6, '#3a3330'); elipse(cx, cy - 5, 17, 5, '#27211f');           // comal
+      for (const [tx, ty] of [[cx - 7, cy - 6], [cx + 6, cy - 5]]) {                          // tortillas
+        elipse(tx, ty, 6, 2, '#e8cf92'); P(g, tx - 2, ty, '#b88a4a'); P(g, tx + 3, ty - 1, '#b88a4a');
+      }
+      for (let k = 0; k < 14; k++) P(g, cx - 2 + Math.round(Math.sin(k) * 2), cy - 12 - k * 2, 'rgba(220,220,230,' + (.35 - k * .02) + ')');   // humo
+      // lek con tortillas, a un lado
+      elipse(cx + 34, cy + 9, 9, 7, '#c48d3e'); elipse(cx + 32, cy + 7, 4, 3, '#dba95a');
+      for (let x = cx + 26; x <= cx + 42; x++) P(g, x, cy + 6, '#8a5a24');
+      elipse(cx + 34, cy + 2, 6, 2, '#e8cf92');
+      // olla de barro del otro lado
+      elipse(cx - 34, cy + 8, 8, 8, '#a8582e'); elipse(cx - 36, cy + 5, 3, 3, '#c8784a'); elipse(cx - 34, cy, 5, 2, '#5e2e18');
+    }
+    this.frente = fr;
+  }
+};
+
 function renderizar() {
-  ctx.fillStyle = '#241a2e'; ctx.fillRect(0, 0, CFG.ANCHO, CFG.ALTO); // fondo
-  // Suelo de adoquín (siempre al fondo, no entra en el depth sorting)
+  // Cielo, tierra y palmas (fuera de la rejilla)
+  if (!Escenario.fondo) Escenario.crear();
+  ctx.drawImage(Escenario.fondo, 0, 0);
+  // Suelo de laja (siempre al fondo, no entra en el depth sorting)
   if (!Piso.img) Piso.crear();
   ctx.drawImage(Piso.img, 0, 0);
+  ctx.drawImage(Escenario.frente, 0, 0);   // pozo y fogón, por delante del piso
   // Resalta la loseta bajo el cursor (resultado del mouse picking inverso)
   if (Escena.hover) dibujarLoseta(Escena.hover.i, Escena.hover.j, '#f2a93b66');
   // Entidades ordenadas del fondo al frente
