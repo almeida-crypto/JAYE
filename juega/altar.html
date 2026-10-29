@@ -678,17 +678,21 @@ const Album = {
 // del objeto para no tocar el resto del juego.)
 const Mantel = {
   HOJA: true,                 // false = vuelve al mantel blanco bordado
-  VERDES: [[46, 112, 52], [60, 132, 60], [38, 98, 46]],
-  NERVIO: [178, 214, 132], VENA: [92, 156, 78], RASGO: [24, 66, 32],
-  ANCHO_HOJA: 14,             // px de textura por tira de hoja
-  // Color de hoja en (u, v): u = a lo ancho de las tiras, v = a lo largo (px de textura)
+  // Verdes apagados (hoja de plátano real, de noche), poco contraste para que no parezcan rayas
+  VERDES: [[56, 98, 52], [64, 108, 58], [50, 90, 48], [70, 112, 60]],
+  NERVIO: [128, 150, 98], VENA: [60, 104, 56], ORILLA: [36, 66, 36], SECO: [122, 108, 64],
+  ANCHO_HOJA: 24,             // px de textura por hoja (hojas anchas, no tiras)
+  // Color de hoja en (u, v): u = a lo ancho de las hojas, v = a lo largo (px de textura)
   hoja(u, v) {
-    const tira = Math.floor(u / this.ANCHO_HOJA), du = u - tira * this.ANCHO_HOJA, c = this.ANCHO_HOJA / 2;
-    if (Math.abs(du - c) < .9) return this.NERVIO;                         // nervadura central
-    if (du < .8) return this.RASGO;                                         // orilla donde se enciman
-    if (((Math.floor(v) + Math.floor(Math.abs(du - c))) % 4) === 0) return this.VENA;   // venas paralelas
-    if (Sprites.ruido(tira, Math.floor(v / 3)) % 23 === 0 && Math.abs(du - c) > 2) return this.RASGO;   // rasgaduras
-    return this.VERDES[((tira % 3) + 3) % 3];
+    const w = this.ANCHO_HOJA, tira = Math.floor(u / w), du = u - tira * w;
+    const r = Sprites.ruido(tira + 91, 7), c = w / 2 + (r % 5) - 2;      // el nervio no va exacto al centro
+    const dist = Math.abs(du - c);
+    if (du < 1) return this.ORILLA;                                         // donde una hoja se encima en otra
+    if (dist < .6) return this.NERVIO;                                      // nervadura central, delgada
+    if (Math.floor(v * .8 + dist * .6) % 5 === 0) return this.VENA;        // venas finas que salen del nervio
+    if (dist > w / 2 - 2.5 && Sprites.ruido(tira, Math.floor(v / 4)) % 9 === 0) return this.SECO;   // orilla seca o rasgada
+    const brillo = 1.06 - dist / (w / 2) * .16;                             // más clara junto al nervio
+    return this.VERDES[r % 4].map(x => x * brillo);
   },
   K: 16,                      // píxeles de textura por unidad de mundo
   ANCHO: 5,                   // ancho de la franja bordada (px)
@@ -1262,6 +1266,40 @@ const Pared = {
   OSCURO: .62,   // luminosidad global (las paredes no deben robar atención a los objetos)
   PAL: [[214, 206, 188], [196, 188, 168], [226, 218, 198], [182, 172, 152], [204, 194, 172], [170, 162, 146]],
   MUSGO: [96, 122, 74], HUECO: [44, 36, 32],
+  // Adornos colgados (pixel art). u0 = posición a lo largo de la pared, z1 = altura de su borde de arriba.
+  COLORES: { M: [90, 58, 30], m: [70, 46, 22], G: [201, 160, 74], c: [203, 184, 154], h: [42, 28, 22], f: [176, 122, 82],
+             w: [239, 230, 214], r: [200, 16, 46], S: [230, 220, 192], s: [184, 174, 148], K: [30, 26, 24], y: [255, 199, 44],
+             o: [240, 138, 28], g: [46, 139, 61], C: [168, 88, 46], v: [122, 63, 160] },
+  ADORNOS: {
+    fondo: [   // pared del fondo: arriba del altar se ve la franja z 1.5–2.5
+      { u0: 1.0, z1: 2.44, esc: 1.2, mapa: ['MMMMMMMMMMMM', 'MGGGGGGGGGGM', 'MGcchhhhccGM', 'MGchhffhhcGM', 'MGchffffhcGM', 'MGchffffhcGM', 'MGcchffhccGM',
+                                  'MGccwwwwccGM', 'MGcwwwwwwcGM', 'MGwwrwwrwwGM', 'MGwwwwwwwwGM', 'MGGGGGGGGGGM', 'MMMMMMMMMMMM'] },   // retrato de la abuela
+      { u0: 2.9, z1: 2.44, esc: 1.2, mapa: ['MMMMMMMMMMMM', 'MGGGGGGGGGGM', 'MGccSSSSccGM', 'MGSSSSSSSSGM', 'MGcKKKKKKcGM', 'MGccffffccGM', 'MGccffffccGM',
+                                  'MGcccffcccGM', 'MGcwwwwwwcGM', 'MGwwwGGwwwGM', 'MGwwwwwwwwGM', 'MGGGGGGGGGGM', 'MMMMMMMMMMMM'] },   // retrato del abuelo
+      { u0: 6.0, z1: 2.36, esc: 1.5, mapa: ['.....KK.....', '....SSSS....', '...SSSSSS...', '...KKKKKK...', '.SSSSSSSSSS.', 'SSSSSSSSSSSS', '.ssssssssss.'] }   // sombrero de jipi en un clavo
+    ],
+    lado: [    // pared de la izquierda
+      { u0: 4.0, z1: 2.4, esc: 1.45, mapa: ['.MMMMMMMMMMMM.', '..wwww..wwww..', '.wwyry..yrywW.', '.wwryr..ryrwW.', '.wwyrygygyrwW.', '.wwwwwwwwwwwW.',
+                                  '.wwwwwwwwwwwW.', '.wwwwwwwwwwwW.', '.wwwwwwwwwwwW.', '.wwwwwwwwwwwW.', '.wwwwwwwwwwwW.', '.wwwwwwwwwwwW.',
+                                  '.wrgyrgyrgyrW.', '.wyrgyrgyrgyW.', '.wwwwwwwwwwwW.', '.w.w.w.w.w.wW.'] },                                   // hipil colgado
+      { u0: 6.4, z1: 1.95, esc: 1.45, mapa: ['..y.o.y.o...', '.oyoyoyoyo..', '..gygygyg...', '...ggggg....', '....CCC.....', '...CCCCC....', '...CCCCC....',
+                                  '....CCC.....', 'MMMMMMMMMMMM', '.m........m.'] },                                                         // repisa con xpujuk en un cántaro
+      { u0: 8.3, z1: 2.3, esc: 1.5, mapa: ['..G.G.G.G...', '.G.......G..', 'G.........G.', '.G.......G..', '..G.G.G.G...', '.....G......', '....GGG.....', '.....G......', '.....G......'] }   // rosario
+    ]
+  },
+  // Color del adorno en la posición (u, z) de la pared, o null
+  adorno(cual, u, z) {
+    for (const a of this.ADORNOS[cual]) {
+      const esc = a.esc || 1.35;                                            // cada punto del dibujo mide esc píxeles
+      const px = Math.floor((u - a.u0) * 16 / esc), py = Math.floor((a.z1 - z) * 16 / esc);
+      if (py < 0 || py >= a.mapa.length || px < 0 || px >= a.mapa[0].length) continue;
+      const ch = a.mapa[py][px];
+      if (ch === '.') return null;
+      const c = this.COLORES[ch] || (ch === 'W' ? [214, 206, 190] : null);
+      if (c) return c;
+    }
+    return null;
+  },
   // Color de la piedra en el píxel de pantalla (sx, sy): hiladas de ~6 px, piedras de 7 a 12 px de ancho
   _filas: null,
   // Hiladas de alto variable (4 a 7 px): tabla de inicio de cada hilada
@@ -1292,11 +1330,15 @@ const Pared = {
     if (m.x >= e.x && m.x < xp && m.y >= e.y && m.y < yf) f = 1;          // cara superior
     else {
       const xa = (sx - o.x) / hw + yf, za = ((xa + yf) * hh + o.y - sy) / CFG.UZ;
-      if (xa >= e.x && xa < xp && za >= e.z && za < zt) f = .88;          // cara frontal-izquierda
+      if (xa >= e.x && xa < xp && za >= e.z && za < zt) {                  // cara frontal-izquierda
+        f = .88;
+        if (e.w > e.d) { const a = this.adorno('fondo', xa, za); if (a) return a.map(v => Math.round(v * .95)); }
+      }
       else {
         const yb = xp - (sx - o.x) / hw, zb = ((xp + yb) * hh + o.y - sy) / CFG.UZ;
         if (!(yb >= e.y && yb < yf && zb >= e.z && zb < zt)) return null; // fuera del prisma
         f = .72;                                                           // cara derecha (la más oscura)
+        if (e.d > e.w) { const a = this.adorno('lado', yb, zb); if (a) return a.map(v => Math.round(v * .86)); }
       }
     }
     return this.hebra(sx, sy).map(v => Math.round(v * f * this.OSCURO));
@@ -1501,6 +1543,54 @@ const Piso = {
 // Escenario alrededor del altar: cielo de noche con luna y palmas de huano detrás de las albarradas,
 // tierra roja, un pozo de piedra (ch'e'en) y el fogón de tres piedras (k'óoben) con el comal y las tortillas.
 // Todo queda FUERA de la rejilla del juego: no ocupa celdas ni estorba al colocar objetos.
+// El alux del pozo: si tocas el pozo (con la mano vacía), se asoma un alux, te saluda en maya y se vuelve a meter.
+// Los aluxes son, en las creencias de Yucatán, pequeños guardianes de la milpa y del solar.
+const Alux = {
+  t0: -1, msg: 0, X: 40, BORDE: 178,          // centro del pozo y altura del brocal (coordenadas del lienzo)
+  MSGS: {
+    es: [['¡Bix a beel!', '(¿cómo estás?)'], ['Soy un alux,', 'cuido el solar.'], ['¿Ya está el pib?', 'Huele rico...'], ['Shhh...', 'no le digas a nadie.']],
+    en: [['Bix a beel!', '(how are you?)'], ["I'm an alux,", 'I guard the yard.'], ['Is the pib ready?', 'It smells great...'], ['Shhh...', "don't tell anyone."]]
+  },
+  SPRITE: ['...SSS...', '.SSSSSSS.', '...fff...', '..fKfKf..', '..fffff..', '...fff...', '..wwwww..', '.fwwwwwf.', '.fwwrwwf.', '..wwwww..', '..ww.ww..', '..ff.ff..'],
+  COL: { S: '#e6dcc0', f: '#9a6a44', K: '#1e1a18', w: '#efe6d6', r: '#c8102e' },
+  toca(sx, sy) {
+    if (Mano.item || !Juego.interactivo()) return false;
+    if (sx < this.X - 24 || sx > this.X + 24 || sy < this.BORDE - 34 || sy > this.BORDE + 28) return false;
+    if (this.t0 < 0) { this.t0 = performance.now(); this.msg = (this.msg + 1) % 4; }
+    return true;
+  },
+  dibujar(ctx) {
+    const ahora = performance.now();
+    if (this.t0 < 0) {                                       // destello de vez en cuando para invitar a tocar el pozo
+      if (Juego.interactivo() && (ahora % 7000) < 500) {
+        const k = Math.floor(ahora / 120) % 3, y = this.BORDE - 8 - k;
+        ctx.fillStyle = '#fff4c4'; ctx.fillRect(this.X + 6, y, 1, 1); ctx.fillRect(this.X + 5, y + 1, 3, 1); ctx.fillRect(this.X + 6, y + 2, 1, 1);
+      }
+      return;
+    }
+    const t = (ahora - this.t0) / 1000, dur = 3.4;
+    if (t > dur) { this.t0 = -1; return; }
+    const sube = Math.min(1, t / .35, (dur - t) / .35);      // 0 = adentro del pozo, 1 = afuera
+    const E = 2, alto = this.SPRITE.length * E, y0 = Math.round(this.BORDE - alto * sube) - 1, x0 = this.X - 9;   // E = tamaño de cada punto
+    this.SPRITE.forEach((fila, j) => {
+      for (let i = 0; i < fila.length; i++) {
+        const c = this.COL[fila[i]]; if (!c) continue;
+        for (let dy = 0; dy < E; dy++) { const y = y0 + j * E + dy; if (y < this.BORDE - 1) { ctx.fillStyle = c; ctx.fillRect(x0 + i * E, y, E, 1); } }   // lo de abajo sigue dentro del pozo
+      }
+    });
+    if (sube >= 1 && t > .4 && t < dur - .4) {              // globo con el saludo
+      const [l1, l2] = this.MSGS[LANG][this.msg];
+      ctx.font = 'bold 8px monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      const w = Math.ceil(Math.max(ctx.measureText(l1).width, ctx.measureText(l2).width)) + 8, h = 22;
+      const bx = Math.min(CFG.ANCHO - w - 2, this.X + 4), by = Math.max(2, y0 - h - 4);
+      ctx.fillStyle = '#2a1f37'; ctx.fillRect(bx - 1, by - 1, w + 2, h + 2);
+      ctx.fillStyle = '#fbf6ea'; ctx.fillRect(bx, by, w, h);
+      ctx.fillRect(this.X + 9, by + h, 3, 3);                // piquito del globo
+      ctx.fillStyle = '#2a1f37'; ctx.fillText(l1, bx + 4, by + 2); ctx.fillStyle = '#7a3fa0'; ctx.fillText(l2, bx + 4, by + 12);
+    }
+  }
+};
+
 const Escenario = {
   fondo: null, frente: null,
   lienzo() { const c = document.createElement('canvas'); c.width = CFG.ANCHO; c.height = CFG.ALTO; return c; },
@@ -1528,21 +1618,33 @@ const Escenario = {
     for (let y = -8; y <= 8; y++) for (let x = -8; x <= 8; x++) if (x * x + y * y <= 64) {
       P(fc, 26 + x, 18 + y, (x + 3) * (x + 3) + (y - 2) * (y - 2) < 6 || (x - 3) * (x - 3) + (y + 3) * (y + 3) < 3 ? '#dcd2b4' : '#f4ecd0');
     }
-    // palmas de huano detrás de las paredes (el tronco queda escondido por la albarrada)
-    const palma = (bx, by, alto, largo, sem) => {
-      for (let y = 0; y < alto; y++) { P(fc, bx + Math.round(Math.sin(y / 9) * 1.5), by - y, '#4a3322'); P(fc, bx + 1 + Math.round(Math.sin(y / 9) * 1.5), by - y, '#5e4229'); }
-      const cx = bx + Math.round(Math.sin(alto / 9) * 1.5), cy = by - alto, verdes = ['#2f6b34', '#3f8740', '#28592c', '#4c9a48'];
-      for (let h = 0; h < 11; h++) {
-        const a = Math.PI * (1.05 + h * .09), L = largo * (.75 + (Sprites.ruido(h, sem) % 30) / 100);
-        for (let t = 0; t <= 1; t += .02) {
-          const x = cx + Math.cos(a) * L * t * 1.3, y = cy + Math.sin(a) * L * t + L * .9 * t * t;
-          P(fc, x, y, verdes[h % 4]); P(fc, x, y + 1, verdes[(h + 1) % 4]);
-          if (t > .2 && Math.round(t * 50) % 3 === 0) { P(fc, x, y + 2, verdes[(h + 2) % 4]); P(fc, x, y + 3, verdes[(h + 3) % 4]); }   // hojuelas
-        }
+    // Palmas de huano (Sabal, hoja en abanico) detrás de las albarradas.
+    // El tronco arranca justo detrás del borde de la pared, así que nunca parece que la atraviesan.
+    const bordeMuro = x => 8 + Math.abs(CFG.ANCHO / 2 - x) / 2;            // altura del borde superior de la pared
+    const palma = (bx, alto, sem, inclina) => {
+      const by = bordeMuro(bx) + 2;
+      let cx = bx, cy = by;
+      for (let y = 0; y < alto; y++) {                                      // tronco con las «botas» cruzadas
+        cx = bx + Math.round(inclina * y * y / (alto * alto) * 4);
+        cy = by - y;
+        P(fc, cx, cy, (y % 3 === 0) ? '#3a2b1e' : '#55402c'); P(fc, cx + 1, cy, (y % 3 === 1) ? '#3a2b1e' : '#6a5038');
       }
-      P(fc, cx, cy, '#6e4a2a');
+      const verdes = ['#2b5131', '#36623a', '#24442a', '#41703f', '#4d7c45'];
+      const hojas = [-2.6, -2.15, -1.75, -1.35, -.95, -.55, -3.0, -.15];  // direcciones de las pencas
+      hojas.forEach((a, h) => {
+        const pec = 5 + Sprites.ruido(h, sem) % 4;                          // peciolo
+        const bxp = cx + Math.cos(a) * pec, byp = cy + Math.sin(a) * pec;
+        for (let t = 0; t <= pec; t++) P(fc, cx + Math.cos(a) * t, cy + Math.sin(a) * t, '#4a5a2c');
+        for (let sgm = -6; sgm <= 6; sgm++) {                               // el abanico: hojuelas en rayo
+          const aa = a + sgm * .085, L = 9 + Sprites.ruido(h * 13 + sgm, sem) % 5;
+          for (let t = 0; t <= L; t++) {
+            const caida = (t * t) / (L * L) * 3;                           // las puntas se doblan hacia abajo
+            P(fc, bxp + Math.cos(aa) * t, byp + Math.sin(aa) * t + caida, verdes[(h + Math.abs(sgm) + (t > L - 3 ? 1 : 0)) % verdes.length]);
+          }
+        }
+      });
     };
-    palma(58, 92, 46, 22, 1); palma(108, 64, 44, 20, 2); palma(250, 64, 46, 22, 3); palma(300, 92, 40, 20, 4); palma(176, 34, 22, 15, 5);
+    palma(48, 30, 1, -1); palma(104, 38, 2, 1); palma(246, 40, 3, -1); palma(306, 30, 4, 1);
     this.fondo = f;
 
     // ---- frente: pozo y fogón, por delante del piso ----
@@ -1612,6 +1714,7 @@ function renderizar() {
   for (const e of ordenarProfundidad(Escena.entidades)) e.dibujar(ctx);
   Mano.dibujarPreview(); // celdas que ocuparía el objeto sostenido (verde/rojo)
   Mano.dibujarEtiqueta(ctx); // nombre del objeto sostenido
+  Alux.dibujar(ctx);         // el alux del pozo (si alguien lo despertó)
   Juego.dibujar(ctx);    // captura de foto + capas: pantalla de inicio, flash y polaroid
 }
 
@@ -1627,6 +1730,7 @@ canvas.addEventListener('pointerdown', ev => {
   const { sx, sy } = posCanvas(ev);
   Mano.cursor = { sx, sy };
   if (Juego.estado === 'inicio') { Juego.clicInicio(sx, sy); return; } // pantalla de título
+  if (Alux.toca(sx, sy)) return;                                       // tocar el pozo despierta al alux
   if (!Juego.interactivo()) return;                                    // congelado en comprobación y foto
   // Con un objeto en la mano: el clic intenta colocarlo (y NO se puede sacar otro hasta lograrlo)
   if (Mano.item) { Mano.mover(sx, sy); if (ev.pointerType !== 'touch') Mano.colocar(); return; }   // táctil: el toque solo mueve la vista previa; se confirma con el botón

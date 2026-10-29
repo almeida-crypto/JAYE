@@ -12,7 +12,8 @@ Dos juegos estáticos (sin frameworks, sin servidor). El índice es `index.html`
 ### Arma el altar (`altar.html`)
 
 - Un solo archivo autocontenido: todo el JS va en línea y los sprites se dibujan por código (no hay imágenes externas). Funciona con doble clic, sin servidor.
-- Escenario: piso de **laja** (piedra caliza con juntas de tierra roja), paredes de **albarrada** (piedra seca), cielo de noche con palmas de huano y, fuera de la rejilla, un **pozo de piedra** y el **fogón de tres piedras** con el comal y las tortillas (`Escenario` y `Piso` en el código). Nada de eso ocupa celdas: no cambia dónde se pueden poner los objetos.
+- Escenario: piso de **laja** (piedra caliza con juntas de tierra roja), paredes de **albarrada** (piedra seca) con adornos colgados (retratos de los abuelos, sombrero de jipi, hipil, repisa con xpujuk y rosario; `Pared.ADORNOS`), cielo de noche con palmas de huano detrás de la pared y, fuera de la rejilla, un **pozo de piedra** y el **fogón de tres piedras** con el comal y las tortillas (`Escenario` y `Piso`). Nada de eso ocupa celdas: no cambia dónde se pueden poner los objetos.
+- Sorpresa: si se toca el pozo con la mano vacía, se asoma un **alux** y saluda en maya (`Alux`).
 - Los tres escalones van cubiertos con **hojas de plátano** (textura `Mantel` con `HOJA: true`; con `false` vuelve el mantel blanco bordado).
 - En el celular: parado, el tablero ocupa todo el ancho y aparece el consejo de girarlo; acostado, el tablero usa todo el alto y los botones pasan a una columna a la derecha.
 - Rejilla isométrica 10×10 con altura; los objetos se ajustan a celdas, se giran 90° (rueda, tecla `R` o botón) y solo se sueltan donde hay lugar libre.
